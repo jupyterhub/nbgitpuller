@@ -2,6 +2,7 @@ import os
 import click
 from .pull_from_remote import pull_from_remote
 
+
 @click.command()
 @click.option('--repo-name', prompt='Repo name', default='data8assets', help='Name of the repo to sync')
 @click.option('--branch-name', prompt='Branch name', default='gh-pages', help='Branch of repo to sync')

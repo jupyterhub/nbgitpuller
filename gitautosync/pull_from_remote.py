@@ -7,6 +7,17 @@ import errno
 from . import util
 
 
+def _generate_repo_url(scheme, domain, account, repo_name, auth_token=''):
+    netloc = None
+    if not auth_token:
+        netloc = domain
+    else:
+        netloc = auth_token + '@' + domain
+    if account:
+        account += '/'
+    return "%s://%s/%s%s" % (scheme, netloc, account, repo_name)
+
+
 DEFAULT_CONFIG_CONTENTS = '\
 {\n\
     "COPY_PATH": "",\n\
@@ -17,6 +28,7 @@ DEFAULT_CONFIG_CONTENTS = '\
     "MOCK_AUTH": true,\n\
     "AUTO_PULL_LIST_FILE_NAME": ".autopull_list"\n\
 }'
+
 
 def pull_from_remote(username, repo_name, branch_name, paths, config_file_name, sync_path, account, domain):
     """
@@ -219,7 +231,7 @@ def _reset_deleted_files(repo, branch_name):
             try:
                 _raise_error_if_git_file_not_exists(repo, branch_name, filename)
                 cleaned_filenames.append(_clean_path(filename))
-            except git.exc.GitCommandError as git_err:
+            except git.exc.GitCommandError:
                 pass
 
         git_cli.checkout('--', *cleaned_filenames)
@@ -245,10 +257,10 @@ def _raise_error_if_git_file_not_exists(repo, branch_name, filename):
     # fetch origin first so that cat-file can see if the file exists
     try:
         git_cli.fetch()
-    except git.exc.GitCommandError as git_err:
+    except git.exc.GitCommandError:
         pass
 
-    result = git_cli.cat_file('-e', 'origin/' + branch_name + ':' + filename)
+    git_cli.cat_file('-e', 'origin/' + branch_name + ':' + filename)
 
 
 def _add_sparse_checkout_paths(repo_dir, paths):
@@ -299,8 +311,7 @@ def _make_commit_if_dirty(repo, repo_dir):
         added_files = ADDED_FILE_REGEX.findall(git_cli.status())
 
         if added_files:
-            sparse_checkout_path = os.path.join(repo_dir,
-                                        '.git', 'info', 'sparse-checkout')
+            sparse_checkout_path = os.path.join(repo_dir, '.git', 'info', 'sparse-checkout')
 
             try:
                 open(sparse_checkout_path, 'r')
