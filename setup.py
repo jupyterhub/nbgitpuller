@@ -3,7 +3,7 @@ Synchronizes a github repository with a local repository. Automatically deals wi
 """
 from setuptools import find_packages, setup
 
-dependencies = ['click']
+dependencies = ['click', 'git']
 
 setup(
     name='gitautosync',

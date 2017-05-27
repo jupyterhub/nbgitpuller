@@ -27,3 +27,10 @@ def test_cli_with_arg(runner):
     assert result.exit_code == 0
     assert not result.exception
     assert result.output.strip() == 'Hello, Peter.'
+
+
+def test_cli_with_option_and_arg(runner):
+    result = runner.invoke(cli.main, ['--as-cowboy', 'Peter'])
+    assert result.exit_code == 0
+    assert not result.exception
+    assert result.output.strip() == 'Howdy, Peter.'
