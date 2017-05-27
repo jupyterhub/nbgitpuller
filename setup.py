@@ -3,12 +3,12 @@ Synchronizes a github repository with a local repository. Automatically deals wi
 """
 from setuptools import find_packages, setup
 
-dependencies = ['click', 'git']
+dependencies = ['click', 'gitpython']
 
 setup(
     name='gitautosync',
     version='0.0.1',
-    url='https://github.com/SaladRaider/gitautosync',
+    url='https://github.com/data-8/gitautosync',
     license='BSD',
     author='Peter Veerman',
     author_email='peterkangveerman@gmail.com',

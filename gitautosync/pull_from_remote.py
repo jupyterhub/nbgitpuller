@@ -1,28 +1,27 @@
 import os
 import re
-
+import json
+import click
 import git
+import errno
+from . import util
 
 
-def _generate_repo_url(scheme, domain, account, repo_name, auth_token=''):
-    netloc = None
-    if not auth_token:
-        netloc = domain
-    else:
-        netloc = auth_token + '@' + domain
-    if account:
-        account += '/'
-    return "%s://%s/%s%s" % (scheme, netloc, account, repo_name)
+DEFAULT_CONFIG_CONTENTS = '\
+{\n\
+    "COPY_PATH": "",\n\
+    "ALLOWED_WEB_DOMAINS": "github.com",\n\
+    "GITHUB_DOMAIN": "github.com",\n\
+    "ALLOWED_GITHUB_ACCOUNTS": "data-8",\n\
+    "GITHUB_API_TOKEN": "",\n\
+    "MOCK_AUTH": true,\n\
+    "AUTO_PULL_LIST_FILE_NAME": ".autopull_list"\n\
+}'
 
-def pull_from_remote(**kwargs):
+def pull_from_remote(username, repo_name, branch_name, paths, config_file_name, sync_path, account, domain):
     """
     Initializes git repo if needed, then pulls new content from remote repo using
     sparse checkout.
-
-    Redirects the user to the final path provided in the URL. Eg. given a path
-    like:
-
-        repo=data8assets&branch=gh_pages&path=labs/lab01&path=labs/lab01/lab01.ipynb
 
     Additional options include:
 
@@ -59,51 +58,36 @@ def pull_from_remote(**kwargs):
         config (Config): The config for this environment.
 
     Returns:
-        A message object from messages.py
+        A return string message
     """
 
-    # Parse Arguments
-    username = kwargs['username']
-    repo_name = kwargs['repo_name']
-    branch_name = kwargs['branch_name']
-    paths = kwargs['paths']
-    config = kwargs['config']
-    progress = kwargs['progress']
-    notebook_path = kwargs['notebook_path']
-    account = kwargs['account']
-    domain = kwargs['domain']
+    assert repo_name and branch_name and paths and config_file_name
 
-    assert username and repo_name and branch_name and paths and config
+    config = _initialize_config(config_file_name)
 
-    if not notebook_path:
-        notebook_path = config['COPY_PATH']
+    if not sync_path:
+        sync_path = config['COPY_PATH']
 
-    util.logger.info('Starting pull.')
-    util.logger.info('    User: {}'.format(username))
-    util.logger.info('    Domain: {}'.format(domain))
-    util.logger.info('    Account: {}'.format(account))
-    util.logger.info('    Repo: {}'.format(repo_name))
-    util.logger.info('    Branch: {}'.format(branch_name))
-    util.logger.info('    Paths: {}'.format(paths))
+    click.echo('Starting pull.')
+    click.echo('    User: {}'.format(username))
+    click.echo('    Domain: {}'.format(domain))
+    click.echo('    Account: {}'.format(account))
+    click.echo('    Repo: {}'.format(repo_name))
+    click.echo('    Branch: {}'.format(branch_name))
+    click.echo('    Paths: {}'.format(paths))
 
     # Retrieve file form the git repository
-    repo_dir = util.construct_path(notebook_path, locals(), repo_name)
+    repo_dir = util.construct_path(sync_path, locals(), repo_name)
     repo_url = ''
     # Generate repo url
     if domain not in config['ALLOWED_WEB_DOMAINS']:
-        util.logger.info("Allowed domains: " + str(config['ALLOWED_WEB_DOMAINS']))
-        util.logger.exception("Specified domain " + domain + " is not allowed.")
-        return messages.error({
-            'message': "Specified domain " + domain + " is not allowed.",
-            'proceed_url': config['ERROR_REDIRECT_URL']
-        })
+        click.echo("Allowed domains: " + str(config['ALLOWED_WEB_DOMAINS']))
+        click.echo("Specified domain " + domain + " is not allowed.", err=True)
+        return "Specified domain " + domain + " is not allowed."
     if domain == config['GITHUB_DOMAIN']:
         if account not in config['ALLOWED_GITHUB_ACCOUNTS']:
-            util.logger.exception("Specified github account " + account + " is not allowed.")
-            return messages.error({
-                'message': "Specified github account " + account + " is not allowed.",
-                'proceed_url': config['ERROR_REDIRECT_URL']
-            })
+            click.echo("Specified github account " + account + " is not allowed.", err=True)
+            return "Specified github account " + account + " is not allowed."
         repo_url += _generate_repo_url("https", domain,
                                        account, repo_name, config['GITHUB_API_TOKEN'])
     else:
@@ -118,8 +102,7 @@ def pull_from_remote(**kwargs):
                 repo_url,
                 repo_dir,
                 branch_name,
-                config,
-                progress=progress,
+                config
             )
 
         repo = git.Repo(repo_dir)
@@ -132,33 +115,20 @@ def pull_from_remote(**kwargs):
         _reset_deleted_files(repo, branch_name)
         _make_commit_if_dirty(repo, repo_dir)
 
-        _pull_and_resolve_conflicts(repo, branch_name, progress=progress)
+        _pull_and_resolve_conflicts(repo, branch_name, progress=None)
 
-        if not config['GIT_REDIRECT_PATH']:
-            return messages.status('Pulled from repo: ' + repo_name)
-
-        # Redirect to the final path given in the URL
-        destination = os.path.join(notebook_path, repo_name, paths[-1].replace('*', ''))
-        redirect_url = util.construct_path(config['GIT_REDIRECT_PATH'], {
-            'username': username,
-            'destination': destination,
-        })
-        util.logger.info('Redirecting to {}'.format(redirect_url))
-        return messages.redirect(redirect_url)
+        return 'Pulled from repo: ' + repo_name
 
     except git.exc.GitCommandError as git_err:
-        util.logger.exception(git_err.stderr)
-        return messages.error({
-            'message': git_err.stderr,
-            'proceed_url': config['ERROR_REDIRECT_URL']
-        })
+        click.echo(git_err.stderr, err=True)
+        return git_err.stderr
 
     finally:
         # Always set ownership to username in case of a git failure
         # In development, don't run the chown since the sample user doesn't
         # exist on the system.
         if config['MOCK_AUTH']:
-            util.logger.info("We're in development so we won't chown the dir.")
+            click.echo("We're in development so we won't chown the dir.")
         else:
             util.chown_dir(repo_dir, username)
 
@@ -168,7 +138,7 @@ def _initialize_repo(repo_url, repo_dir, branch_name, config, progress=None):
     Clones repository and configures it to use sparse checkout.
     Extraneous folders will get removed later using git read-tree
     """
-    util.logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_url))
+    click.echo('Repo {} doesn\'t exist. Cloning...'.format(repo_url))
     # Clone repo
     repo = git.Repo.clone_from(
         repo_url,
@@ -183,7 +153,22 @@ def _initialize_repo(repo_url, repo_dir, branch_name, config, progress=None):
     config.set_value('core', 'sparsecheckout', True)
     config.release()
 
-    util.logger.info('Repo {} initialized'.format(repo_url))
+    click.echo('Repo {} initialized'.format(repo_url))
+
+
+def _initialize_config(config_file_name):
+    if not os.path.isfile(config_file_name):
+        try:
+            os.makedirs(os.path.dirname(config_file_name))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+        with open(config_file_name, 'w') as config_file:
+            config_file.write(DEFAULT_CONFIG_CONTENTS)
+
+    with open(config_file_name) as config_file:
+        return json.load(config_file)
 
 
 DELETED_FILE_REGEX = re.compile(
@@ -208,7 +193,7 @@ def _update_auto_pull_file(config, repo_name, domain, account, branch_name):
     except FileNotFoundError:
         open(file_name, 'w')
 
-    util.logger.info(
+    click.echo(
         'Existing pulls in {}: {}'.format(file_name, existing_pulls))
 
     new_pull = "{},{},{},{}".format(repo_name, domain, account, branch_name)
@@ -238,7 +223,7 @@ def _reset_deleted_files(repo, branch_name):
                 pass
 
         git_cli.checkout('--', *cleaned_filenames)
-        util.logger.info('Resetted these files: {}'.format(deleted_files))
+        click.echo('Resetted these files: {}'.format(deleted_files))
 
 
 def _clean_path(path):
@@ -289,7 +274,7 @@ def _add_sparse_checkout_paths(repo_dir, paths):
         # If .git/info/sparse-checkout does not exist, create the file
         open(sparse_checkout_path, 'w')
 
-    util.logger.info(
+    click.echo(
         'Existing paths in sparse-checkout: {}'.format(existing_paths))
 
     paths_with_gitignore = ['.gitignore'] + paths
@@ -300,7 +285,7 @@ def _add_sparse_checkout_paths(repo_dir, paths):
         for path in to_write:
             info_file.write('/{}\n'.format(_clean_path(path)))
 
-    util.logger.info('{} written to sparse-checkout'.format(to_write))
+    click.echo('{} written to sparse-checkout'.format(to_write))
 
 
 def _make_commit_if_dirty(repo, repo_dir):
@@ -326,18 +311,18 @@ def _make_commit_if_dirty(repo, repo_dir):
                 for path in added_files:
                     info_file.write('/{}\n'.format(_clean_path(path)))
 
-            util.logger.info('Added these files: {}'.format(added_files))
+            click.echo('Added these files: {}'.format(added_files))
 
         git_cli.commit('-m', 'WIP')
 
-        util.logger.info('Made WIP commit')
+        click.echo('Made WIP commit')
 
 
 def _pull_and_resolve_conflicts(repo, branch, progress=None):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    util.logger.info('Starting pull from {}'.format(repo.remotes['origin']))
+    click.echo('Starting pull from {}'.format(repo.remotes['origin']))
 
     git_cli = repo.git
 
@@ -348,4 +333,4 @@ def _pull_and_resolve_conflicts(repo, branch, progress=None):
     # Ensure only files/folders in sparse-checkout are left
     git_cli.read_tree('-mu', 'HEAD')
 
-    util.logger.info('Pulled from {}'.format(repo.remotes['origin']))
+    click.echo('Pulled from {}'.format(repo.remotes['origin']))
