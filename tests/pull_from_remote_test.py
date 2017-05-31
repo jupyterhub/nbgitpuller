@@ -9,15 +9,6 @@ from gitautosync import pull_from_remote
 
 class TestPullFromRemote(unittest.TestCase):
 
-    config = {
-        "COPY_PATH": "",
-        "ALLOWED_WEB_DOMAINS": "github.com",
-        "GITHUB_DOMAIN": "github.com",
-        "ALLOWED_GITHUB_ACCOUNTS": "data-8",
-        "GITHUB_API_TOKEN": "",
-        "MOCK_AUTH": True,
-        "AUTO_PULL_LIST_FILE_NAME": ".autopull_list"
-    }
     init_path = './summer'
     repo_url = 'https://github.com/data-8/summer'
 
