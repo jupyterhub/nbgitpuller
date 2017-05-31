@@ -1,8 +1,6 @@
 import os
-import json
 import click
 import git
-import errno
 
 
 def pull_from_remote(repo_name, branch_name, sync_path, account, domain):

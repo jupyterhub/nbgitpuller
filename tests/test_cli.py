@@ -6,7 +6,6 @@ from gitautosync import cli
 ALREADY_PULLED_IN_TEXT = "Repo name [data8assets]: \n\
 Account name [data-8]: \n\
 Branch name [gh-pages]: \n\
-Config file name [/.gitautosync/config.json]: \n\
 Starting pull.\n\
     Domain: github.com\n\
     Repo: data8assets\n\
