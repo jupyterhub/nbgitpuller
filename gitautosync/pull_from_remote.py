@@ -1,10 +1,21 @@
 import os
-import re
 import json
 import click
 import git
 import errno
 from . import util
+
+
+DEFAULT_CONFIG_CONTENTS = '\
+{\n\
+    "COPY_PATH": "",\n\
+    "ALLOWED_WEB_DOMAINS": "github.com",\n\
+    "GITHUB_DOMAIN": "github.com",\n\
+    "ALLOWED_GITHUB_ACCOUNTS": "data-8",\n\
+    "GITHUB_API_TOKEN": "",\n\
+    "MOCK_AUTH": true,\n\
+    "AUTO_PULL_LIST_FILE_NAME": ".autopull_list"\n\
+ }'
 
 
 def pull_from_remote(repo_name, branch_name, config_file_name, sync_path, account, domain):
@@ -28,17 +39,16 @@ def pull_from_remote(repo_name, branch_name, config_file_name, sync_path, accoun
             repo_url,
             repo_dir,
             branch_name,
-            config
         )
 
     repo = git.Repo(repo_dir)
-    _make_commit_if_dirty(repo, repo_dir)
-    _pull_and_resolve_conflicts(repo, branch_name, progress=None)
+    _make_commit_if_dirty(repo)
+    _pull_and_resolve_conflicts(repo)
 
     return 'Pulled from repo: ' + repo_name
 
 
-def _initialize_repo(repo_url, repo_dir, branch_name, config, progress=None):
+def _initialize_repo(repo_url, repo_dir, branch_name):
     """
     Clones repository.
     """
@@ -48,11 +58,12 @@ def _initialize_repo(repo_url, repo_dir, branch_name, config, progress=None):
     repo = git.Repo.clone_from(
         repo_url,
         repo_dir,
-        progress,
         branch=branch_name,
     )
 
     click.echo('Repo {} initialized'.format(repo_url))
+
+    return repo
 
 
 def _initialize_config(config_file_name):
@@ -70,18 +81,21 @@ def _initialize_config(config_file_name):
         return json.load(config_file)
 
 
-def _make_commit_if_dirty(repo, repo_dir):
+def _make_commit_if_dirty(repo):
     """
     Makes a commit with message 'WIP' if there are changes.
     """
+    commit = None
     if repo.is_dirty():
         git_cli = repo.git
         git_cli.add('-A')
-        git_cli.commit('-m', 'WIP')
+        commit = git_cli.commit('-m', 'WIP')
         click.echo('Made WIP commit')
 
+    return commit
 
-def _pull_and_resolve_conflicts(repo, branch, progress=None):
+
+def _pull_and_resolve_conflicts(repo):
     """
     Git pulls, resolving conflicts with -Xours
     """
@@ -90,7 +104,8 @@ def _pull_and_resolve_conflicts(repo, branch, progress=None):
     git_cli = repo.git
 
     # Fetch then merge, resolving conflicts by keeping original content
-    repo.remote(name='origin').fetch(progress=progress)
-    git_cli.merge('-Xours', 'origin/' + branch)
+    repo.remote(name='origin').fetch()
+    merge = git_cli.merge('-Xours', 'origin/' + repo.active_branch.name)
 
     click.echo('Pulled from {}'.format(repo.remotes['origin']))
+    return merge

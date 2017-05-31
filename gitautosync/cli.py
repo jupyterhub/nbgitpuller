@@ -1,4 +1,3 @@
-import os
 import click
 from .pull_from_remote import pull_from_remote
 
