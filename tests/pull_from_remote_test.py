@@ -15,16 +15,10 @@ class TestPullFromRemote(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_read_config_file(self):
-        result = pull_from_remote._read_config_file('/.gitautosync/config.json')
-        self.assertIsNotNone(result)
-        self.assertTrue(result)
-        self.assertIsInstance(result, dict)
-
-    def test_initialize(self):
+    def test_get_repo(self):
         if os.path.exists(self.init_path):
             shutil.rmtree(self.init_path)
-        result = pull_from_remote._initialize_repo(
+        result = pull_from_remote._get_repo(
             self.repo_url,
             self.init_path,
             'gh-pages')
