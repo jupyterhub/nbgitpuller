@@ -3,7 +3,6 @@ import json
 import click
 import git
 import errno
-from . import util
 
 
 DEFAULT_CONFIG_CONTENTS = '\
@@ -31,15 +30,11 @@ def pull_from_remote(repo_name, branch_name, config_file_name, sync_path, accoun
     if not sync_path:
         sync_path = config['COPY_PATH']
 
-    repo_dir = util.construct_path(sync_path, locals(), repo_name)
+    repo_dir = os.path.join(sync_path, repo_name)
     repo_url = "https://%s/%s/%s" % (domain, account, repo_name)
 
     if not os.path.exists(repo_dir):
-        _initialize_repo(
-            repo_url,
-            repo_dir,
-            branch_name,
-        )
+        _initialize_repo(repo_url, repo_dir, branch_name)
 
     repo = git.Repo(repo_dir)
     _make_commit_if_dirty(repo)
@@ -70,12 +65,11 @@ def _initialize_config(config_file_name):
     if not os.path.isfile(config_file_name):
         try:
             os.makedirs(os.path.dirname(config_file_name))
+            with open(config_file_name, 'w') as config_file:
+                config_file.write(DEFAULT_CONFIG_CONTENTS)
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
-
-        with open(config_file_name, 'w') as config_file:
-            config_file.write(DEFAULT_CONFIG_CONTENTS)
 
     with open(config_file_name) as config_file:
         return json.load(config_file)
