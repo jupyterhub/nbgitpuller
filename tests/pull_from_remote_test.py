@@ -15,8 +15,8 @@ class TestPullFromRemote(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_initialize_config(self):
-        result = pull_from_remote._initialize_config('/.gitautosync/config.json')
+    def test_read_config_file(self):
+        result = pull_from_remote._read_config_file('/.gitautosync/config.json')
         self.assertIsNotNone(result)
         self.assertTrue(result)
         self.assertIsInstance(result, dict)

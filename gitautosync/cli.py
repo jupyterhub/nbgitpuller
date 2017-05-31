@@ -7,7 +7,6 @@ from .pull_from_remote import pull_from_remote
 @click.option('--account', prompt='Account name', default='data-8', help='Account of the repo to sync')
 @click.option('--branch-name', prompt='Branch name', default='gh-pages', help='Branch of repo to sync')
 @click.option('--config', prompt='Config file name', default='/.gitautosync/config.json', help='Config file name')
-@click.option('--sync-path', default='./', help='Path to sync to')
 @click.option('--domain', default='github.com', help='git domain')
 def main(repo_name, branch_name, config, sync_path, account, domain):
     """
