@@ -1,5 +1,4 @@
 import os
-import click
 import git
 
 
@@ -10,10 +9,10 @@ def pull_from_remote(repo_name, branch_name, sync_path, account, domain):
     """
     assert repo_name and branch_name and account and domain
 
-    click.echo('Starting pull.')
-    click.echo('    Domain: {}'.format(domain))
-    click.echo('    Repo: {}'.format(repo_name))
-    click.echo('    Branch: {}'.format(branch_name))
+    print('Starting pull.')
+    print('    Domain: {}'.format(domain))
+    print('    Repo: {}'.format(repo_name))
+    print('    Branch: {}'.format(branch_name))
 
     repo_dir = os.path.join(sync_path, repo_name)
     repo_url = "https://%s/%s/%s" % (domain, account, repo_name)
@@ -39,7 +38,7 @@ def _initialize_repo(repo_url, repo_dir, branch_name):
     """
     Clones repository.
     """
-    click.echo('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
+    print('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
 
     # Clone repo
     repo = git.Repo.clone_from(
@@ -48,7 +47,7 @@ def _initialize_repo(repo_url, repo_dir, branch_name):
         branch=branch_name,
     )
 
-    click.echo('Repo {} initialized'.format(repo_url))
+    print('Repo {} initialized'.format(repo_url))
 
     return repo
 
@@ -62,7 +61,7 @@ def _make_commit_if_dirty(repo):
         git_cli = repo.git
         git_cli.add('-A')
         commit = git_cli.commit('-m', 'WIP')
-        click.echo('Made WIP commit')
+        print('Made WIP commit')
 
     return commit
 
@@ -71,12 +70,12 @@ def _pull_and_resolve_conflicts(repo):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    click.echo('Starting pull from {}'.format(repo.remotes['origin']))
+    print('Starting pull from {}'.format(repo.remotes['origin']))
 
     # Fetch then merge, resolving conflicts by keeping original content
     repo.remote(name='origin').fetch()
     git_cli = repo.git
     merge = git_cli.merge('-Xours', 'origin/' + repo.active_branch.name)
 
-    click.echo('Pulled from {}'.format(repo.remotes['origin']))
+    print('Pulled from {}'.format(repo.remotes['origin']))
     return merge
