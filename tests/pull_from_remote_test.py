@@ -2,8 +2,6 @@ import os
 import random
 import string
 import unittest
-import shutil
-import git
 from gitautosync import pull_from_remote
 
 

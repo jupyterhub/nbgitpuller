@@ -44,7 +44,7 @@ def _make_commit_if_dirty(repo_dir, branch_name):
     Makes a commit with message 'WIP' if there are changes.
     """
     cwd = _get_sub_cwd(repo_dir)
-    if _repo_is_dirty():
+    if _repo_is_dirty(repo_dir):
         subprocess.Popen(['git', 'checkout', branch_name], cwd=cwd)
         subprocess.Popen(['git', 'add', '-A'], cwd=cwd)
         subprocess.Popen(['git', 'commit', '-m', 'WIP'], cwd=cwd)
@@ -70,5 +70,7 @@ def _get_sub_cwd(repo_dir):
     return '{}/{}'.format(os.getcwd(), repo_dir)
 
 
-def _repo_is_dirty():
-    return subprocess.check_output(['git', 'diff-index', '--name-only', 'HEAD', '--'], cwd=cwd)
+def _repo_is_dirty(repo_dir):
+    p = subprocess.Popen(['git', 'diff-index', '--name-only', 'HEAD', '--'], cwd=_get_sub_cwd(repo_dir))
+    out, err = p.communicate()
+    return out
