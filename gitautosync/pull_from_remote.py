@@ -1,6 +1,5 @@
 import os
-import click
-import git
+import subprocess
 
 
 def pull_from_remote(repo_name, branch_name, sync_path, account, domain):
@@ -10,73 +9,63 @@ def pull_from_remote(repo_name, branch_name, sync_path, account, domain):
     """
     assert repo_name and branch_name and account and domain
 
-    click.echo('Starting pull.')
-    click.echo('    Domain: {}'.format(domain))
-    click.echo('    Repo: {}'.format(repo_name))
-    click.echo('    Branch: {}'.format(branch_name))
+    print('Starting pull.')
+    print('    Domain: {}'.format(domain))
+    print('    Repo: {}'.format(repo_name))
+    print('    Branch: {}'.format(branch_name))
 
     repo_dir = os.path.join(sync_path, repo_name)
-    repo_url = "https://%s/%s/%s" % (domain, account, repo_name)
-    repo = _get_repo(repo_url, repo_dir, branch_name)
+    repo_url = "https://%s/%s/%s.git" % (domain, account, repo_name)
 
-    _make_commit_if_dirty(repo)
-    _pull_and_resolve_conflicts(repo)
-
-    return 'Pulled from repo: ' + repo_name
-
-
-def _get_repo(repo_url, repo_dir, branch_name):
-    """
-    Returns repo object of repo to update
-    """
     if not os.path.exists(repo_dir):
         return _initialize_repo(repo_url, repo_dir, branch_name)
-    else:
-        return git.Repo(repo_dir)
+
+    _make_commit_if_dirty(repo_dir, branch_name)
+    _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name)
+
+    print('Pulled from repo: {}'.format(repo_name))
 
 
-def _initialize_repo(repo_url, repo_dir, branch_name):
+def _initialize_repo(repo_url, repo_name, branch_name):
     """
     Clones repository.
     """
-    click.echo('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
+    print('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
 
     # Clone repo
-    repo = git.Repo.clone_from(
-        repo_url,
-        repo_dir,
-        branch=branch_name,
-    )
+    subprocess.run(['git', 'clone', repo_url])
+    subprocess.run(['git', 'checkout', branch_name])
 
-    click.echo('Repo {} initialized'.format(repo_url))
-
-    return repo
+    print('Repo {} initialized'.format(repo_url))
 
 
-def _make_commit_if_dirty(repo):
+def _make_commit_if_dirty(repo_dir, branch_name):
     """
     Makes a commit with message 'WIP' if there are changes.
     """
-    commit = None
-    if repo.is_dirty():
-        git_cli = repo.git
-        git_cli.add('-A')
-        commit = git_cli.commit('-m', 'WIP')
-        click.echo('Made WIP commit')
+    cwd = _get_sub_cwd(repo_dir)
+    out = subprocess.check_output(['git', 'diff-index', '--name-only', 'HEAD', '--'], cwd=cwd)
+    if out:
+        subprocess.Popen(['git', 'checkout', branch_name], cwd=cwd)
+        subprocess.Popen(['git', 'add', '-A'], cwd=cwd)
+        subprocess.Popen(['git', 'commit', '-m', 'WIP'], cwd=cwd)
+        print('Made WIP commit')
 
-    return commit
 
-
-def _pull_and_resolve_conflicts(repo):
+def _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    click.echo('Starting pull from {}'.format(repo.remotes['origin']))
+    print('Starting pull from {}'.format(repo_url))
 
     # Fetch then merge, resolving conflicts by keeping original content
-    repo.remote(name='origin').fetch()
-    git_cli = repo.git
-    merge = git_cli.merge('-Xours', 'origin/' + repo.active_branch.name)
+    cwd = _get_sub_cwd(repo_dir)
+    subprocess.run(['git', 'checkout', branch_name], cwd=cwd)
+    subprocess.Popen(['git', 'fetch'], cwd=cwd)
+    subprocess.Popen(['git', 'merge', '-Xours', 'origin/{}'.format(branch_name)], cwd=cwd)
 
-    click.echo('Pulled from {}'.format(repo.remotes['origin']))
-    return merge
+    print('Pulled from {}'.format(repo_url))
+
+
+def _get_sub_cwd(repo_dir):
+    return '{}/{}'.format(os.getcwd(), repo_dir)
