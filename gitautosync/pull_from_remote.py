@@ -71,6 +71,7 @@ def _get_sub_cwd(repo_dir):
 
 
 def _repo_is_dirty(repo_dir):
-    p = subprocess.Popen(['git', 'diff-index', '--name-only', 'HEAD', '--'], cwd=_get_sub_cwd(repo_dir))
+    cwd = _get_sub_cwd(repo_dir)
+    p = subprocess.Popen(['git', 'diff-index', '--name-only', 'HEAD', '--'], stdout=subprocess.PIPE, cwd=cwd)
     out, err = p.communicate()
     return out
