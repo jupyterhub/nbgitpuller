@@ -1,3 +1,5 @@
+import os
+import shutil
 import random
 import string
 import unittest
@@ -11,10 +13,14 @@ class TestPullFromRemote(unittest.TestCase):
     repo_url = 'https://github.com/data-8/summer'
 
     def setUp(self):
-        pass
+        if os.path.exists(self.init_path):
+            shutil.rmtree(self.init_path)
+
+        subprocess.run(['gitautosync'])
 
     def test_repo_is_dirty(self):
-        subprocess.run(['gitautosync'])
+        result = pull_from_remote._repo_is_dirty(self.init_path)
+        self.assertFalse(result)
 
         new_file_name = "{}/index.html".format(self.init_path)
         with open(new_file_name, 'w') as file:

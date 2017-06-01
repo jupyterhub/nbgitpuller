@@ -18,10 +18,10 @@ def pull_from_remote(repo_name, branch_name, sync_path, account, domain):
     repo_url = "https://%s/%s/%s.git" % (domain, account, repo_name)
 
     if not os.path.exists(repo_dir):
-        return _initialize_repo(repo_url, repo_dir, branch_name)
-
-    _make_commit_if_dirty(repo_dir, branch_name)
-    _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name)
+        _initialize_repo(repo_url, repo_dir, branch_name)
+    else:
+        _make_commit_if_dirty(repo_dir, branch_name)
+        _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name)
 
     print('Pulled from repo: {}'.format(repo_name))
 
@@ -65,12 +65,12 @@ def _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name):
     print('Pulled from {}'.format(repo_url))
 
 
-def _get_sub_cwd(repo_dir):
-    return '{}/{}'.format(os.getcwd(), repo_dir)
-
-
 def _repo_is_dirty(repo_dir):
     cwd = _get_sub_cwd(repo_dir)
     p = subprocess.Popen(['git', 'diff-index', '--name-only', 'HEAD', '--'], stdout=subprocess.PIPE, cwd=cwd)
     out, err = p.communicate()
     return out
+
+
+def _get_sub_cwd(repo_dir):
+    return '{}/{}'.format(os.getcwd(), repo_dir)
