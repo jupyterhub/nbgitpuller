@@ -34,7 +34,6 @@ def _initialize_repo(repo_url, repo_name, branch_name):
 
     # Clone repo
     subprocess.run(['git', 'clone', repo_url])
-    subprocess.run(['git', 'checkout', branch_name])
 
     print('Repo {} initialized'.format(repo_url))
 

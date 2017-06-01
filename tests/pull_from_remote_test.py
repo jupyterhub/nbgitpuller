@@ -1,6 +1,7 @@
 import random
 import string
 import unittest
+import subprocess
 from gitautosync import pull_from_remote
 
 
@@ -13,6 +14,8 @@ class TestPullFromRemote(unittest.TestCase):
         pass
 
     def test_repo_is_dirty(self):
+        subprocess.run(['gitautosync'])
+
         new_file_name = "{}/index.html".format(self.init_path)
         with open(new_file_name, 'w') as file:
             file.write(self.generate_random_string(10))
