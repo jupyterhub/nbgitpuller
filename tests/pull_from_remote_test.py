@@ -14,7 +14,7 @@ class TestPullFromRemote(unittest.TestCase):
         pass
 
     def test_repo_is_dirty(self):
-        subprocess.run(['gitautosync'])
+        subprocess.Popen(['gitautosync'])
 
         new_file_name = "{}/index.html".format(self.init_path)
         with open(new_file_name, 'w') as file:
