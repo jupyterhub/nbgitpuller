@@ -15,44 +15,13 @@ class TestPullFromRemote(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_get_repo(self):
-        if os.path.exists(self.init_path):
-            shutil.rmtree(self.init_path)
-        result = pull_from_remote._get_repo(
-            self.repo_url,
-            self.init_path,
-            'gh-pages')
-
-        self.assertIsNotNone(result)
-        self.assertTrue(result)
-        self.assertIsInstance(result, git.Repo)
-
-    def test_make_commit_if_dirty(self):
-        repo = git.Repo(self.init_path)
-        result = pull_from_remote._make_commit_if_dirty(repo)
-        self.assertIsNone(result)
-
+    def test_repo_is_dirty(self):
         new_file_name = "{}/index.html".format(self.init_path)
         with open(new_file_name, 'w') as file:
             file.write(self.generate_random_string(10))
 
-        result = pull_from_remote._make_commit_if_dirty(repo)
-
+        result = pull_from_remote._repo_is_dirty()
         self.assertIsNotNone(result)
-        self.assertTrue(result)
-        self.assertEquals(repo.head.commit.message.strip(), 'WIP')
-
-    def test_pull_and_resolve_conflicts(self):
-        repo = git.Repo(self.init_path)
-
-        new_file_name = "{}/new_file_name.txt".format(self.init_path)
-        with open(new_file_name, 'w') as file:
-            file.write(self.generate_random_string(10))
-        result = pull_from_remote._pull_and_resolve_conflicts(repo)
-
-        self.assertIsNotNone(result)
-        self.assertTrue(result)
-        self.assertTrue(os.path.exists(new_file_name))
 
     def generate_random_string(self, N):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
