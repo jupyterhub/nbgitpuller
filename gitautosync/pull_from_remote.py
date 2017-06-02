@@ -1,5 +1,6 @@
 import os
 import subprocess
+from .util import logger
 
 
 def pull_from_remote(git_url, branch_name, repo_dir):
@@ -9,10 +10,10 @@ def pull_from_remote(git_url, branch_name, repo_dir):
     """
     assert git_url and branch_name
 
-    print('Starting pull.')
-    print('    Git Url: {}'.format(git_url))
-    print('    Branch: {}'.format(branch_name))
-    print('    Repo Dir: {}'.format(repo_dir))
+    logger.info('Starting pull.')
+    logger.info('    Git Url: {}'.format(git_url))
+    logger.info('    Branch: {}'.format(branch_name))
+    logger.info('    Repo Dir: {}'.format(repo_dir))
 
     if not os.path.exists(repo_dir):
         _initialize_repo(git_url, repo_dir)
@@ -20,19 +21,19 @@ def pull_from_remote(git_url, branch_name, repo_dir):
         _make_commit_if_dirty(repo_dir, branch_name)
         _pull_and_resolve_conflicts(git_url, repo_dir, branch_name)
 
-    print('Pulled from repo: {}'.format(git_url))
+    logger.info('Pulled from repo: {}'.format(git_url))
 
 
 def _initialize_repo(git_url, repo_dir):
     """
     Clones repository.
     """
-    print('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
+    logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
 
     # Clone repo
     subprocess.check_call(['git', 'clone', git_url, repo_dir])
 
-    print('Repo {} initialized'.format(repo_dir))
+    logger.info('Repo {} initialized'.format(repo_dir))
 
 
 def _make_commit_if_dirty(repo_dir, branch_name):
@@ -44,14 +45,14 @@ def _make_commit_if_dirty(repo_dir, branch_name):
         subprocess.check_call(['git', 'checkout', branch_name], cwd=cwd)
         subprocess.check_call(['git', 'add', '-A'], cwd=cwd)
         subprocess.check_call(['git', 'commit', '-m', 'WIP'], cwd=cwd)
-        print('Made WIP commit')
+        logger.info('Made WIP commit')
 
 
 def _pull_and_resolve_conflicts(git_url, repo_dir, branch_name):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    print('Starting pull from {}'.format(git_url))
+    logger.info('Starting pull from {}'.format(git_url))
 
     # Fetch then merge, resolving conflicts by keeping original content
     cwd = _get_sub_cwd(repo_dir)
@@ -59,7 +60,7 @@ def _pull_and_resolve_conflicts(git_url, repo_dir, branch_name):
     subprocess.check_call(['git', 'fetch'], cwd=cwd)
     subprocess.check_call(['git', 'merge', '-Xours', 'origin/{}'.format(branch_name)], cwd=cwd)
 
-    print('Pulled from {}'.format(git_url))
+    logger.info('Pulled from {}'.format(git_url))
 
 
 def _repo_is_dirty(repo_dir):
