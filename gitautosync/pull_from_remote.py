@@ -2,40 +2,37 @@ import os
 import subprocess
 
 
-def pull_from_remote(repo_name, branch_name, sync_path, account, domain):
+def pull_from_remote(git_url, branch_name, repo_dir):
     """
     Pull selected repo from a remote git repository,
     while preserving user changes
     """
-    assert repo_name and branch_name and account and domain
+    assert git_url and branch_name
 
     print('Starting pull.')
-    print('    Domain: {}'.format(domain))
-    print('    Repo: {}'.format(repo_name))
+    print('    Git Url: {}'.format(git_url))
     print('    Branch: {}'.format(branch_name))
-
-    repo_dir = os.path.join(sync_path, repo_name)
-    repo_url = "https://%s/%s/%s.git" % (domain, account, repo_name)
+    print('    Repo Dir: {}'.format(repo_dir))
 
     if not os.path.exists(repo_dir):
-        _initialize_repo(repo_url, repo_dir, branch_name)
+        _initialize_repo(git_url, repo_dir)
     else:
         _make_commit_if_dirty(repo_dir, branch_name)
-        _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name)
+        _pull_and_resolve_conflicts(git_url, repo_dir, branch_name)
 
-    print('Pulled from repo: {}'.format(repo_name))
+    print('Pulled from repo: {}'.format(git_url))
 
 
-def _initialize_repo(repo_url, repo_name, branch_name):
+def _initialize_repo(git_url, repo_dir):
     """
     Clones repository.
     """
-    print('Repo {} doesn\'t exist. Cloning...'.format(repo_name))
+    print('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
 
     # Clone repo
-    subprocess.run(['git', 'clone', repo_url])
+    subprocess.check_call(['git', 'clone', git_url, repo_dir])
 
-    print('Repo {} initialized'.format(repo_url))
+    print('Repo {} initialized'.format(repo_dir))
 
 
 def _make_commit_if_dirty(repo_dir, branch_name):
@@ -44,31 +41,30 @@ def _make_commit_if_dirty(repo_dir, branch_name):
     """
     cwd = _get_sub_cwd(repo_dir)
     if _repo_is_dirty(repo_dir):
-        subprocess.Popen(['git', 'checkout', branch_name], cwd=cwd)
-        subprocess.Popen(['git', 'add', '-A'], cwd=cwd)
-        subprocess.Popen(['git', 'commit', '-m', 'WIP'], cwd=cwd)
+        subprocess.check_call(['git', 'checkout', branch_name], cwd=cwd)
+        subprocess.check_call(['git', 'add', '-A'], cwd=cwd)
+        subprocess.check_call(['git', 'commit', '-m', 'WIP'], cwd=cwd)
         print('Made WIP commit')
 
 
-def _pull_and_resolve_conflicts(repo_url, repo_dir, branch_name):
+def _pull_and_resolve_conflicts(git_url, repo_dir, branch_name):
     """
     Git pulls, resolving conflicts with -Xours
     """
-    print('Starting pull from {}'.format(repo_url))
+    print('Starting pull from {}'.format(git_url))
 
     # Fetch then merge, resolving conflicts by keeping original content
     cwd = _get_sub_cwd(repo_dir)
-    subprocess.run(['git', 'checkout', branch_name], cwd=cwd)
-    subprocess.Popen(['git', 'fetch'], cwd=cwd)
-    subprocess.Popen(['git', 'merge', '-Xours', 'origin/{}'.format(branch_name)], cwd=cwd)
+    subprocess.check_call(['git', 'checkout', branch_name], cwd=cwd)
+    subprocess.check_call(['git', 'fetch'], cwd=cwd)
+    subprocess.check_call(['git', 'merge', '-Xours', 'origin/{}'.format(branch_name)], cwd=cwd)
 
-    print('Pulled from {}'.format(repo_url))
+    print('Pulled from {}'.format(git_url))
 
 
 def _repo_is_dirty(repo_dir):
     cwd = _get_sub_cwd(repo_dir)
-    p = subprocess.Popen(['git', 'diff-index', '--name-only', 'HEAD', '--'], stdout=subprocess.PIPE, cwd=cwd)
-    out, err = p.communicate()
+    out = subprocess.check_output(['git', 'diff-index', '--name-only', 'HEAD', '--'], cwd=cwd)
     return out
 
 
