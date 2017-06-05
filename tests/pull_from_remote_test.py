@@ -9,7 +9,7 @@ from gitautosync import pull_from_remote
 
 class TestPullFromRemote(unittest.TestCase):
 
-    init_path = './summer'
+    init_path = 'summer'
     repo_url = 'https://github.com/data-8/summer'
     branch_name = 'gh-pages'
 
@@ -25,7 +25,8 @@ class TestPullFromRemote(unittest.TestCase):
 
     def test_get_sub_cwd(self):
         result = pull_from_remote._get_sub_cwd(self.init_path)
-        self.assertTrue(os.path.exists(result))
+        print("Repo Path w/ CWD:", result)
+        self.assertTrue(os.path.exists(result) or not os.path.exists(self.init_path))
 
     def test_repo_is_dirty(self):
 
