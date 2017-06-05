@@ -29,7 +29,6 @@ class TestPullFromRemote(unittest.TestCase):
         self.assertTrue(os.path.exists(result) or not os.path.exists(self.init_path))
 
     def test_repo_is_dirty(self):
-
         result = pull_from_remote._repo_is_dirty(self.init_path)
         self.assertFalse(result)
 
