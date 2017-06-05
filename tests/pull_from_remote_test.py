@@ -28,9 +28,6 @@ class TestPullFromRemote(unittest.TestCase):
         self.assertTrue(os.path.exists(result))
 
     def test_repo_is_dirty(self):
-        cwd = pull_from_remote._get_sub_cwd(self.init_path)
-        subprocess.check_call(['git', 'config', '--local', 'user.email', '"test@gmail.com"'], cwd=cwd)
-        subprocess.check_call(['git', 'config', '--local', 'user.name', '"Unit Test"'], cwd=cwd)
 
         result = pull_from_remote._repo_is_dirty(self.init_path)
         self.assertFalse(result)

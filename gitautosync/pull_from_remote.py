@@ -54,6 +54,8 @@ def _make_commit(repo_dir, branch_name):
     cwd = _get_sub_cwd(repo_dir)
     subprocess.check_call(['git', 'checkout', branch_name], cwd=cwd)
     subprocess.check_call(['git', 'add', '-A'], cwd=cwd)
+    subprocess.check_call(['git', 'config', 'user.email', '"test@gmail.com"'], cwd=cwd)
+    subprocess.check_call(['git', 'config', 'user.name', '"Unit Test"'], cwd=cwd)
     subprocess.check_call(['git', 'commit', '-m', 'WIP'], cwd=cwd)
     logger.info('Made WIP commit')
 
