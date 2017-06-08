@@ -14,12 +14,11 @@ class TestPullFromRemote(unittest.TestCase):
     branch_name = 'gh-pages'
 
     def setUp(self):
-        pass
-
-    def test_initialize_repo(self):
         if os.path.exists(self.init_path):
             shutil.rmtree(self.init_path)
         pull_from_remote._initialize_repo(self.repo_url, self.init_path)
+
+    def test_initialize_repo(self):
         self.assertTrue(os.path.exists(self.init_path))
         self.assertTrue(os.path.exists(self.init_path + "/.git"))
 
