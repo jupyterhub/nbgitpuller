@@ -9,8 +9,8 @@ from gitautosync import pull_from_remote
 
 class TestPullFromRemote(unittest.TestCase):
 
-    init_path = 'summer'
-    repo_url = 'https://github.com/data-8/summer'
+    init_path = 'test-repo'
+    repo_url = 'https://github.com/data-8/test-homework'
     branch_name = 'gh-pages'
 
     def setUp(self):
@@ -69,7 +69,7 @@ class TestPullFromRemote(unittest.TestCase):
         self.assertIn('ahead', result)
 
     def make_repo_dirty(self):
-        new_file_name = "{}/index.html".format(self.init_path)
+        new_file_name = "{}/README.md".format(self.init_path)
         with open(new_file_name, 'w') as file:
             file.write(self.generate_random_string(10))
 
