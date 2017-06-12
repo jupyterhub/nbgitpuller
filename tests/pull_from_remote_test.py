@@ -80,6 +80,12 @@ class TestPullFromRemote(unittest.TestCase):
 
         self.assertIn('ahead', self.get_git_status_msg())
 
+    def test_pull_deleted_files(self):
+        deleted_file_name = '{}/README.md'.format(self.init_path)
+        subprocess.check_call(['rm', deleted_file_name])
+        pull_from_remote.pull_from_remote(self.repo_url, self.branch_name, self.init_path)
+        self.assertTrue(os.path.exists(deleted_file_name))
+
     def generate_random_string(self, N):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
 

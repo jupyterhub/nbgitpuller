@@ -82,7 +82,12 @@ def _repo_is_dirty(repo_dir):
     Return non-empty string if repo dirty.
     """
     cwd = _get_sub_cwd(repo_dir)
-    out = subprocess.check_output(['git', 'diff-index', '--name-only', 'HEAD', '--'], cwd=cwd)
+    p = subprocess.Popen('git diff-index --name-status HEAD -- | grep -e "^M.*$"',
+        stdout=subprocess.PIPE, cwd=cwd, shell=True)
+    #out = subprocess.check_output(['grep', 'M'], stdin=p.stdout, cwd=cwd)
+    p.wait()
+    out, err = p.communicate()
+
     return out
 
 
