@@ -1,6 +1,12 @@
 import os
+import re
 import subprocess
 from .util import logger
+
+DELETED_FILE_REGEX = re.compile(
+    r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
+    r"([^\n\r]+)"   # and match the filename afterward.
+)
 
 
 def pull_from_remote(git_url, branch_name, repo_dir):
@@ -40,9 +46,27 @@ def _update_repo(git_url, repo_dir, branch_name):
     """
     assert git_url and branch_name
 
+    _reset_deleted_files(repo_dir, branch_name)
     if _repo_is_dirty(repo_dir):
         _make_commit(repo_dir, branch_name)
     _pull_and_resolve_conflicts(git_url, repo_dir, branch_name)
+
+
+def _reset_deleted_files(repo_dir, branch_name):
+    """
+    Runs the equivalent of git checkout -- <file> for each file that was
+    deleted. This allows us to delete a file, hit an interact link, then get a
+    clean version of the file again.
+    """
+    assert branch_name
+
+    cwd = _get_sub_cwd(repo_dir)
+    status = subprocess.check_output(['git', 'status'], cwd=cwd)
+    deleted_files = DELETED_FILE_REGEX.findall(status.decode('utf-8'))
+
+    for filename in deleted_files:
+        subprocess.check_call(['git', 'checkout', '--', _clean_path(filename)], cwd=cwd)
+        logger.info('Resetted {}'.format(filename))
 
 
 def _make_commit(repo_dir, branch_name):
@@ -83,8 +107,7 @@ def _repo_is_dirty(repo_dir):
     """
     cwd = _get_sub_cwd(repo_dir)
     p = subprocess.Popen('git diff-index --name-status HEAD -- | grep -e "^M.*$"',
-        stdout=subprocess.PIPE, cwd=cwd, shell=True)
-    #out = subprocess.check_output(['grep', 'M'], stdin=p.stdout, cwd=cwd)
+                         stdout=subprocess.PIPE, cwd=cwd, shell=True)
     p.wait()
     out, err = p.communicate()
 
@@ -96,3 +119,11 @@ def _get_sub_cwd(repo_dir):
     Get sub dir name from current workind directory
     """
     return '{}/{}'.format(os.getcwd(), repo_dir)
+
+
+def _clean_path(path):
+    """
+    Clean filename so that it is command line friendly.
+    Currently just escapes spaces.
+    """
+    return path.replace(' ', '\ ')

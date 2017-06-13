@@ -83,7 +83,7 @@ class TestPullFromRemote(unittest.TestCase):
     def test_pull_deleted_files(self):
         deleted_file_name = '{}/README.md'.format(self.init_path)
         subprocess.check_call(['rm', deleted_file_name])
-        pull_from_remote.pull_from_remote(self.repo_url, self.branch_name, self.init_path)
+        pull_from_remote._reset_deleted_files(self.init_path, self.branch_name)
         self.assertTrue(os.path.exists(deleted_file_name))
 
     def generate_random_string(self, N):
