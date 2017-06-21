@@ -3,127 +3,124 @@ import re
 import subprocess
 from .util import logger
 
-DELETED_FILE_REGEX = re.compile(
-    r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
-    r"([^\n\r]+)"   # and match the filename afterward.
-)
 
+class GitAutoSync:
+    DELETED_FILE_REGEX = re.compile(
+        r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
+        r"([^\n\r]+)"   # and match the filename afterward.
+    )
 
-def pull_from_remote(git_url, branch_name, repo_dir):
-    """
-    Pull selected repo from a remote git repository,
-    while preserving user changes
-    """
-    assert git_url and branch_name
+    _git_url = ''
+    _branch_name = ''
+    _repo_dir = ''
+    _cwd = ''
 
-    logger.info('Starting pull.')
-    logger.info('    Git Url: {}'.format(git_url))
-    logger.info('    Branch: {}'.format(branch_name))
-    logger.info('    Repo Dir: {}'.format(repo_dir))
+    def __init__(self, git_url, branch_name, repo_dir):
+        assert git_url and branch_name
 
-    if not os.path.exists(repo_dir):
-        _initialize_repo(git_url, repo_dir)
-    else:
-        _update_repo(git_url, repo_dir, branch_name)
+        self._git_url = git_url
+        self._branch_name = branch_name
+        self._repo_dir = repo_dir
+        self._cwd = self._get_sub_cwd()
 
-    logger.info('Pulled from repo: {}'.format(git_url))
+    def pull_from_remote(self):
+        """
+        Pull selected repo from a remote git repository,
+        while preserving user changes
+        """
 
+        logger.info('Pulling into {} from {}, branch {}'.format(
+            self._repo_dir,
+            self._git_url,
+            self._branch_name
+        ))
 
-def _initialize_repo(git_url, repo_dir):
-    """
-    Clones repository.
-    """
-    assert git_url
+        if not os.path.exists(self._repo_dir):
+            self._initialize_repo()
+        else:
+            self._update_repo()
 
-    logger.info('Repo {} doesn\'t exist. Cloning...'.format(repo_dir))
-    subprocess.check_call(['git', 'clone', git_url, repo_dir])
-    logger.info('Repo {} initialized'.format(repo_dir))
+        logger.info('Pulled from repo: {}'.format(self._git_url))
 
+    def _initialize_repo(self):
+        """
+        Clones repository.
+        """
 
-def _update_repo(git_url, repo_dir, branch_name):
-    """
-    Update repo by merging local and upstream changes
-    """
-    assert git_url and branch_name
+        logger.info('Repo {} doesn\'t exist. Cloning...'.format(self._repo_dir))
+        subprocess.check_call(['git', 'clone', self._git_url, self._repo_dir])
+        logger.info('Repo {} initialized'.format(self._repo_dir))
 
-    _reset_deleted_files(repo_dir, branch_name)
-    if _repo_is_dirty(repo_dir):
-        _make_commit(repo_dir, branch_name)
-    _pull_and_resolve_conflicts(git_url, repo_dir, branch_name)
+    def _update_repo(self):
+        """
+        Update repo by merging local and upstream changes
+        """
 
+        self._reset_deleted_files()
+        if self._repo_is_dirty():
+            self._make_commit()
+        self._pull_and_resolve_conflicts()
 
-def _reset_deleted_files(repo_dir, branch_name):
-    """
-    Runs the equivalent of git checkout -- <file> for each file that was
-    deleted. This allows us to delete a file, hit an interact link, then get a
-    clean version of the file again.
-    """
-    assert branch_name
+    def _reset_deleted_files(self):
+        """
+        Runs the equivalent of git checkout -- <file> for each file that was
+        deleted. This allows us to delete a file, hit an interact link, then get a
+        clean version of the file again.
+        """
 
-    cwd = _get_sub_cwd(repo_dir)
-    status = subprocess.check_output(['git', 'status'], cwd=cwd)
-    deleted_files = DELETED_FILE_REGEX.findall(status.decode('utf-8'))
+        status = subprocess.check_output(['git', 'status'], cwd=self._cwd)
+        deleted_files = self.DELETED_FILE_REGEX.findall(status.decode('utf-8'))
 
-    for filename in deleted_files:
-        subprocess.check_call(['git', 'checkout', '--', _clean_path(filename)], cwd=cwd)
-        logger.info('Resetted {}'.format(filename))
+        for filename in deleted_files:
+            subprocess.check_call(['git', 'checkout', '--', self._clean_path(filename)], cwd=self._cwd)
+            logger.info('Resetted {}'.format(filename))
 
+    def _make_commit(self):
+        """
+        Commit local changes
+        """
 
-def _make_commit(repo_dir, branch_name):
-    """
-    Commit local changes
-    """
-    assert branch_name
+        subprocess.check_call(['git', 'checkout', self._branch_name], cwd=self._cwd)
+        subprocess.check_call(['git', 'add', '-A'], cwd=self._cwd)
+        subprocess.check_call(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=self._cwd)
+        subprocess.check_call(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=self._cwd)
+        subprocess.check_call(['git', 'commit', '-m', 'WIP'], cwd=self._cwd)
+        logger.info('Made WIP commit')
 
-    cwd = _get_sub_cwd(repo_dir)
-    subprocess.check_call(['git', 'checkout', branch_name], cwd=cwd)
-    subprocess.check_call(['git', 'add', '-A'], cwd=cwd)
-    subprocess.check_call(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=cwd)
-    subprocess.check_call(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=cwd)
-    subprocess.check_call(['git', 'commit', '-m', 'WIP'], cwd=cwd)
-    logger.info('Made WIP commit')
+    def _pull_and_resolve_conflicts(self):
+        """
+        Git pulls, resolving conflicts with -Xours
+        """
 
+        logger.info('Starting pull from {}'.format(self._git_url))
 
-def _pull_and_resolve_conflicts(git_url, repo_dir, branch_name):
-    """
-    Git pulls, resolving conflicts with -Xours
-    """
-    assert git_url and branch_name
+        subprocess.check_call(['git', 'checkout', self._branch_name], cwd=self._cwd)
+        subprocess.check_call(['git', 'fetch'], cwd=self._cwd)
+        subprocess.check_call(['git', 'merge', '-Xours', 'origin/{}'.format(self._branch_name)], cwd=self._cwd)
 
-    logger.info('Starting pull from {}'.format(git_url))
+        logger.info('Pulled from {}'.format(self._git_url))
 
-    cwd = _get_sub_cwd(repo_dir)
-    subprocess.check_call(['git', 'checkout', branch_name], cwd=cwd)
-    subprocess.check_call(['git', 'fetch'], cwd=cwd)
-    subprocess.check_call(['git', 'merge', '-Xours', 'origin/{}'.format(branch_name)], cwd=cwd)
+    def _repo_is_dirty(self):
+        """
+        Return empty string if repo not dirty.
+        Return non-empty string if repo dirty.
+        """
+        p = subprocess.Popen('git diff-index --name-status HEAD -- | grep -e "^M.*$"',
+                             stdout=subprocess.PIPE, cwd=self._cwd, shell=True)
+        p.wait()
+        out, err = p.communicate()
 
-    logger.info('Pulled from {}'.format(git_url))
+        return out
 
+    def _get_sub_cwd(self):
+        """
+        Get sub dir name from current workind directory
+        """
+        return '{}/{}'.format(os.getcwd(), self._repo_dir)
 
-def _repo_is_dirty(repo_dir):
-    """
-    Return empty string if repo not dirty.
-    Return non-empty string if repo dirty.
-    """
-    cwd = _get_sub_cwd(repo_dir)
-    p = subprocess.Popen('git diff-index --name-status HEAD -- | grep -e "^M.*$"',
-                         stdout=subprocess.PIPE, cwd=cwd, shell=True)
-    p.wait()
-    out, err = p.communicate()
-
-    return out
-
-
-def _get_sub_cwd(repo_dir):
-    """
-    Get sub dir name from current workind directory
-    """
-    return '{}/{}'.format(os.getcwd(), repo_dir)
-
-
-def _clean_path(path):
-    """
-    Clean filename so that it is command line friendly.
-    Currently just escapes spaces.
-    """
-    return path.replace(' ', '\ ')
+    def _clean_path(self, path):
+        """
+        Clean filename so that it is command line friendly.
+        Currently just escapes spaces.
+        """
+        return path.replace(' ', '\ ')
