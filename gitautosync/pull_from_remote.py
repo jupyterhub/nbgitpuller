@@ -76,7 +76,7 @@ class GitAutoSync:
         deleted_files = self.DELETED_FILE_REGEX.findall(status.decode('utf-8'))
 
         for filename in deleted_files:
-            subprocess.check_call(['git', 'checkout', '--', self._clean_path(filename)], cwd=self._cwd)
+            subprocess.check_call(['git', 'checkout', '--', filename], cwd=self._cwd)
             logger.info('Resetted {}'.format(filename))
 
     def _make_commit(self):
@@ -110,7 +110,6 @@ class GitAutoSync:
         Return non-empty string if repo dirty.
         """
         output = subprocess.check_output(['git', 'status', '--porcelain'], cwd=self._cwd)
-        print("Dirty output is", output)
 
         return self.MODIFIED_FILE_REGEX.match(output.decode('utf-8'))
 
@@ -118,11 +117,4 @@ class GitAutoSync:
         """
         Get sub dir name from current workind directory
         """
-        return '{}/{}'.format(os.getcwd(), self._repo_dir)
-
-    def _clean_path(self, path):
-        """
-        Clean filename so that it is command line friendly.
-        Currently just escapes spaces.
-        """
-        return path.replace(' ', '\ ')
+        return os.path.join(os.getcwd(), self._repo_dir)

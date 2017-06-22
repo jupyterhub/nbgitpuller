@@ -22,7 +22,7 @@ class TestPullFromRemote(unittest.TestCase):
 
     def test_initialize_repo(self):
         self.assertTrue(os.path.exists(self._get_repo_dir()))
-        self.assertTrue(os.path.exists(self._get_repo_dir() + "/.git"))
+        self.assertTrue(os.path.exists(os.path.join(self._get_repo_dir(), ".git")))
 
     def test_get_sub_cwd(self):
         result = self._gitautosync._get_sub_cwd()
