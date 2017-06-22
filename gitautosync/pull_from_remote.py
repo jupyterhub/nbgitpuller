@@ -10,6 +10,10 @@ class GitAutoSync:
         r"([^\n\r]+)"   # and match the filename afterward.
     )
 
+    MODIFIED_FILE_REGEX = re.compile(
+        r"^\s*M\s+(.*)$"  # Look for M surrounded by whitespaeces and match filename afterward
+    )
+
     _git_url = ''
     _branch_name = ''
     _repo_dir = ''
@@ -105,12 +109,10 @@ class GitAutoSync:
         Return empty string if repo not dirty.
         Return non-empty string if repo dirty.
         """
-        p = subprocess.Popen('git diff-index --name-status HEAD -- | grep -e "^M.*$"',
-                             stdout=subprocess.PIPE, cwd=self._cwd, shell=True)
-        p.wait()
-        out, err = p.communicate()
+        output = subprocess.check_output(['git', 'status', '--porcelain'], cwd=self._cwd)
+        print("Dirty output is", output)
 
-        return out
+        return self.MODIFIED_FILE_REGEX.match(output.decode('utf-8'))
 
     def _get_sub_cwd(self):
         """
