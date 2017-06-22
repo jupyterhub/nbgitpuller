@@ -4,10 +4,10 @@ import subprocess
 import random
 import string
 import unittest
-from gitautosync.pull_from_remote import GitAutoSync
+from gitautosync.gitautosync import GitAutoSync
 
 
-class TestPullFromRemote(unittest.TestCase):
+class TestGitAutoSync(unittest.TestCase):
 
     _gitautosync = None
 
