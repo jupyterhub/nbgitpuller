@@ -1,0 +1,15 @@
+*.pyc
+
+dist/
+build/
+*.egg-info/
+
+.tox/
+.coverage
+
+.DS_Store
+.cache/
+data8assets/
+.autopull_list
+summer/
+test-repo/
