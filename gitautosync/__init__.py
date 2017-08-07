@@ -39,11 +39,6 @@ class GitAutoSync:
         r"^\s*M\s+(.*)$"  # Look for M surrounded by whitespaeces and match filename afterward
     )
 
-    _git_url = ''
-    _branch_name = ''
-    _repo_dir = ''
-    _cwd = ''
-
     def __init__(self, git_url, branch_name, repo_dir):
         assert git_url and branch_name
 
