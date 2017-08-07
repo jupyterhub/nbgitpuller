@@ -5,30 +5,6 @@ import logging
 import argparse
 
 
-def main():
-    """
-    Synchronizes a github repository with a local repository.
-    Automatically deals with conflicts and produces useful output to stdout.
-    """
-    parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
-    parser.add_argument('--git-url', help='Url of the repo to sync', required=True)
-    parser.add_argument('--branch-name', default='master', help='Branch of repo to sync')
-    parser.add_argument('--repo-dir', default='./', help='Path to sync to')
-    args = parser.parse_args()
-
-    GitAutoSync(
-        args.git_url,
-        args.branch_name,
-        args.repo_dir
-    ).pull_from_remote()
-
-
-logging.basicConfig(
-    format='[%(asctime)s] %(levelname)s -- %(message)s',
-    level=logging.DEBUG)
-logger = logging.getLogger('app')
-
-
 class GitAutoSync:
     DELETED_FILE_REGEX = re.compile(
         r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
@@ -138,3 +114,25 @@ class GitAutoSync:
         Get sub dir name from current workind directory
         """
         return os.path.join(os.getcwd(), self._repo_dir)
+
+def main():
+    """
+    Synchronizes a github repository with a local repository.
+    Automatically deals with conflicts and produces useful output to stdout.
+    """
+    logging.basicConfig(
+        format='[%(asctime)s] %(levelname)s -- %(message)s',
+        level=logging.DEBUG)
+    logger = logging.getLogger('app')
+
+    parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
+    parser.add_argument('--git-url', help='Url of the repo to sync', required=True)
+    parser.add_argument('--branch-name', default='master', help='Branch of repo to sync')
+    parser.add_argument('--repo-dir', default='./', help='Path to sync to')
+    args = parser.parse_args()
+
+    GitAutoSync(
+        args.git_url,
+        args.branch_name,
+        args.repo_dir
+    ).pull_from_remote()
