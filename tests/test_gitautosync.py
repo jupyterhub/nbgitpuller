@@ -3,10 +3,10 @@ import shutil
 import subprocess
 import random
 import string
-from gitautosync.gitautosync import GitAutoSync
+from gitautosync import GitAutoSync
 
 
-class TestGitAutoSync(object):
+class TestGitAutoSync:
 
     _gitautosync = None
 
@@ -26,18 +26,18 @@ class TestGitAutoSync(object):
 
     def test_get_sub_cwd(self):
         self.setUp()
-        result = self._gitautosync._get_sub_cwd()
+        result = self._gitautosync._repo_dir
         print("Repo Path w/ CWD:", result)
         assert os.path.exists(result) or not os.path.exists(self._get_repo_dir())
 
     def test_repo_is_dirty(self):
         self.setUp()
-        result = self._gitautosync._repo_is_dirty()
+        result = self._gitautosync.repo_is_dirty()
         assert not result
 
         self._make_repo_dirty()
 
-        result = self._gitautosync._repo_is_dirty()
+        result = self._gitautosync.repo_is_dirty()
         assert result
 
     def test_make_commit(self):
@@ -47,7 +47,7 @@ class TestGitAutoSync(object):
 
         assert self._get_latest_commit_msg() == 'WIP'
 
-        result = self._gitautosync._repo_is_dirty()
+        result = self._gitautosync.repo_is_dirty()
         assert not result
 
     def test_pull_and_resolve_conflicts(self):
@@ -62,7 +62,7 @@ class TestGitAutoSync(object):
         self._gitautosync._update_repo()
         assert self._get_latest_commit_msg() == 'WIP'
 
-        result = self._gitautosync._repo_is_dirty()
+        result = self._gitautosync.repo_is_dirty()
         assert not result
 
         self._retains_new_files()
@@ -81,7 +81,7 @@ class TestGitAutoSync(object):
         self._gitautosync.pull_from_remote()
         assert self._get_latest_commit_msg() == 'WIP'
 
-        result = self._gitautosync._repo_is_dirty()
+        result = self._gitautosync.repo_is_dirty()
         assert not result
 
         self._retains_new_files()
@@ -99,7 +99,7 @@ class TestGitAutoSync(object):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
 
     def _get_latest_commit_msg(self):
-        cwd = self._gitautosync._get_sub_cwd()
+        cwd = self._gitautosync._repo_dir
         ps = subprocess.Popen(['git', 'log', '--oneline'], stdout=subprocess.PIPE, cwd=cwd)
         output = subprocess.check_output(['head', '-n', '1'], stdin=ps.stdout, cwd=cwd)
         ps.wait()
@@ -110,7 +110,7 @@ class TestGitAutoSync(object):
             new_file.write(self._generate_random_string(10))
 
     def _get_git_status_msg(self):
-        cwd = self._gitautosync._get_sub_cwd()
+        cwd = self._gitautosync._repo_dir
         return subprocess.check_output(['git', 'status'], cwd=cwd).decode('utf-8')
 
     def _make_repo_dirty(self):
