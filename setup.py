@@ -21,7 +21,7 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'gitautosync = gitautosync.gitautosync:main',
+            'gitautosync = gitautosync:main',
         ],
     },
     classifiers=[
