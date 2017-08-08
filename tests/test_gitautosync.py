@@ -17,7 +17,8 @@ class TestGitAutoSync:
             'test-repo'
         )
         self._delete_init_path()
-        self._gitautosync._initialize_repo()
+        for line in self._gitautosync._initialize_repo():
+            print(line)
 
     def test_initialize_repo(self):
         self.setUp()
@@ -43,7 +44,8 @@ class TestGitAutoSync:
     def test_make_commit(self):
         self.setUp()
         self._make_repo_dirty()
-        self._gitautosync._make_commit()
+        for line in self._gitautosync._make_commit():
+            print(line)
 
         assert self._get_latest_commit_msg() == 'WIP'
 
@@ -59,7 +61,8 @@ class TestGitAutoSync:
     def test_update_repo(self):
         self.setUp()
         self._make_repo_dirty()
-        self._gitautosync._update_repo()
+        for line in self._gitautosync._update_repo():
+            print(line)
         assert self._get_latest_commit_msg() == 'WIP'
 
         result = self._gitautosync.repo_is_dirty()
@@ -78,7 +81,8 @@ class TestGitAutoSync:
 
         self._make_repo_dirty()
 
-        self._gitautosync.pull_from_remote()
+        for line in self._gitautosync.pull_from_remote():
+            print(line)
         assert self._get_latest_commit_msg() == 'WIP'
 
         result = self._gitautosync.repo_is_dirty()
@@ -92,7 +96,9 @@ class TestGitAutoSync:
         self.setUp()
         deleted_file_name = '{}/README.md'.format(self._gitautosync.repo_dir)
         subprocess.check_call(['rm', deleted_file_name])
-        self._gitautosync._reset_deleted_files()
+
+        for line in self._gitautosync._reset_deleted_files():
+            print(line)
         assert os.path.exists(deleted_file_name)
 
     def _generate_random_string(self, N):
@@ -125,11 +131,13 @@ class TestGitAutoSync:
     def _retains_new_files(self):
         self._create_new_file("new_file1.txt")
 
-        self._gitautosync._make_commit()
+        for line in self._gitautosync._make_commit():
+            print(line)
 
         self._create_new_file("new_file2.txt")
 
-        self._gitautosync._pull_and_resolve_conflicts()
+        for line in self._gitautosync._pull_and_resolve_conflicts():
+            print(line)
 
         assert os.path.exists(self._gitautosync.repo_dir + "/new_file2.txt")
         assert os.path.exists(self._gitautosync.repo_dir + "/new_file1.txt")

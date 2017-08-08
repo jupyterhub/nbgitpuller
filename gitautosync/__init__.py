@@ -3,7 +3,40 @@ import re
 import subprocess
 import logging
 import argparse
+from functools import partial
 
+def execute_cmd(cmd, **kwargs):
+    """
+    Call given command, yielding output line by line
+    """
+    kwargs['stdout'] = subprocess.PIPE
+    kwargs['stderr'] = subprocess.STDOUT
+
+    proc = subprocess.Popen(cmd, **kwargs)
+
+    # Capture output for logging.
+    # Each line will be yielded as text.
+    # This should behave the same as .readline(), but splits on `\r` OR `\n`,
+    # not just `\n`.
+    buf = []
+    def flush():
+        line = b''.join(buf).decode('utf8', 'replace')
+        buf[:] = []
+        return line
+
+    c_last = ''
+    try:
+        for c in iter(partial(proc.stdout.read, 1), b''):
+            if c_last == b'\r' and buf and c != b'\n':
+                yield flush()
+            buf.append(c)
+            if c == b'\n':
+                yield flush()
+            c_last = c
+    finally:
+        ret = proc.wait()
+        if ret != 0:
+            raise subprocess.CalledProcessError(ret, cmd)
 
 class GitAutoSync:
     DELETED_FILE_REGEX = re.compile(
@@ -36,9 +69,9 @@ class GitAutoSync:
         ))
 
         if not os.path.exists(self.repo_dir):
-            self._initialize_repo()
+            yield from self._initialize_repo()
         else:
-            self._update_repo()
+            yield from self._update_repo()
 
         logging.info('Pulled from repo: {}'.format(self.git_url))
 
@@ -48,7 +81,7 @@ class GitAutoSync:
         """
 
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
-        subprocess.check_call(['git', 'clone', self.git_url, self.repo_dir])
+        yield from execute_cmd(['git', 'clone', self.git_url, self.repo_dir])
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
     def _update_repo(self):
@@ -56,10 +89,10 @@ class GitAutoSync:
         Update repo by merging local and upstream changes
         """
 
-        self._reset_deleted_files()
+        yield from self._reset_deleted_files()
         if self.repo_is_dirty():
-            self._make_commit()
-        self._pull_and_resolve_conflicts()
+            yield from self._make_commit()
+        yield from self._pull_and_resolve_conflicts()
 
     def _reset_deleted_files(self):
         """
@@ -72,7 +105,7 @@ class GitAutoSync:
         deleted_files = self.DELETED_FILE_REGEX.findall(status.decode('utf-8'))
 
         for filename in deleted_files:
-            subprocess.check_call(['git', 'checkout', '--', filename], cwd=self.repo_dir)
+            yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
             logging.info('Resetted {}'.format(filename))
 
     def _make_commit(self):
@@ -80,11 +113,11 @@ class GitAutoSync:
         Commit local changes
         """
 
-        subprocess.check_call(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-        subprocess.check_call(['git', 'add', '-A'], cwd=self.repo_dir)
-        subprocess.check_call(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=self.repo_dir)
-        subprocess.check_call(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=self.repo_dir)
-        subprocess.check_call(['git', 'commit', '-m', 'WIP'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'add', '-A'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'commit', '-m', 'WIP'], cwd=self.repo_dir)
         logging.info('Made WIP commit')
 
     def _pull_and_resolve_conflicts(self):
@@ -94,9 +127,9 @@ class GitAutoSync:
 
         logging.info('Starting pull from {}'.format(self.git_url))
 
-        subprocess.check_call(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-        subprocess.check_call(['git', 'fetch'], cwd=self.repo_dir)
-        subprocess.check_call(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
 
         logging.info('Pulled from {}'.format(self.git_url))
 
@@ -124,8 +157,9 @@ def main():
     parser.add_argument('--repo-dir', default='./', help='Path to sync to')
     args = parser.parse_args()
 
-    GitAutoSync(
+    for line in GitAutoSync(
         args.git_url,
         args.branch_name,
         args.repo_dir
-    ).pull_from_remote()
+    ).pull_from_remote():
+        print(line)
