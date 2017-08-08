@@ -1,4 +1,5 @@
 from tornado import gen, web, locks
+import traceback
 
 from gitautosync import GitAutoSync
 from notebook.utils import url_path_join
@@ -37,7 +38,12 @@ class SyncHandler(IPythonHandler):
         try:
             yield self.git_lock.acquire(1)
         except gen.TimeoutError:
-            raise web.HTTPError(429, 'Another sync operation in progress, try again in a few minutes')
+            self.emit({
+                'phase': 'error',
+                'message': 'Another git operations is currently running, try again in a few minutes'
+            })
+            return
+
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch')
@@ -51,10 +57,14 @@ class SyncHandler(IPythonHandler):
 
             q = Queue()
             def pull():
-                for line in gas.pull_from_remote():
-                    q.put_nowait(line)
-                # Sentinel when we're done
-                q.put_nowait(None)
+                try:
+                    for line in gas.pull_from_remote():
+                        q.put_nowait(line)
+                    # Sentinel when we're done
+                    q.put_nowait(None)
+                except Exception as e:
+                    q.put_nowait(e)
+                    raise e
             self.gas_thread = threading.Thread(target=pull)
 
             self.gas_thread.start()
@@ -67,10 +77,33 @@ class SyncHandler(IPythonHandler):
                     continue
                 if progress is None:
                     break
+                if isinstance(progress, Exception):
+                    self.emit({
+                        'phase': 'error',
+                        'message': str(progress),
+                        'output': '\n'.join([
+                            l.strip()
+                            for l in traceback.format_exception(
+                                type(progress), progress, progress.__traceback__
+                            )
+                        ])
+                    })
+                    return
 
                 self.emit({'output': progress, 'phase': 'syncing'})
 
             self.emit({'phase': 'finished'})
+        except Exception as e:
+            self.emit({
+                'phase': 'error',
+                'message': str(e),
+                'output': '\n'.join([
+                    l.strip()
+                    for l in traceback.format_exception(
+                        type(e), e, e.__traceback__
+                    )
+                ])
+            })
         finally:
             self.git_lock.release()
 

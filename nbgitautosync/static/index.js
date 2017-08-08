@@ -99,6 +99,13 @@ require([
         return this.progressElement.getElementsByTagName('span')[0].innerText;
     };
 
+    GitSyncView.prototype.setProgressError = function(isError) {
+        if (isError) {
+            this.progressElement.classList.add('progress-bar-danger');
+        } else {
+            this.progressElement.classList.remove('progress-bar-danger');
+        }
+    };
 
     GitSyncView.prototype._fitTerm = function() {
         // Vendored in from the xterm.js fit addon
@@ -159,6 +166,15 @@ require([
         gsv.setProgressValue(100);
         gsv.setProgressText('Sync finished, redirecting...');
         window.location.href = gs.redirectUrl;
+    });
+    gs.addHandler('error', function(data) {
+        progressTimers.forEach(function(timer)  { clearInterval(timer); });
+        gsv.setProgressValue(100);
+        gsv.setProgressText('Error: ' + data.message);
+        gsv.setProgressError(true);
+        if (data.output) {
+            gsv.term.write(data.output);
+        }
     });
     gs.start();
 
