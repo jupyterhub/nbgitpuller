@@ -10,8 +10,11 @@ data-branch="{{ branch | urlencode }}"
 
 {% block site %}
 <div class="container"">
+    <div class="page-header">
+        <i class="fa fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+        <small id="sub-status" class="pulsate">Synchronizing Repository...</small>
+    </div>
     <div class="row">
-        <h3>Pulling repo</h3>
         <div id="pull-status-container">
             <div id="pull-status"></div>
         </div>
@@ -34,5 +37,23 @@ data-branch="{{ branch | urlencode }}"
     background-color: black;
     display: none;
 }
+
+.pulsate {
+    -webkit-animation: pulsate 3s ease-out;
+    -webkit-animation-iteration-count: infinite;
+    opacity: 0.5;
+}
+@-webkit-keyframes pulsate {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1.0;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
 </style>
 {% endblock %}
