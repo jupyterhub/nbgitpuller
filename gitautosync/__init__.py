@@ -9,6 +9,7 @@ def execute_cmd(cmd, **kwargs):
     """
     Call given command, yielding output line by line
     """
+    yield '$ {}\n'.format(' '.join(cmd))
     kwargs['stdout'] = subprocess.PIPE
     kwargs['stderr'] = subprocess.STDOUT
 
