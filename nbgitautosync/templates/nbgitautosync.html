@@ -18,7 +18,7 @@ data-branch="{{ branch | urlencode }}"
     <div class="panel-heading" id="status-panel-toggle">
         <div class="progress">
             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%" id="status-panel-title">
-                Synchronizing repository...
+                <span></span>
             </div>
         </div>
         <small>Click to see more details</small>
@@ -55,5 +55,15 @@ data-branch="{{ branch | urlencode }}"
     margin-top: -10px;
 }
 
+.progress {
+    position: relative;
+}
+
+.progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+}
 </style>
 {% endblock %}

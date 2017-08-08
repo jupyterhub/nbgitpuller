@@ -84,16 +84,16 @@ require([
 
     // Make sure we provide plenty of appearances of progress!
     setInterval(function() {
-        $('#status-panel-title').text(substatus_messages[Math.floor(Math.random() * substatus_messages.length)]);
+        $('#status-panel-title span').text(substatus_messages[Math.floor(Math.random() * substatus_messages.length)]);
     }, 3000);
     setInterval(function() {
-        $('#status-panel-title').text($('#status-panel-title').text() + '.');
+        $('#status-panel-title span').text($('#status-panel-title').text() + '.');
     }, 800);
     var progressTimer = setInterval(function() {
         var progress = $('#status-panel-title');
         var val = parseFloat(progress.attr('aria-valuenow'));
         // Illusion of progress!
-        var newVal = val + 0.05 * (100 - val);
+        var newVal = val + 0.01 * (100 - val);
         progress.attr('aria-valuenow', newVal);
         progress.css('width', newVal + '%');
         console.log(newVal);
