@@ -58,52 +58,51 @@ require([
             that._emit(data.phase, data);
         });
         this.eventSource.addEventListener('error', function(error) {
+            console.log(arguments);
             that._emit('error', error);
         });
     };
 
-    function GitSyncView(termElement, progressElement, termToggleElement) {
+    function GitSyncView(termSelector, progressSelector, termToggleSelector) {
         // Class that encapsulates view rendering as much as possible
-        // jQuery free, but not too strong an opinion about it.
         this.term = new Terminal({
             convertEol: true,
-            disableStdin: true
         });
-        this.term.open(termElement);
-        this.progressElement = progressElement;
+        this.term.open($(termSelector)[0]);
+        this.$progress = $(progressSelector);
 
-        this.termToggleElement = termToggleElement;
+        this.$termToggle = $(termToggleSelector);
 
         var that = this;
-        this.termToggleElement.addEventListener('click', function() {
-            termElement.parentElement.classList.toggle('hidden');
+        this.$termToggle.click(function() {
+            $(termSelector).parent().toggleClass('hidden');
             that._fitTerm();
         });
     }
 
 
     GitSyncView.prototype.setProgressValue = function(val) {
-        this.progressElement.setAttribute('aria-valuenow', val);
-        this.progressElement.style.width = val + '%';
+        this.$progress.attr('aria-valuenow', val);
+        this.$progress.css('width', val + '%');
     };
 
     GitSyncView.prototype.getProgressValue = function() {
-        return parseFloat(this.progressElement.getAttribute('aria-valuenow'));
+        return parseFloat(this.$progress.attr('aria-valuenow'));
     };
 
     GitSyncView.prototype.setProgressText = function(text) {
-        this.progressElement.getElementsByTagName('span')[0].innerText = text;
+        this.$progress.children('span').text(text);
     };
 
     GitSyncView.prototype.getProgressText = function() {
-        return this.progressElement.getElementsByTagName('span')[0].innerText;
+        return this.$progress.children('span').text();
     };
 
     GitSyncView.prototype.setProgressError = function(isError) {
         if (isError) {
-            this.progressElement.classList.add('progress-bar-danger');
+            this.$progress.addClass('progress-bar-danger');
         } else {
-            this.progressElement.classList.remove('progress-bar-danger');
+            this.$progress.removeClass('progress-bar-danger');
         }
     };
 
@@ -153,9 +152,9 @@ require([
         utils.get_body_data('path'),
     );
     var gsv = new GitSyncView(
-        document.getElementById('status-details'),
-        document.getElementById('status-panel-title'),
-        document.getElementById('status-panel-toggle'),
+        '#status-details',
+        '#status-panel-title',
+        '#status-panel-toggle',
     );
 
     gs.addHandler('syncing', function(data) {
