@@ -9,16 +9,30 @@ data-branch="{{ branch | urlencode }}"
 {% endblock %}
 
 {% block site %}
-<div class="container">
+<div class="container"">
     <div class="row">
         <h3>Pulling repo</h3>
-        <div id="pull-status"></div>
+        <div id="pull-status-container">
+            <div id="pull-status"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block script %}
-<script>
-{% include "nbgitautosync.js" %}
+{{super()}}
+<script src="{{ base_url }}git-sync/static/index.js">
 </script>
+{% endblock %}
+
+{% block stylesheet %}
+{{super()}}
+<link rel="stylesheet" href="{{ base_url }}git-sync/static/xterm.js-2.9.1/dist/xterm.css"> </link>
+<style>
+#pull-status-container {
+    padding: 16px;
+    background-color: black;
+    display: none;
+}
+</style>
 {% endblock %}

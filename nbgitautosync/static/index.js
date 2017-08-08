@@ -1,7 +1,7 @@
 require([
     'jquery',
     'base/js/utils',
-    'xterm.js'
+    'git-sync/static/xterm.js-2.9.1/dist/xterm.js'
 ], function($, utils, Terminal) {
     function redirect_url() {
         var path = utils.get_body_data('path');
@@ -15,13 +15,16 @@ require([
     var base_url = utils.get_body_data('baseUrl');
     console.log(base_url);
 
-    var sync_url = base_url + 'sync-repo?' + $.param({
+    var sync_url = base_url + 'git-sync/api?' + $.param({
         repo: utils.get_body_data('repo'),
         branch: utils.get_body_data('branch'),
         path: utils.get_body_data('path')
     });
 
-    var term = new Terminal();
+    var term = new Terminal({
+        convertEol: true,
+        disableStdin: true
+    });
     term.open($('#pull-status')[0]);
 
     var es = new EventSource(sync_url);
