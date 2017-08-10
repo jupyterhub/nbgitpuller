@@ -38,7 +38,9 @@ data-branch="{{ branch | urlencode }}"
 
 {% block stylesheet %}
 {{super()}}
-<link rel="stylesheet" href="{{ base_url }}git-sync/static/xterm.js-2.9.1/dist/xterm.css"> </link>
+
+<link rel="stylesheet" href="{{ static_url("terminal/css/override.css") }}" type="text/css" />
+<link rel="stylesheet" href="{{ static_url("components/xterm.js/dist/xterm.css") }}" type="text/css" />
 <style>
 #status-details-container {
     padding: 16px;
