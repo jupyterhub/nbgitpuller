@@ -1,4 +1,4 @@
-from .handlers import SyncHandler, UIHandler
+from .handlers import SyncHandler, UIHandler, LegacyRedirectHandler
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os
@@ -16,6 +16,7 @@ def load_jupyter_server_extension(nbapp):
     handlers = [
         (url_path_join(base_url, 'api'), SyncHandler),
         (url_path_join(base_url), UIHandler),
+        (url_path_join(web_app.settings['base_url'], 'interact'), LegacyRedirectHandler),
         (
             url_path_join(base_url, 'static', '(.*)'),
             StaticFileHandler,
