@@ -1,5 +1,6 @@
 from tornado import gen, web, locks
 import traceback
+import urllib.parse
 
 from gitautosync import GitAutoSync
 from notebook.utils import url_path_join
@@ -136,3 +137,21 @@ class UIHandler(IPythonHandler):
                 repo=repo, path=path, branch=branch
             ))
         self.flush()
+
+class LegacyRedirectHandler(IPythonHandler):
+    @gen.coroutine
+    def get(self):
+        repo = self.get_argument('repo')
+        account = self.get_argument('account', 'data-8')
+        repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)
+        query = {
+            'repo': repo_url,
+            'branch': self.get_argument('branch', 'gh-pages'),
+            'subPath': self.get_argument('path')
+        }
+        new_url = '{base}git-sync?{query}'.format(
+            base=self.base_url,
+            query=urllib.parse.urlencode(query)
+        )
+
+        self.redirect(new_url)
