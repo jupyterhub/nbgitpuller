@@ -83,6 +83,7 @@ class GitAutoSync:
 
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
         yield from execute_cmd(['git', 'clone', self.git_url, self.repo_dir])
+        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
     def _update_repo(self):

@@ -24,6 +24,7 @@ class TestGitAutoSync:
         self.setUp()
         assert os.path.exists(self._gitautosync.repo_dir)
         assert os.path.exists(os.path.join(self._gitautosync.repo_dir, ".git"))
+        assert self._get_current_branch() == self._gitautosync.branch_name
 
     def test_get_sub_cwd(self):
         self.setUp()
@@ -110,6 +111,11 @@ class TestGitAutoSync:
         output = subprocess.check_output(['head', '-n', '1'], stdin=ps.stdout, cwd=cwd)
         ps.wait()
         return output.decode('utf-8').strip().split(' ')[1]
+
+    def _get_current_branch(self):
+        cwd = self._gitautosync.repo_dir
+        out = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], cwd=cwd)
+        return out.decode('utf-8').strip()
 
     def _create_new_file(self, name):
         with open(self._gitautosync.repo_dir + "/" + name, 'w') as new_file:
