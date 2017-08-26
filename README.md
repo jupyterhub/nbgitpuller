@@ -5,17 +5,27 @@ Synchronizes a github repository with a local repository. Automatically deals wi
 
 # Installation
 
-If you don't use `pipsi`, you're missing out.
-Here are [installation instructions](https://github.com/mitsuhiko/pipsi#readme).
+Before installing, make sure you have a **Python 3** installation with
+the Jupyter environment installed.
 
-Simply run:
+To install gitautosync, first install the package with `pip`:
 
-    $ pipsi install .
+    pip install gitautosync
+
+Next, enable the server extension with the following command:
+
+    jupyter serverextension enable --py nbgitautosync --sys-prefix
 
 
 # Usage
 
-To use it:
+To use gitautosync, open the notebook. Replace `tree` (and everything)
+after it with the following syntax:
 
-    $ gitautosync --help
+    myjupyterhub.com/git-sync?repo=<URL-to-my-repo>
 
+The repository will be cloned and placed in your root folder. If this
+repository already exists in your root folder, then files will be updated
+with any changes that exist in the repository from which we are pulling.
+If there are any merge conflicts, the user version will be kept, so your
+work won't be overwritten.
