@@ -9,12 +9,13 @@ from gitautosync import GitAutoSync
 class TestGitAutoSync:
 
     _gitautosync = None
+    _dir_name = 'test-repo'
 
     def setUp(self):
         self._gitautosync = GitAutoSync(
             'https://github.com/data-8/test-homework',
-            'gh-pages',
-            'test-repo'
+            'master',
+            self._dir_name
         )
         self._delete_init_path()
         for line in self._gitautosync._initialize_repo():
@@ -43,6 +44,17 @@ class TestGitAutoSync:
         assert result
 
     def test_make_commit(self):
+        self.setUp()
+        self._make_repo_dirty()
+        for line in self._gitautosync._make_commit():
+            print(line)
+
+        assert self._get_latest_commit_msg() == 'WIP'
+
+        result = self._gitautosync.repo_is_dirty()
+        assert not result
+
+    def test_save_local_changes(self):
         self.setUp()
         self._make_repo_dirty()
         for line in self._gitautosync._make_commit():
@@ -101,6 +113,22 @@ class TestGitAutoSync:
         for line in self._gitautosync._reset_deleted_files():
             print(line)
         assert os.path.exists(deleted_file_name)
+
+    def test_merge_modified_vs_deleted_upstream(self):
+        self.setUp()
+        cwd = self._gitautosync.repo_dir
+
+        # remove the upstream commit that deletes 'new-file.txt'
+        subprocess.check_call(['git', 'reset', '--hard', 'HEAD^'], cwd=cwd)
+
+        # modify 'new-file.txt' locally
+        with open(os.path.join(self._dir_name, 'new-file.txt'), 'w') as file:
+            file.write('after')
+
+        for line in self._gitautosync.pull_from_remote():
+            print(line)
+        print(self._get_git_status_msg())
+        assert 'ahead' in self._get_git_status_msg()
 
     def _generate_random_string(self, N):
         return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))

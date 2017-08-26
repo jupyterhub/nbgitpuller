@@ -5,6 +5,7 @@ import logging
 import argparse
 from functools import partial
 
+
 def execute_cmd(cmd, **kwargs):
     """
     Call given command, yielding output line by line
@@ -20,6 +21,7 @@ def execute_cmd(cmd, **kwargs):
     # This should behave the same as .readline(), but splits on `\r` OR `\n`,
     # not just `\n`.
     buf = []
+
     def flush():
         line = b''.join(buf).decode('utf8', 'replace')
         buf[:] = []
@@ -38,6 +40,7 @@ def execute_cmd(cmd, **kwargs):
         ret = proc.wait()
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
+
 
 class GitAutoSync:
     DELETED_FILE_REGEX = re.compile(
@@ -93,7 +96,7 @@ class GitAutoSync:
 
         yield from self._reset_deleted_files()
         if self.repo_is_dirty():
-            yield from self._make_commit()
+            yield from self._save_local_changes()
         yield from self._pull_and_resolve_conflicts()
 
     def _reset_deleted_files(self):
@@ -110,12 +113,17 @@ class GitAutoSync:
             yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
             logging.info('Resetted {}'.format(filename))
 
+    def _save_local_changes(self):
+        """
+        Commit local changes to specified branch
+        """
+        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+        yield from self._make_commit()
+
     def _make_commit(self):
         """
         Commit local changes
         """
-
-        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'add', '-A'], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=self.repo_dir)
@@ -131,7 +139,14 @@ class GitAutoSync:
 
         yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+
+        try:
+            yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+        except subprocess.CalledProcessError:
+            # Keep the modified file if a change to it is made
+            # locally, but delted upstream
+            yield from self._make_commit()
+            yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
 
         logging.info('Pulled from {}'.format(self.git_url))
 
