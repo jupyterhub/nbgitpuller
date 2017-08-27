@@ -142,11 +142,30 @@ class GitAutoSync:
 
         try:
             yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
-        except subprocess.CalledProcessError:
-            # Keep the modified file if a change to it is made
-            # locally, but delted upstream
-            yield from self._make_commit()
-            yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+        except subprocess.CalledProcessError as e:
+            # When a user modifies a file locally, gitautosync first attempts
+            # to commit the change to save the user's work. However, afterwards,
+            # when it tries to merge with upstream, this may cause a merge
+            # conflict if the file is deleted upstream. This is because it is
+            # trying to merge two conflicting changes to the file: one being its
+            # modification and the other being its deletion
+
+            # Because of the merge conflict, git will throw an error ie.
+            #   CONFLICT (modify/delete): new-file.txt deleted in branch1 and
+            #   modified in HEAD. Version HEAD of new-file.txt left in tree.
+            #   Automatic merge failed; fix conflicts and then commit the result.
+
+            # Making a commit and re-merging fixes the conflict by confirming
+            # to git that we want to keep the MODIFIED changes and not the
+            # DELETED changes.
+            # https://stackoverflow.com/questions/4319486/git-merge-conflict-when-local-is-deleted-but-file-exists-in-remote
+
+            # if there was a merge error
+            if e.returncode == 1:
+                yield from self._make_commit()
+                yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+            else:
+                raise e
 
         logging.info('Pulled from {}'.format(self.git_url))
 
