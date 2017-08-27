@@ -165,7 +165,7 @@ class GitAutoSync:
                 yield from self._make_commit()
                 yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
             else:
-                raise e
+                raise
 
         logging.info('Pulled from {}'.format(self.git_url))
 
