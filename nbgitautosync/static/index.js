@@ -149,8 +149,9 @@ require([
         utils.get_body_data('baseUrl'),
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
-        utils.get_body_data('path'),
+        utils.get_body_data('path')
     );
+
     var gsv = new GitSyncView(
         '#status-details',
         '#status-panel-title',
