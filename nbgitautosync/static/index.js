@@ -1,7 +1,7 @@
 require([
     'jquery',
     'base/js/utils',
-    'components/xterm.js/dist/xterm',
+    'components/xterm.js/dist/xterm'
 ], function(
     $,
     utils,
@@ -66,7 +66,7 @@ require([
     function GitSyncView(termSelector, progressSelector, termToggleSelector) {
         // Class that encapsulates view rendering as much as possible
         this.term = new Terminal({
-            convertEol: true,
+            convertEol: true
         });
         this.term.open($(termSelector)[0]);
         this.$progress = $(progressSelector);
@@ -155,7 +155,7 @@ require([
     var gsv = new GitSyncView(
         '#status-details',
         '#status-panel-title',
-        '#status-panel-toggle',
+        '#status-panel-toggle'
     );
 
     gs.addHandler('syncing', function(data) {
@@ -298,6 +298,6 @@ require([
         "Time-Compressing Simulator Clock",
         "Unable to Reveal Current Activity",
         "Weathering Buildings",
-        "Zeroing Crime Network",
+        "Zeroing Crime Network"
     ];
 });
