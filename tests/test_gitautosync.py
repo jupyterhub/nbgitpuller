@@ -18,8 +18,7 @@ class TestGitAutoSync:
             self._dir_name
         )
         self._delete_init_path()
-        for line in self._gitautosync._initialize_repo():
-            print(line)
+        self._print_generator(self._gitautosync._initialize_repo())
 
     def test_initialize_repo(self):
         self.setUp()
@@ -43,11 +42,30 @@ class TestGitAutoSync:
         result = self._gitautosync.repo_is_dirty()
         assert result
 
+    def test_add_and_remove_local_file(self):
+        self.setUp()
+
+        with open(os.path.join(self._dir_name, 'new-file.txt'), 'w') as file:
+            file.write('hello')
+
+        self._make_repo_dirty()
+
+        # create local commmit of locally added file
+        self._print_generator(self._gitautosync.pull_from_remote())
+        assert self._get_latest_commit_msg() == 'WIP'
+
+        os.remove(os.path.join(self._dir_name, 'new-file.txt'))
+
+        self._make_repo_dirty()
+        self._print_generator(self._gitautosync.pull_from_remote())
+
+        assert self._get_latest_commit_msg() == 'WIP'
+        assert 'ahead' in self._get_git_status_msg()
+
     def test_make_commit(self):
         self.setUp()
         self._make_repo_dirty()
-        for line in self._gitautosync._make_commit():
-            print(line)
+        self._print_generator(self._gitautosync._make_commit())
 
         assert self._get_latest_commit_msg() == 'WIP'
 
@@ -57,8 +75,7 @@ class TestGitAutoSync:
     def test_save_local_changes(self):
         self.setUp()
         self._make_repo_dirty()
-        for line in self._gitautosync._make_commit():
-            print(line)
+        self._print_generator(self._gitautosync._make_commit())
 
         assert self._get_latest_commit_msg() == 'WIP'
 
@@ -74,8 +91,7 @@ class TestGitAutoSync:
     def test_update_repo(self):
         self.setUp()
         self._make_repo_dirty()
-        for line in self._gitautosync._update_repo():
-            print(line)
+        self._print_generator(self._gitautosync._update_repo())
         assert self._get_latest_commit_msg() == 'WIP'
 
         result = self._gitautosync.repo_is_dirty()
@@ -94,8 +110,7 @@ class TestGitAutoSync:
 
         self._make_repo_dirty()
 
-        for line in self._gitautosync.pull_from_remote():
-            print(line)
+        self._print_generator(self._gitautosync.pull_from_remote())
         assert self._get_latest_commit_msg() == 'WIP'
 
         result = self._gitautosync.repo_is_dirty()
@@ -110,8 +125,7 @@ class TestGitAutoSync:
         deleted_file_name = '{}/README.md'.format(self._gitautosync.repo_dir)
         subprocess.check_call(['rm', deleted_file_name])
 
-        for line in self._gitautosync._reset_deleted_files():
-            print(line)
+        self._print_generator(self._gitautosync._reset_deleted_files())
         assert os.path.exists(deleted_file_name)
 
     def test_merge_modified_vs_deleted_upstream(self):
@@ -125,8 +139,7 @@ class TestGitAutoSync:
         with open(os.path.join(self._dir_name, 'new-file.txt'), 'w') as file:
             file.write('after')
 
-        for line in self._gitautosync.pull_from_remote():
-            print(line)
+        self._print_generator(self._gitautosync.pull_from_remote())
         print(self._get_git_status_msg())
         assert 'ahead' in self._get_git_status_msg()
 
@@ -165,13 +178,15 @@ class TestGitAutoSync:
     def _retains_new_files(self):
         self._create_new_file("new_file1.txt")
 
-        for line in self._gitautosync._make_commit():
-            print(line)
+        self._print_generator(self._gitautosync._make_commit())
 
         self._create_new_file("new_file2.txt")
 
-        for line in self._gitautosync._pull_and_resolve_conflicts():
-            print(line)
+        self._print_generator(self._gitautosync._pull_and_resolve_conflicts())
 
         assert os.path.exists(self._gitautosync.repo_dir + "/new_file2.txt")
         assert os.path.exists(self._gitautosync.repo_dir + "/new_file1.txt")
+
+    def _print_generator(self, gen):
+        for line in gen:
+            print(line)

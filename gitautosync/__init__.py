@@ -110,8 +110,36 @@ class GitAutoSync:
         deleted_files = self.DELETED_FILE_REGEX.findall(status.decode('utf-8'))
 
         for filename in deleted_files:
-            yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
-            logging.info('Resetted {}'.format(filename))
+            try:
+                yield from self._raise_error_if_git_file_not_exists(filename)
+                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
+                logging.info('Resetted {}'.format(filename))
+            except subprocess.CalledProcessError as git_err:
+                # Skip all the files that were deleted locally and that were
+                # either deleted upstream or never existed upsteram.
+                # Those files do not need to be re-downloaded.
+                if git_err.returncode != 128:
+                    raise
+
+    def _raise_error_if_git_file_not_exists(self, filename):
+        """
+        Checks to see if the file or directory actually exists in the remote repo
+        using: git cat-file -e origin/<branch_name>:<filename>
+        """
+
+        # fetch origin first so that cat-file can see if the file exists
+        try:
+            yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
+        except subprocess.CalledProcessError as git_err:
+            # If the fetch fails, continue on since we will have all the
+            # info from the origin anyways.
+            if git_err.returncode != 1:
+                raise
+
+        yield from execute_cmd(
+            ['git', 'cat-file', '-e', 'origin/{}:{}'.format(self.branch_name, filename)],
+            cwd=self.repo_dir
+        )
 
     def _save_local_changes(self):
         """
