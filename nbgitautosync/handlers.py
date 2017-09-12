@@ -29,8 +29,11 @@ class SyncHandler(IPythonHandler):
     def emit(self, data):
         if type(data) is not str:
             serialized_data = json.dumps(data)
+            if 'output' in data:
+                self.log.info(data['output'].rstrip())
         else:
             serialized_data = data
+            self.log.info(data)
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
