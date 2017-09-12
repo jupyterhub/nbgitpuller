@@ -68,18 +68,28 @@ require([
         this.term = new Terminal({
             convertEol: true
         });
+        this.visible = false;
         this.term.open($(termSelector)[0]);
         this.$progress = $(progressSelector);
 
         this.$termToggle = $(termToggleSelector);
+        this.termSelector = termSelector;
 
         var that = this;
         this.$termToggle.click(function() {
-            $(termSelector).parent().toggleClass('hidden');
-            that._fitTerm();
+            that.setTerminalVisibility(!that.visible);
         });
     }
 
+    GitSyncView.prototype.setTerminalVisibility = function(visible) {
+        if (visible) {
+            $(this.termSelector).parent().removeClass('hidden');
+        } else {
+            $(this.termSelector).parent().addClass('hidden');
+        }
+        this.visible = visible;
+        this._fitTerm();
+    }
 
     GitSyncView.prototype.setProgressValue = function(val) {
         this.$progress.attr('aria-valuenow', val);
@@ -172,6 +182,7 @@ require([
         gsv.setProgressValue(100);
         gsv.setProgressText('Error: ' + data.message);
         gsv.setProgressError(true);
+        gsv.setTerminalVisibility(true);
         if (data.output) {
             gsv.term.write(data.output);
         }
