@@ -26,7 +26,7 @@ of materials to users without requiring them to understand git.
 You can construct a working nbgitpuller URL like this:
 
 ```
-myjupyterhub.org/hub/user-redirect/git-sync?repo=<your-repo-url>&branch=<your-branch-name>&subPath=<subPath>
+myjupyterhub.org/hub/user-redirect/git-pull?repo=<your-repo-url>&branch=<your-branch-name>&subPath=<subPath>
 ```
 
 - **repo** is the URL of the git repository you want to clone. This paramter is required.

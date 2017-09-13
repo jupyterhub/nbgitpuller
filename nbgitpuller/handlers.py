@@ -141,7 +141,17 @@ class UIHandler(IPythonHandler):
             ))
         self.flush()
 
-class LegacyRedirectHandler(IPythonHandler):
+
+class LegacyGitSyncRedirectHandler(IPythonHandler):
+    @gen.coroutine
+    def get(self):
+        new_url = '{base}git-pull?{query}'.format(
+            base=self.base_url,
+            query=self.request.query
+        )
+        self.redirect(new_url)
+
+class LegacyInteractRedirectHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         repo = self.get_argument('repo')
@@ -152,7 +162,7 @@ class LegacyRedirectHandler(IPythonHandler):
             'branch': self.get_argument('branch', 'gh-pages'),
             'subPath': self.get_argument('path')
         }
-        new_url = '{base}git-sync?{query}'.format(
+        new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,
             query=urllib.parse.urlencode(query)
         )
