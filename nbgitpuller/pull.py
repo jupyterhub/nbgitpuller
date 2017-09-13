@@ -114,12 +114,8 @@ class GitPuller:
         """
         Commit local changes
         """
-
         yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'add', '-A'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'commit', '-m', 'WIP'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
         logging.info('Made WIP commit')
 
     def _pull_and_resolve_conflicts(self):
