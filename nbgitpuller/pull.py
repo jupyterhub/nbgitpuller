@@ -153,9 +153,9 @@ def main():
         level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
-    parser.add_argument('--git-url', help='Url of the repo to sync', required=True)
-    parser.add_argument('--branch-name', default='master', help='Branch of repo to sync')
-    parser.add_argument('--repo-dir', default='./', help='Path to sync to')
+    parser.add_argument('git_url', help='Url of the repo to sync')
+    parser.add_argument('branch_name', default='master', help='Branch of repo to sync', nargs='?')
+    parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
