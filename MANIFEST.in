@@ -1,5 +1,5 @@
 include *.md
 include LICENSE
 include setup.cfg
-recursive-include nbgitautosync/static *
-recursive-include nbgitautosync/templates *
+recursive-include nbgitpuller/static *
+recursive-include nbgitpuller/templates *

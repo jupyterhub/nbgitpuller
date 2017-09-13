@@ -39,7 +39,7 @@ def execute_cmd(cmd, **kwargs):
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
 
-class GitAutoSync:
+class GitPuller:
     DELETED_FILE_REGEX = re.compile(
         r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
         r"([^\n\r]+)"   # and match the filename afterward.
@@ -147,7 +147,6 @@ class GitAutoSync:
 def main():
     """
     Synchronizes a github repository with a local repository.
-    Automatically deals with conflicts and produces useful output to stdout.
     """
     logging.basicConfig(
         format='[%(asctime)s] %(levelname)s -- %(message)s',
@@ -159,7 +158,7 @@ def main():
     parser.add_argument('--repo-dir', default='./', help='Path to sync to')
     args = parser.parse_args()
 
-    for line in GitAutoSync(
+    for line in GitPuller(
         args.git_url,
         args.branch_name,
         args.repo_dir
