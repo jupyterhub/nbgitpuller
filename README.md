@@ -15,10 +15,11 @@ You can then enable the serverextension
 
 # How it works
 
-nbgitpuller works by allowing you to construct a special URL, that when clicked
-will do the pulling for the user while rendering a nice status page. This is
-especially useful when running on a JupyterHub, since it allows easy distribution
-of materials to users without them having to understand git.
+nbgitpuller allows you to construct URL that points to a remote git repository.
+When it is clicked, nbgitpuller will pull for the contents of this repository
+into the user's current folder within Jupyter, while rendering a nice status page.
+This is especially useful when running on a JupyterHub, since it allows easy distribution
+of materials to users without requiring them to understand git.
 
 # Constructing the nbgitpuller URL
 
@@ -32,5 +33,4 @@ myjupyterhub.org/hub/user-redirect/git-sync?repo=<your-repo-url>&branch=<your-br
 - **branch** is the branch name to use when cloning from the repository.
   This parameter is optional and defaults to `master`.
 - **subPath** is the path of the directory / notebook inside the repo to launch after cloning.
-  This parameter is optional and defaults to just opening the directory containing contents of
-  your repository.
+  This parameter is optional, and defaults to opening the base directory of the linked Git repository.
