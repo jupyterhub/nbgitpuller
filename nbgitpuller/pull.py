@@ -94,8 +94,7 @@ class GitPuller:
         """
 
         yield from self._reset_deleted_files()
-        if self.repo_is_dirty():
-            yield from self._make_commit()
+        yield from self._make_commit()
         yield from self._pull_and_resolve_conflicts()
 
     def _reset_deleted_files(self):
@@ -116,9 +115,10 @@ class GitPuller:
         """
         Commit local changes
         """
-        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
-        logging.info('Made WIP commit')
+        if self.repo_is_dirty():
+            yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+            yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
+            logging.info('Made WIP commit')
 
     def _pull_and_resolve_conflicts(self):
         """
