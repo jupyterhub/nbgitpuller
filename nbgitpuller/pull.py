@@ -39,7 +39,7 @@ def execute_cmd(cmd, **kwargs):
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
 
-class GitAutoSync:
+class GitPuller:
     DELETED_FILE_REGEX = re.compile(
         r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
         r"([^\n\r]+)"   # and match the filename afterward.
@@ -78,12 +78,14 @@ class GitAutoSync:
 
     def _initialize_repo(self):
         """
-        Clones repository.
+        Clones repository & sets up usernames.
         """
 
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
         yield from execute_cmd(['git', 'clone', self.git_url, self.repo_dir])
         yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'config', 'user.email', 'nbgitpuller@example.com'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'config', 'user.name', 'nbgitpuller'], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
     def _update_repo(self):
@@ -92,8 +94,7 @@ class GitAutoSync:
         """
 
         yield from self._reset_deleted_files()
-        if self.repo_is_dirty():
-            yield from self._make_commit()
+        yield from self._make_commit()
         yield from self._pull_and_resolve_conflicts()
 
     def _reset_deleted_files(self):
@@ -114,13 +115,10 @@ class GitAutoSync:
         """
         Commit local changes
         """
-
-        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'add', '-A'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'config', 'user.email', '"gitautopull@email.com"'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'config', 'user.name', '"GitAutoPull"'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'commit', '-m', 'WIP'], cwd=self.repo_dir)
-        logging.info('Made WIP commit')
+        if self.repo_is_dirty():
+            yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+            yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
+            logging.info('Made WIP commit')
 
     def _pull_and_resolve_conflicts(self):
         """
@@ -147,19 +145,18 @@ class GitAutoSync:
 def main():
     """
     Synchronizes a github repository with a local repository.
-    Automatically deals with conflicts and produces useful output to stdout.
     """
     logging.basicConfig(
         format='[%(asctime)s] %(levelname)s -- %(message)s',
         level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
-    parser.add_argument('--git-url', help='Url of the repo to sync', required=True)
-    parser.add_argument('--branch-name', default='master', help='Branch of repo to sync')
-    parser.add_argument('--repo-dir', default='./', help='Path to sync to')
+    parser.add_argument('git_url', help='Url of the repo to sync')
+    parser.add_argument('branch_name', default='master', help='Branch of repo to sync', nargs='?')
+    parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
     args = parser.parse_args()
 
-    for line in GitAutoSync(
+    for line in GitPuller(
         args.git_url,
         args.branch_name,
         args.repo_dir

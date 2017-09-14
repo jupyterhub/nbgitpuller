@@ -42,7 +42,7 @@ require([
 
 
     GitSync.prototype.start = function() {
-        var syncUrl = this.baseUrl + 'git-sync/api?' + $.param({
+        var syncUrl = this.baseUrl + 'git-pull/api?' + $.param({
             repo: this.repo,
             branch: this.branch,
             path: this.path

@@ -2,7 +2,6 @@ from tornado import gen, web, locks
 import traceback
 import urllib.parse
 
-from gitautosync import GitAutoSync
 from notebook.utils import url_path_join
 from notebook.base.handlers import IPythonHandler
 import threading
@@ -11,6 +10,7 @@ import os
 from queue import Queue, Empty
 import jinja2
 
+from .pull import GitPuller
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -57,21 +57,21 @@ class SyncHandler(IPythonHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gas = GitAutoSync(repo, branch, repo_dir)
+            gp = GitPuller(repo, branch, repo_dir)
 
             q = Queue()
             def pull():
                 try:
-                    for line in gas.pull_from_remote():
+                    for line in gp.pull_from_remote():
                         q.put_nowait(line)
                     # Sentinel when we're done
                     q.put_nowait(None)
                 except Exception as e:
                     q.put_nowait(e)
                     raise e
-            self.gas_thread = threading.Thread(target=pull)
+            self.gp_thread = threading.Thread(target=pull)
 
-            self.gas_thread.start()
+            self.gp_thread.start()
 
             while True:
                 try:
@@ -136,12 +136,22 @@ class UIHandler(IPythonHandler):
 
         self.write(
             self.render_template(
-                'nbgitautosync.html',
+                'status.html',
                 repo=repo, path=path, branch=branch
             ))
         self.flush()
 
-class LegacyRedirectHandler(IPythonHandler):
+
+class LegacyGitSyncRedirectHandler(IPythonHandler):
+    @gen.coroutine
+    def get(self):
+        new_url = '{base}git-pull?{query}'.format(
+            base=self.base_url,
+            query=self.request.query
+        )
+        self.redirect(new_url)
+
+class LegacyInteractRedirectHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         repo = self.get_argument('repo')
@@ -152,7 +162,7 @@ class LegacyRedirectHandler(IPythonHandler):
             'branch': self.get_argument('branch', 'gh-pages'),
             'subPath': self.get_argument('path')
         }
-        new_url = '{base}git-sync?{query}'.format(
+        new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,
             query=urllib.parse.urlencode(query)
         )
