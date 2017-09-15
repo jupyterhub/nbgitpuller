@@ -1,8 +1,8 @@
 import os
-import re
 import subprocess
 import logging
 import argparse
+import datetime
 from functools import partial
 
 def execute_cmd(cmd, **kwargs):
@@ -40,16 +40,6 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 class GitPuller:
-    DELETED_FILE_REGEX = re.compile(
-        r"deleted:\s+"  # Look for deleted: + any amount of whitespace...
-        r"([^\n\r]+)"   # and match the filename afterward.
-    )
-
-    MODIFIED_FILE_REGEX = re.compile(
-        r"^\s*M\s+(.*)$",  # Look for M surrounded by whitespaeces and match filename afterward
-        re.MULTILINE
-    )
-
     def __init__(self, git_url, branch_name, repo_dir):
         assert git_url and branch_name
 
@@ -62,21 +52,14 @@ class GitPuller:
         Pull selected repo from a remote git repository,
         while preserving user changes
         """
-
-        logging.info('Pulling into {} from {}, branch {}'.format(
-            self.repo_dir,
-            self.git_url,
-            self.branch_name
-        ))
-
         if not os.path.exists(self.repo_dir):
-            yield from self._initialize_repo()
+            yield from self.initialize_repo()
         else:
-            yield from self._update_repo()
+            yield from self.pull()
 
         logging.info('Pulled from repo: {}'.format(self.git_url))
 
-    def _initialize_repo(self):
+    def initialize_repo(self):
         """
         Clones repository & sets up usernames.
         """
@@ -88,58 +71,98 @@ class GitPuller:
         yield from execute_cmd(['git', 'config', 'user.name', 'nbgitpuller'], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
-    def _update_repo(self):
-        """
-        Update repo by merging local and upstream changes
-        """
 
-        yield from self._reset_deleted_files()
-        yield from self._make_commit()
-        yield from self._pull_and_resolve_conflicts()
-
-    def _reset_deleted_files(self):
+    def reset_deleted_files(self):
         """
         Runs the equivalent of git checkout -- <file> for each file that was
         deleted. This allows us to delete a file, hit an interact link, then get a
         clean version of the file again.
         """
 
-        status = subprocess.check_output(['git', 'status'], cwd=self.repo_dir)
-        deleted_files = self.DELETED_FILE_REGEX.findall(status.decode('utf-8'))
+        deleted_files = subprocess.check_output([
+            'git', 'ls-files', '--deleted'
+        ], cwd=self.repo_dir).decode().strip().split('\n')
 
         for filename in deleted_files:
-            yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
-            logging.info('Resetted {}'.format(filename))
-
-    def _make_commit(self):
-        """
-        Commit local changes
-        """
-        if self.repo_is_dirty():
-            yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-            yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
-            logging.info('Made WIP commit')
-
-    def _pull_and_resolve_conflicts(self):
-        """
-        Git pulls, resolving conflicts with -Xours
-        """
-
-        logging.info('Starting pull from {}'.format(self.git_url))
-
-        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
-
-        logging.info('Pulled from {}'.format(self.git_url))
+            if filename:  # Filter out empty lines
+                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
 
     def repo_is_dirty(self):
         """
         Return true if repo is dirty
         """
-        output = subprocess.check_output(['git', 'status', '--porcelain'], cwd=self.repo_dir)
+        try:
+            subprocess.check_call(['git', 'diff-files', '--quiet'], cwd=self.repo_dir)
+            # Return code is 0
+            return False
+        except subprocess.CalledProcessError:
+            return True
 
-        return self.MODIFIED_FILE_REGEX.search(output.decode('utf-8')) is not None
+    def update_remotes(self):
+        """
+        Do a git fetch so our remotes are up to date
+        """
+        yield from execute_cmd(['git', 'fetch'])
+
+    def find_upstream_changed(self, kind):
+        """
+        Return list of files that have been changed upstream belonging to a particular kind of change
+        """
+        output = subprocess.check_output([
+            'git', 'log', '{}..origin/{}'.format(self.branch_name, self.branch_name),
+            '--oneline', '--name-status'
+        ], cwd=self.repo_dir).decode()
+        files = []
+        for line in output.split('\n'):
+            if line.startswith(kind):
+                files.append(os.path.join(self.repo_dir, line.split('\t', 1)[1]))
+
+        return files
+
+    def rename_local_untracked(self):
+        """
+        Rename local untracked files that would require pulls
+        """
+        # Find what files have been added!
+        new_upstream_files = self.find_upstream_changed('A')
+        for f in new_upstream_files:
+            if os.path.exists(f):
+                # If there's a file extension, put the timestamp before that
+                ts = datetime.datetime.now().strftime('__%Y%m%d%H%M%S')
+                path_head, path_tail = os.path.split(f)
+                if '.' in path_tail:
+                    # FIXME: Handle files with multiple dots in their name
+                    path_tail = path_tail.replace('.', ts + '.')
+                else:
+                    path_tail = path_tail + ts
+                new_file_name = os.path.join(path_head, path_tail)
+                os.rename(f, new_file_name)
+                yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
+
+
+    def pull(self):
+        """
+        Do the pull!
+        """
+        # Fetch remotes, so we know we're dealing with latest remote
+        yield from self.update_remotes()
+
+        # Rename local untracked files that might be overwritten by pull
+        yield from self.rename_local_untracked()
+
+        # Reset local files that have been deleted. We don't actually expect users to
+        # delete something that's present upstream and expect to keep it. This prevents
+        # unnecessary conflicts, and also allows users to click the link again to get
+        # a fresh copy of a file they might have screwed up.
+        yield from self.reset_deleted_files()
+
+        # If there are local changes, make a commit so we can do merges when pulling
+        if self.repo_is_dirty():
+            yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
+
+        # Merge master into local!
+        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+
 
 
 def main():
