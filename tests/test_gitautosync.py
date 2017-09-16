@@ -1,149 +1,123 @@
 import os
 import shutil
-import subprocess
+import subprocess as sp
+import time
 import random
 import string
+import pytest
 from nbgitpuller import GitPuller
+from nbgitpuller.pull import execute_cmd
 
+class Remote:
+    def __init__(self, path='remote'):
+        self.path = path
 
-class TestGitPuller:
+    def __enter__(self):
+        os.mkdir(self.path)
+        self.git('init', '--bare')
+        return self
 
-    _gitpuller = None
+    def __exit__(self, *args):
+        shutil.rmtree(self.path)
 
-    def setUp(self):
-        self._gitpuller = GitPuller(
-            'https://github.com/data-8/test-homework',
-            'gh-pages',
-            'test-repo'
-        )
-        self._delete_init_path()
-        for line in self._gitpuller._initialize_repo():
+    def git(self, *args):
+        return sp.check_output(
+            ['git'] + list(args),
+            cwd=self.path,
+            stderr=sp.STDOUT
+        ).decode().strip()
+
+class Pusher:
+    def __init__(self, remote, path='pusher'):
+        self.path = path
+        self.remote = remote
+
+    def __enter__(self):
+        sp.check_output(['git', 'clone', self.remote.path, self.path])
+        return self
+
+    def __exit__(self, *args):
+        shutil.rmtree(self.path)
+
+    def git(self, *args):
+        return sp.check_output(
+            ['git'] + list(args),
+            cwd=self.path,
+            stderr=sp.STDOUT
+        ).decode().strip()
+
+    def write_file(self, path, content):
+        with open(os.path.join(self.path, path), 'w') as f:
+            f.write(content)
+
+    def read_file(self, path):
+        with open(os.path.join(self.path, path)) as f:
+            return f.read()
+
+    def push_file(self, path, content):
+        self.write_file(path, content)
+        self.git('add', path)
+        self.git('commit', '-am', 'Ignore the message')
+        self.git('push', 'origin', 'master')
+
+class Puller:
+    def __init__(self, remote, path='puller'):
+        self.path = path
+        self.gp = GitPuller(remote.path, 'master', path)
+
+    def __enter__(self):
+        for line in self.gp.pull():
             print(line)
+        return self
 
-    def test_initialize_repo(self):
-        self.setUp()
-        assert os.path.exists(self._gitpuller.repo_dir)
-        assert os.path.exists(os.path.join(self._gitpuller.repo_dir, ".git"))
-        assert self._get_current_branch() == self._gitpuller.branch_name
+    def __exit__(self, *args):
+        shutil.rmtree(self.path)
 
-    def test_get_sub_cwd(self):
-        self.setUp()
-        result = self._gitpuller.repo_dir
-        print("Repo Path w/ CWD:", result)
-        assert os.path.exists(result) or not os.path.exists(self._gitpuller.repo_dir)
+    def git(self, *args):
+        return sp.check_output(
+            ['git'] + list(args),
+            cwd=self.path,
+            stderr=sp.STDOUT
+        ).decode().strip()
 
-    def test_repo_is_dirty(self):
-        self.setUp()
-        result = self._gitpuller.repo_is_dirty()
-        assert not result
+    def write_file(self, path, content):
+        with open(os.path.join(self.path, path), 'w') as f:
+            f.write(content)
 
-        self._make_repo_dirty()
+    def read_file(self, path):
+        with open(os.path.join(self.path, path)) as f:
+            return f.read()
 
-        result = self._gitpuller.repo_is_dirty()
-        assert result
+# Tests to write:
+# 1. Initialize puller with gitpuller, test for user config & commit presence
+# 2. Push commit with pusher, pull with puller, valiate that nothing has changeed
+# 3. Delete file in puller, run puller, make sure file is back
+# 4. Make change in puller to file, make change in pusher to different part of file, run puller
+# 5. Make change in puller to file, make change in pusher to same part of file, run puller
+# 6. Make untracked file in puller, add file with same name to pusher, run puller
 
-    def test_make_commit(self):
-        self.setUp()
-        self._make_repo_dirty()
-        for line in self._gitpuller._make_commit():
-            print(line)
+def test_initialize():
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
 
-        assert self._get_latest_commit_msg() == 'WIP'
+        assert not os.path.exists('puller')
+        with Puller(remote, 'puller') as puller:
+            assert os.path.exists(os.path.join(puller.path, 'README.md'))
+            assert puller.git('name-rev', '--name-only', 'HEAD') == 'master'
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
 
-        result = self._gitpuller.repo_is_dirty()
-        assert not result
+def test_simple_push_pull():
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
 
-    def test_pull_and_resolve_conflicts(self):
-        self.setUp()
-        self._retains_new_files()
+        with Puller(remote) as puller:
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
 
-        # FIXME: Actually make a change in upstream repo and try
+            pusher.push_file('README.md', '2')
+            for l in puller.gp.pull():
+                print(puller.path + l)
 
-    def test_update_repo(self):
-        self.setUp()
-        self._make_repo_dirty()
-        for line in self._gitpuller._update_repo():
-            print(line)
-        assert self._get_latest_commit_msg() == 'WIP'
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '2'
 
-        result = self._gitpuller.repo_is_dirty()
-        assert not result
-
-        self._retains_new_files()
-
-        assert 'ahead' in self._get_git_status_msg()
-
-    def test_pull_from_remote(self):
-        self.setUp()
-        self._delete_init_path()
-        self._gitpuller.pull_from_remote()
-
-        self.test_initialize_repo()
-
-        self._make_repo_dirty()
-
-        for line in self._gitpuller.pull_from_remote():
-            print(line)
-        assert self._get_latest_commit_msg() == 'WIP'
-
-        result = self._gitpuller.repo_is_dirty()
-        assert not result
-
-        self._retains_new_files()
-
-        assert 'ahead' in self._get_git_status_msg()
-
-    def test_pull_deleted_files(self):
-        self.setUp()
-        deleted_file_name = '{}/README.md'.format(self._gitpuller.repo_dir)
-        subprocess.check_call(['rm', deleted_file_name])
-
-        for line in self._gitpuller._reset_deleted_files():
-            print(line)
-        assert os.path.exists(deleted_file_name)
-
-    def _generate_random_string(self, N):
-        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
-
-    def _get_latest_commit_msg(self):
-        cwd = self._gitpuller.repo_dir
-        ps = subprocess.Popen(['git', 'log', '--oneline'], stdout=subprocess.PIPE, cwd=cwd)
-        output = subprocess.check_output(['head', '-n', '1'], stdin=ps.stdout, cwd=cwd)
-        ps.wait()
-        return output.decode('utf-8').strip().split(' ')[1]
-
-    def _get_current_branch(self):
-        cwd = self._gitpuller.repo_dir
-        out = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], cwd=cwd)
-        return out.decode('utf-8').strip()
-
-    def _create_new_file(self, name):
-        with open(self._gitpuller.repo_dir + "/" + name, 'w') as new_file:
-            new_file.write(self._generate_random_string(10))
-
-    def _get_git_status_msg(self):
-        cwd = self._gitpuller.repo_dir
-        return subprocess.check_output(['git', 'status'], cwd=cwd).decode('utf-8')
-
-    def _make_repo_dirty(self):
-        new_file_name = "{}/README.md".format(self._gitpuller.repo_dir)
-        with open(new_file_name, 'w') as file:
-            file.write(self._generate_random_string(10))
-
-    def _delete_init_path(self):
-        if os.path.exists(self._gitpuller.repo_dir):
-            shutil.rmtree(self._gitpuller.repo_dir)
-
-    def _retains_new_files(self):
-        self._create_new_file("new_file1.txt")
-
-        for line in self._gitpuller._make_commit():
-            print(line)
-
-        self._create_new_file("new_file2.txt")
-
-        for line in self._gitpuller._pull_and_resolve_conflicts():
-            print(line)
-
-        assert os.path.exists(self._gitpuller.repo_dir + "/new_file2.txt")
-        assert os.path.exists(self._gitpuller.repo_dir + "/new_file1.txt")

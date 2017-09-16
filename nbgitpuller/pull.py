@@ -47,7 +47,7 @@ class GitPuller:
         self.branch_name = branch_name
         self.repo_dir = repo_dir
 
-    def pull_from_remote(self):
+    def pull(self):
         """
         Pull selected repo from a remote git repository,
         while preserving user changes
@@ -55,9 +55,7 @@ class GitPuller:
         if not os.path.exists(self.repo_dir):
             yield from self.initialize_repo()
         else:
-            yield from self.pull()
-
-        logging.info('Pulled from repo: {}'.format(self.git_url))
+            yield from self.update()
 
     def initialize_repo(self):
         """
@@ -102,7 +100,7 @@ class GitPuller:
         """
         Do a git fetch so our remotes are up to date
         """
-        yield from execute_cmd(['git', 'fetch'])
+        yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
 
     def find_upstream_changed(self, kind):
         """
@@ -130,19 +128,15 @@ class GitPuller:
                 # If there's a file extension, put the timestamp before that
                 ts = datetime.datetime.now().strftime('__%Y%m%d%H%M%S')
                 path_head, path_tail = os.path.split(f)
-                if '.' in path_tail:
-                    # FIXME: Handle files with multiple dots in their name
-                    path_tail = path_tail.replace('.', ts + '.')
-                else:
-                    path_tail = path_tail + ts
+                path_tail = ts.join(os.path.splitext(path_tail))
                 new_file_name = os.path.join(path_head, path_tail)
                 os.rename(f, new_file_name)
                 yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
 
 
-    def pull(self):
+    def update(self):
         """
-        Do the pull!
+        Do the pulling if necessary
         """
         # Fetch remotes, so we know we're dealing with latest remote
         yield from self.update_remotes()
@@ -183,5 +177,5 @@ def main():
         args.git_url,
         args.branch_name,
         args.repo_dir
-    ).pull_from_remote():
+    ).pull():
         print(line)
