@@ -8,7 +8,7 @@ setup(
     author='Peter Veerman',
     author_email='peterkangveerman@gmail.com',
     description='Notebook Extension to do one-way synchronization of git repositories',
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(),
     include_package_data=True,
     platforms='any',
     install_requires=['notebook'],
