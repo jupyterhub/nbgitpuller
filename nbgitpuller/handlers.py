@@ -62,7 +62,7 @@ class SyncHandler(IPythonHandler):
             q = Queue()
             def pull():
                 try:
-                    for line in gp.pull_from_remote():
+                    for line in gp.pull():
                         q.put_nowait(line)
                     # Sentinel when we're done
                     q.put_nowait(None)
