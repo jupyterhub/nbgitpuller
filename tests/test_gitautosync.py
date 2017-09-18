@@ -1,12 +1,12 @@
 import os
 import shutil
 import subprocess as sp
+import glob
 import time
 import random
 import string
 import pytest
 from nbgitpuller import GitPuller
-from nbgitpuller.pull import execute_cmd
 
 class Remote:
     def __init__(self, path='remote'):
@@ -107,6 +107,17 @@ def test_initialize():
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
 
 def test_simple_push_pull():
+    """
+    Test the 'happy path' push/pull interaction
+
+    1. Push a file to remote, pull (initially) to make sure we get it
+    2. Modify file & push to remote, pull to make sure we get update
+    3. Add new file to remote, pull to make sure we get it
+    4. Delete new file to remote, pull to make sure it is gone
+
+    No modifications are done in the puller repo here, so we do not
+    exercise any merging behavior.
+    """
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
 
@@ -121,3 +132,92 @@ def test_simple_push_pull():
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '2'
 
+            pusher.push_file('another-file', '3')
+
+            for l in puller.gp.pull():
+                print(l)
+
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+            assert puller.read_file('another-file') == pusher.read_file('another-file') == '3'
+
+            pusher.git('rm', 'another-file')
+            pusher.git('commit', '-m','Removing File')
+            pusher.git('push', 'origin', 'master')
+
+            for l in puller.gp.pull():
+                print(l)
+
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+            assert not os.path.exists(os.path.join(puller.path, 'another-file'))
+
+
+def test_merging_simple():
+    """
+    Test that when we change local & remote, local changes are preferred
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            puller.write_file('README.md', '2')
+
+            pusher.push_file('README.md', '3')
+
+            for l in puller.gp.pull():
+                print(l)
+
+            assert puller.read_file('README.md') == '2'
+            assert pusher.read_file('README.md') == '3'
+
+            # Make sure that further pushes to other files are reflected
+            pusher.push_file('another-file', '4')
+
+            for l in puller.gp.pull():
+                print(l)
+
+            assert puller.read_file('another-file') == pusher.read_file('another-file') == '4'
+
+            # Make sure our merging works across commits
+
+            pusher.push_file('README.md', '5')
+            for l in puller.gp.pull():
+                print(l)
+
+            assert puller.read_file('README.md') == '2'
+
+def test_untracked_puller():
+    """
+    Test that untracked files in puller are preserved when pulling
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            pusher.push_file('another-file', '2')
+
+            puller.write_file('another-file', '3')
+
+            for l in puller.gp.pull():
+                print(l)
+            assert puller.read_file('another-file') == '2'
+            # Find file that was created!
+            renamed_file = glob.glob(os.path.join(puller.path, 'another-file_*'))[0]
+            assert puller.read_file(os.path.basename(renamed_file)) == '3'
+
+def test_reset_file():
+    """
+    Test that deleting files locally & pulling restores pristine copy
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            for l in puller.gp.pull():
+                print(l)
+
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
