@@ -15,7 +15,7 @@ You can then enable the serverextension
 
 # What is it?
 
-nbgitpuller allows you to construct URL that points to a remote git repository.
+nbgitpuller allows you to construct a URL that points to a remote git repository.
 When it is clicked, nbgitpuller will pull for the contents of this repository
 into the user's current folder within Jupyter, while rendering a nice status page.
 This is especially useful when running on a JupyterHub, since it allows easy distribution
@@ -37,6 +37,25 @@ So we have made the following opinionated decisions.
    just deleting the file locally & clicking the link again.
 3. If a file exists locally but is untracked by git (maybe someone uploaded it manually),
    then rename the file, and pull in remote copy.
+
+# When to use / not use nbgitpuller
+
+You should use this when:
+
+1. You are running a JupyterHub for a class & want an easy way to distribute materials to
+   your students without them having to understand what git is.
+2. You have a different out of band method for collecting completed assignments / notebooks
+   from students, since they can not just 'push it back' via git.
+
+You should *not* use this when:
+
+1. You are an instructor using a JupyterHub / running notebooks locally to create materials
+   and push them to a git repository. You should just use git directly, since the assumptions
+   and design of nbgitpuller **will** surprise you in unexpected ways if you are pushing with
+   git but pulling with nbgitpuller.
+2. Your students are performing manual git operations on the git repository cloned as well as
+   using nbgitpuller. Mixing manual git operations + automatic nbgitpuller operations is going
+   to cause surprises on an ongoing basis, and should be avoided.
 
 # Constructing the nbgitpuller URL
 
