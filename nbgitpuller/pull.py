@@ -151,8 +151,12 @@ class GitPuller:
         yield from self.reset_deleted_files()
 
         # If there are local changes, make a commit so we can do merges when pulling
+        # We also allow empty commits. On NFS (at least), sometimes repo_is_dirty returns a false
+        # positive, returning True even when there are no local changes (git diff-files seems to return
+        # bogus output?). While ideally that would not happen, allowing empty commits keeps us
+        # resilient to that issue.
         if self.repo_is_dirty():
-            yield from execute_cmd(['git', 'commit', '-am', 'WIP'], cwd=self.repo_dir)
+            yield from execute_cmd(['git', 'commit', '-am', 'WIP', '--allow-empty'], cwd=self.repo_dir)
 
         # Merge master into local!
         yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
