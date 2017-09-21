@@ -3,6 +3,8 @@
 One-way synchronization of a remote git repository to a local git repository,
 with automatic conflict resolution.
 
+![nbgitpuller demo](doc/nbpuller.gif)
+
 # Installation
 
 There is no package on PyPI available right now. You can install directly from master:
