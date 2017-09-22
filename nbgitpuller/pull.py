@@ -1,6 +1,7 @@
 import os
 import subprocess
 import logging
+import time
 import argparse
 import datetime
 from functools import partial
@@ -77,6 +78,7 @@ class GitPuller:
         clean version of the file again.
         """
 
+        yield from self.ensure_lock()
         deleted_files = subprocess.check_output([
             'git', 'ls-files', '--deleted'
         ], cwd=self.repo_dir).decode().strip().split('\n')
@@ -117,6 +119,30 @@ class GitPuller:
 
         return files
 
+    def ensure_lock(self):
+        """
+        Make sure we have the .git/lock required to do modifications on the repo
+
+        This must be called before any git commands that modify state. This isn't guaranteed
+        to be atomic, due to the nature of using files for locking. But it's the best we
+        can do right now.
+        """
+        try:
+            lockpath = os.path.join(self.repo_dir, '.git', 'index.lock')
+            mtime = os.path.getmtime(lockpath)
+            # A lock file does exist
+            # If it's older than 10 minutes, we just assume it is stale and take over
+            # If not, we fail with an explicit error.
+            if time.time() - mtime > 600:
+                yield "Stale .git/index.lock found, attempting to remove"
+                os.remove(lockpath)
+                yield "Stale .git/index.lock removed"
+            else:
+                raise Exception('Recent .git/index.lock found, operation can not proceed. Try again in a few minutes.')
+        except FileNotFoundError:
+            # No lock is held by other processes, we are free to go
+            return
+
     def rename_local_untracked(self):
         """
         Rename local untracked files that would require pulls
@@ -156,9 +182,11 @@ class GitPuller:
         # bogus output?). While ideally that would not happen, allowing empty commits keeps us
         # resilient to that issue.
         if self.repo_is_dirty():
+            yield from self.ensure_lock()
             yield from execute_cmd(['git', 'commit', '-am', 'WIP', '--allow-empty'], cwd=self.repo_dir)
 
         # Merge master into local!
+        yield from self.ensure_lock()
         yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
 
 
