@@ -128,17 +128,17 @@ class GitPuller:
         can do right now.
         """
         try:
-            lockpath = os.path.join(self.repo_dir, '.git', 'lock')
+            lockpath = os.path.join(self.repo_dir, '.git', 'index.lock')
             mtime = os.path.getmtime(lockpath)
             # A lock file does exist
             # If it's older than 10 minutes, we just assume it is stale and take over
             # If not, we fail with an explicit error.
             if time.time() - mtime > 600:
-                yield "Stale .git/lock found, attempting to remove"
+                yield "Stale .git/index.lock found, attempting to remove"
                 os.remove(lockpath)
-                yield "Stale .git/lock removed"
+                yield "Stale .git/index.lock removed"
             else:
-                raise Exception('Recent .git/lock found, operation can not proceed. Try again in a few minutes.')
+                raise Exception('Recent .git/index.lock found, operation can not proceed. Try again in a few minutes.')
         except FileNotFoundError:
             # No lock is held by other processes, we are free to go
             return

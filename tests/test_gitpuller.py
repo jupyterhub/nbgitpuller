@@ -162,7 +162,7 @@ def test_git_lock():
         with Puller(remote) as puller:
             pusher.push_file('README.md', '2')
 
-            puller.write_file('.git/lock', '')
+            puller.write_file('.git/index.lock', '')
 
             try:
                 for l in puller.gp.pull():
@@ -174,7 +174,7 @@ def test_git_lock():
 
 
             new_time = time.time() - 700
-            os.utime(os.path.join(puller.path, '.git', 'lock'), (new_time, new_time))
+            os.utime(os.path.join(puller.path, '.git', 'index.lock'), (new_time, new_time))
 
             for l in puller.gp.pull():
                 print(puller.path + l)
