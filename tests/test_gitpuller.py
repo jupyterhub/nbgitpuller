@@ -152,6 +152,34 @@ def test_simple_push_pull():
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert not os.path.exists(os.path.join(puller.path, 'another-file'))
 
+def test_git_lock():
+    """
+    Test the 'happy path', but with stale/unstale git locks
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            pusher.push_file('README.md', '2')
+
+            puller.write_file('.git/lock', '')
+
+            try:
+                for l in puller.gp.pull():
+                    print(puller.path + l)
+                assert False
+            except:
+                # This should raise an exception, since our .git/lock is new
+                assert True
+
+
+            new_time = time.time() - 700
+            os.utime(os.path.join(puller.path, '.git', 'lock'), (new_time, new_time))
+
+            for l in puller.gp.pull():
+                print(puller.path + l)
+            assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+
 
 def test_merging_simple():
     """
