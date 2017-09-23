@@ -61,7 +61,8 @@ class GitAutoSync:
         re.MULTILINE
     )
 
-    ERROR_DELETE_MODIFY_MERGE_CONFLICT_STR = "CONFLICT (modify/delete)"
+    ERROR_DELETE_MODIFY_MERGE_CONFLICT = "CONFLICT (modify/delete)"
+    ERROR_NOT_VALID_OBJ_NAME = "fatal: Not a valid object name"
 
     def __init__(self, git_url, branch_name, repo_dir):
         assert git_url and branch_name
@@ -128,7 +129,8 @@ class GitAutoSync:
                 # Skip all the files that were deleted locally and that were
                 # either deleted upstream or never existed upsteram.
                 # Those files do not need to be re-downloaded.
-                if git_err.returncode != 128:
+
+                if self.ERROR_NOT_VALID_OBJ_NAME not in git_err.output:
                     raise
 
         yield from execute_cmd(['git', 'checkout', '--'] + filenames, cwd=self.repo_dir)
@@ -144,10 +146,9 @@ class GitAutoSync:
         try:
             yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
         except subprocess.CalledProcessError as git_err:
-            # If the fetch fails, continue on since we will have all the
+            # If the fetch fails, continue on regardless since we will have all the
             # info from the origin anyways.
-            if git_err.returncode != 1:
-                raise
+            pass
 
         yield from execute_cmd(
             ['git', 'cat-file', '-e', 'origin/{}:{}'.format(self.branch_name, filename)],
@@ -203,7 +204,7 @@ class GitAutoSync:
 
             # if there was a merge error
 
-            if self.ERROR_DELETE_MODIFY_MERGE_CONFLICT_STR in e.output:
+            if self.ERROR_DELETE_MODIFY_MERGE_CONFLICT in e.output:
                 yield from self._make_commit()
                 yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
             else:
