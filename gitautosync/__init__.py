@@ -21,6 +21,7 @@ def execute_cmd(cmd, **kwargs):
     # This should behave the same as .readline(), but splits on `\r` OR `\n`,
     # not just `\n`.
     buf = []
+    full_stdout = ""
 
     def flush():
         line = b''.join(buf).decode('utf8', 'replace')
@@ -28,18 +29,25 @@ def execute_cmd(cmd, **kwargs):
         return line
 
     c_last = ''
+    line = ''
     try:
         for c in iter(partial(proc.stdout.read, 1), b''):
             if c_last == b'\r' and buf and c != b'\n':
-                yield flush()
+                line = flush()
+                yield line
+                full_stdout += line
             buf.append(c)
             if c == b'\n':
-                yield flush()
+                line = flush()
+                yield line
+                full_stdout += line
             c_last = c
     finally:
         ret = proc.wait()
         if ret != 0:
-            raise subprocess.CalledProcessError(ret, cmd)
+            e = subprocess.CalledProcessError(ret, cmd)
+            e.stdout = full_stdout
+            raise e
 
 
 class GitAutoSync:
@@ -52,6 +60,8 @@ class GitAutoSync:
         r"^\s*M\s+(.*)$",  # Look for M surrounded by whitespaeces and match filename afterward
         re.MULTILINE
     )
+
+    ERROR_DELETE_MODIFY_MERGE_CONFLICT_STR = "CONFLICT (modify/delete)"
 
     def __init__(self, git_url, branch_name, repo_dir):
         assert git_url and branch_name
@@ -109,17 +119,20 @@ class GitAutoSync:
         status = subprocess.check_output(['git', 'status'], cwd=self.repo_dir)
         deleted_files = self.DELETED_FILE_REGEX.findall(status.decode('utf-8'))
 
+        filenames = []
         for filename in deleted_files:
             try:
                 yield from self._raise_error_if_git_file_not_exists(filename)
-                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
-                logging.info('Resetted {}'.format(filename))
+                filenames.append(filename)
             except subprocess.CalledProcessError as git_err:
                 # Skip all the files that were deleted locally and that were
                 # either deleted upstream or never existed upsteram.
                 # Those files do not need to be re-downloaded.
                 if git_err.returncode != 128:
                     raise
+
+        yield from execute_cmd(['git', 'checkout', '--'] + filenames, cwd=self.repo_dir)
+        logging.info('Resetted {}'.format(', '.join(filenames)))
 
     def _raise_error_if_git_file_not_exists(self, filename):
         """
@@ -189,7 +202,8 @@ class GitAutoSync:
             # https://stackoverflow.com/questions/4319486/git-merge-conflict-when-local-is-deleted-but-file-exists-in-remote
 
             # if there was a merge error
-            if e.returncode == 1:
+
+            if self.ERROR_DELETE_MODIFY_MERGE_CONFLICT_STR in e.output:
                 yield from self._make_commit()
                 yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
             else:
