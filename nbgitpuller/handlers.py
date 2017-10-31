@@ -37,6 +37,7 @@ class SyncHandler(IPythonHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
+    @web.authenticated
     @gen.coroutine
     def get(self):
         try:
@@ -125,6 +126,7 @@ class UIHandler(IPythonHandler):
             )
         ])
 
+    @web.authenticated
     @gen.coroutine
     def get(self):
         repo = self.get_argument('repo')
@@ -143,6 +145,7 @@ class UIHandler(IPythonHandler):
 
 
 class LegacyGitSyncRedirectHandler(IPythonHandler):
+    @web.authenticated
     @gen.coroutine
     def get(self):
         new_url = '{base}git-pull?{query}'.format(
@@ -152,6 +155,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
         self.redirect(new_url)
 
 class LegacyInteractRedirectHandler(IPythonHandler):
+    @web.authenticated
     @gen.coroutine
     def get(self):
         repo = self.get_argument('repo')
