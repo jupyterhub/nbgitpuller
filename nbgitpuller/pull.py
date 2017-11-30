@@ -40,13 +40,16 @@ def execute_cmd(cmd, **kwargs):
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
 
+
 class GitPuller:
-    def __init__(self, git_url, branch_name, repo_dir):
+    def __init__(self, git_url, branch_name, tag_name, repo_dir):
         assert git_url and branch_name
 
         self.git_url = git_url
         self.branch_name = branch_name
+        self.tag_name = tag_name
         self.repo_dir = repo_dir
+
 
     def pull(self):
         """
@@ -58,6 +61,7 @@ class GitPuller:
         else:
             yield from self.update()
 
+
     def initialize_repo(self):
         """
         Clones repository & sets up usernames.
@@ -65,7 +69,8 @@ class GitPuller:
 
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
         yield from execute_cmd(['git', 'clone', self.git_url, self.repo_dir])
-        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+        checkout_arg = 'tags/{}'.format(self.tag_name) if self.tag_name else self.branch_name
+        yield from execute_cmd(['git', 'checkout', checkout_arg], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'config', 'user.email', 'nbgitpuller@example.com'], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'config', 'user.name', 'nbgitpuller'], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))
@@ -87,6 +92,7 @@ class GitPuller:
             if filename:  # Filter out empty lines
                 yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
 
+
     def repo_is_dirty(self):
         """
         Return true if repo is dirty
@@ -98,18 +104,21 @@ class GitPuller:
         except subprocess.CalledProcessError:
             return True
 
+
     def update_remotes(self):
         """
         Do a git fetch so our remotes are up to date
         """
-        yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'fetch', '--tags'], cwd=self.repo_dir)
+
 
     def find_upstream_changed(self, kind):
         """
         Return list of files that have been changed upstream belonging to a particular kind of change
         """
+        log_arg = 'HEAD..{}'.format(self.tag_name if self.tag_name else 'origin/{}'.format(self.branch_name))
         output = subprocess.check_output([
-            'git', 'log', '{}..origin/{}'.format(self.branch_name, self.branch_name),
+            'git', 'log', log_arg,
             '--oneline', '--name-status'
         ], cwd=self.repo_dir).decode()
         files = []
@@ -118,6 +127,7 @@ class GitPuller:
                 files.append(os.path.join(self.repo_dir, line.split('\t', 1)[1]))
 
         return files
+
 
     def ensure_lock(self):
         """
@@ -142,6 +152,7 @@ class GitPuller:
         except FileNotFoundError:
             # No lock is held by other processes, we are free to go
             return
+
 
     def rename_local_untracked(self):
         """
@@ -187,8 +198,8 @@ class GitPuller:
 
         # Merge master into local!
         yield from self.ensure_lock()
-        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
-
+        merge_arg = self.tag_name if self.tag_name else 'origin/{}'.format(self.branch_name)
+        yield from execute_cmd(['git', 'merge', '-Xours', merge_arg], cwd=self.repo_dir)
 
 
 def main():
@@ -202,12 +213,14 @@ def main():
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default='master', help='Branch of repo to sync', nargs='?')
+    parser.add_argument('tag_name', default='', help='Tag of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
         args.branch_name,
+        args.tag_name,
         args.repo_dir
     ).pull():
         print(line)
