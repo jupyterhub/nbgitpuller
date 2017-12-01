@@ -65,7 +65,7 @@ class Pusher:
 class Puller:
     def __init__(self, remote, path='puller'):
         self.path = path
-        self.gp = GitPuller(remote.path, 'master', path)
+        self.gp = GitPuller(remote.path, 'master', '', path)
 
     def __enter__(self):
         for line in self.gp.pull():
