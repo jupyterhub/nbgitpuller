@@ -42,13 +42,13 @@ def execute_cmd(cmd, **kwargs):
 
 
 class GitPuller:
-    def __init__(self, git_url, branch_name, tag_name, repo_dir):
+    def __init__(self, git_url, branch_name, repo_dir, tag_name=''):
         assert git_url and branch_name
 
         self.git_url = git_url
         self.branch_name = branch_name
-        self.tag_name = tag_name
         self.repo_dir = repo_dir
+        self.tag_name = tag_name
 
 
     def pull(self):
@@ -213,14 +213,14 @@ def main():
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default='master', help='Branch of repo to sync', nargs='?')
-    parser.add_argument('tag_name', default='', help='Tag of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
+    parser.add_argument('tag_name', default='', help='Tag of repo to sync', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
         args.branch_name,
-        args.tag_name,
-        args.repo_dir
+        args.repo_dir,
+        args.tag_name
     ).pull():
         print(line)
