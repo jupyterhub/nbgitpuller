@@ -107,3 +107,17 @@ You can easily set up to develop this locally, without requiring a JupyterHub. I
    localhost:8888/git-pull?repo=https://github.com/data-8/materials-fa17
    ```
 7. Make the changes you want to make, and restart the jupyter notebook for them to take effect.
+
+# Using the command line interface
+
+It is also possible to use `nbgitpuller` from the command line. For example,
+here's how to synchronize the repository listed above using the command line:
+
+```
+gitpuller https://github.com/data-8/materials-fa17 master my_materials_fa17
+```
+
+This will synchronize the `master` branch of the repository to a folder
+called `my_materials_fa17`.
+
+See the command line help for more information.
