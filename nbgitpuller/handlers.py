@@ -21,9 +21,11 @@ class SyncHandler(IPythonHandler):
         if 'git_lock' not in self.settings:
             self.settings['git_lock'] = locks.Lock()
 
+
     @property
     def git_lock(self):
         return self.settings['git_lock']
+
 
     @gen.coroutine
     def emit(self, data):
@@ -36,6 +38,7 @@ class SyncHandler(IPythonHandler):
             self.log.info(data)
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
+
 
     @web.authenticated
     @gen.coroutine
@@ -53,12 +56,13 @@ class SyncHandler(IPythonHandler):
             repo = self.get_argument('repo')
             branch = self.get_argument('branch')
             repo_dir = repo.split('/')[-1]
+            tag = self.get_argument('tag')
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, branch, repo_dir)
+            gp = GitPuller(repo, branch, repo_dir, tag)
 
             q = Queue()
             def pull():
@@ -111,6 +115,7 @@ class SyncHandler(IPythonHandler):
             })
         finally:
             self.git_lock.release()
+        
 
 class UIHandler(IPythonHandler):
     def initialize(self):
@@ -126,12 +131,14 @@ class UIHandler(IPythonHandler):
             )
         ])
 
+
     @web.authenticated
     @gen.coroutine
     def get(self):
         repo = self.get_argument('repo')
         subPath = self.get_argument('subPath', '.')
         branch = self.get_argument('branch', 'master')
+        tag = self.get_argument('tag', '')
 
         repo_dir = repo.split('/')[-1]
         path = os.path.join(repo_dir, subPath)
@@ -139,7 +146,7 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, path=path, branch=branch
+                repo=repo, path=path, branch=branch, tag=tag
             ))
         self.flush()
 
@@ -154,6 +161,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
         )
         self.redirect(new_url)
 
+
 class LegacyInteractRedirectHandler(IPythonHandler):
     @web.authenticated
     @gen.coroutine
@@ -164,7 +172,8 @@ class LegacyInteractRedirectHandler(IPythonHandler):
         query = {
             'repo': repo_url,
             'branch': self.get_argument('branch', 'gh-pages'),
-            'subPath': self.get_argument('path')
+            'subPath': self.get_argument('path'),
+            'tag': self.get_argument('tag', '')
         }
         new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,

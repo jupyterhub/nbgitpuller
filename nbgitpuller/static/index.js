@@ -9,11 +9,12 @@ require([
 ) {
 
 
-    function GitSync(baseUrl, repo, branch, path) {
+    function GitSync(baseUrl, repo, branch, tag, path) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
         this.branch = branch;
+        this.tag = tag;
         this.path = path;
 
         if (path.endsWith('.ipynb')) {
@@ -45,6 +46,7 @@ require([
         var syncUrl = this.baseUrl + 'git-pull/api?' + $.param({
             repo: this.repo,
             branch: this.branch,
+            tag: this.tag,
             path: this.path
         });
 
@@ -159,6 +161,7 @@ require([
         utils.get_body_data('baseUrl'),
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
+        utils.get_body_data('tag'),
         utils.get_body_data('path')
     );
 
