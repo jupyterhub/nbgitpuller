@@ -9,7 +9,7 @@ with automatic conflict resolution.
 
 There is no package on PyPI available right now. You can install directly from master:
 
-    pip install git+https://github.com/data-8/gitautosync
+    pip install git+https://github.com/data-8/nbgitpuller
 
 You can then enable the serverextension
 
