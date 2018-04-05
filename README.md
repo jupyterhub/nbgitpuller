@@ -67,7 +67,7 @@ You can construct a working nbgitpuller URL like this:
 myjupyterhub.org/hub/user-redirect/git-pull?repo=<your-repo-url>&branch=<your-branch-name>&subPath=<subPath>
 ```
 
-- **repo** is the URL of the git repository you want to clone. This paramter is required.
+- **repo** is the URL of the git repository you want to clone. This parameter is required.
 - **branch** is the branch name to use when cloning from the repository.
   This parameter is optional and defaults to `master`.
 - **subPath** is the path of the directory / notebook inside the repo to launch after cloning.
