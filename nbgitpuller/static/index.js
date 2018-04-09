@@ -14,13 +14,7 @@ require([
         this.baseUrl = baseUrl;
         this.repo = repo;
         this.branch = branch;
-        this.path = path;
-
-        if (path.endsWith('.ipynb')) {
-            this.redirectUrl = baseUrl + 'notebooks/' + path;
-        } else {
-            this.redirectUrl = baseUrl + 'tree/' + path;
-        }
+        this.redirectUrl = baseUrl + path;
 
         this.callbacks = {};
     }
@@ -42,10 +36,10 @@ require([
 
 
     GitSync.prototype.start = function() {
+        // Start git pulling handled by SyncHandler, declared in handlers.py
         var syncUrl = this.baseUrl + 'git-pull/api?' + $.param({
             repo: this.repo,
-            branch: this.branch,
-            path: this.path
+            branch: this.branch
         });
 
         this.eventSource = new EventSource(syncUrl);
@@ -159,7 +153,7 @@ require([
         utils.get_body_data('baseUrl'),
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
-        utils.get_body_data('path')
+        utils.get_body_data('path'),
     );
 
     var gsv = new GitSyncView(

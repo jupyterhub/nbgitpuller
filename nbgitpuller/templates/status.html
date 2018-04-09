@@ -2,9 +2,9 @@
 
 {% block params %}
 {{super()}}
-data-base-url="{{base_url | urlencode }}"
-data-repo="{{repo | urlencode }}"
-data-path="{{path | urlencode }}"
+data-base-url="{{ base_url | urlencode }}"
+data-repo="{{ repo | urlencode }}"
+data-path="{{ path | urlencode }}"
 data-branch="{{ branch | urlencode }}"
 {% endblock %}
 

@@ -129,17 +129,30 @@ class UIHandler(IPythonHandler):
     @web.authenticated
     @gen.coroutine
     def get(self):
-        repo = self.get_argument('repo')
-        subPath = self.get_argument('subPath', '.')
-        branch = self.get_argument('branch', 'master')
+        app_env = os.getenv('NBGITPULLER_APP', default='notebook')
 
-        repo_dir = repo.split('/')[-1]
-        path = os.path.join(repo_dir, subPath)
+        repo = self.get_argument('repo')
+        branch = self.get_argument('branch', 'master')
+        urlPath = self.get_argument('urlPath', None)
+        subPath = self.get_argument('subPath', '.')
+        app = self.get_argument('app', app_env)
+
+        if urlPath:
+            path = urlPath
+        else:
+            repo_dir = repo.split('/')[-1]
+            path = os.path.join(repo_dir, subPath)
+            if app == 'lab':
+                path = 'lab/tree/' + path
+            else if path.endsWith('.ipynb'):
+                path = 'notebooks/' + path
+            else:
+                path = 'tree/' + path
 
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, path=path, branch=branch
+                repo=repo, branch=branch, path=path
             ))
         self.flush()
 
