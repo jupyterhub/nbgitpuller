@@ -144,7 +144,7 @@ class UIHandler(IPythonHandler):
             path = os.path.join(repo_dir, subPath)
             if app == 'lab':
                 path = 'lab/tree/' + path
-            else if path.endsWith('.ipynb'):
+            elif path.endswith('.ipynb'):
                 path = 'notebooks/' + path
             else:
                 path = 'tree/' + path
