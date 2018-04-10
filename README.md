@@ -73,7 +73,12 @@ myjupyterhub.org/hub/user-redirect/git-pull?repo=<your-repo-url>&branch=<your-br
 - **subPath** is the path of the directory / notebook inside the repo to launch after cloning.
   This parameter is optional, and defaults to opening the base directory of the linked Git repository.
 - **app** is the branch name to use when cloning from the repository.
-  This parameter is optional and defaults to either the environment variable `NBGITPULLER_APP`'s value or `notebook` if it is undefined. The allowed values are `lab` and `notebook`, the value will determine in what application view you end up in.
+  This parameter is optional and defaults to either the environment variable
+  `NBGITPULLER_APP`'s value or `notebook` if it is undefined. The allowed values
+  are `lab` and `notebook`, the value will determine in what application view
+  you end up in.
+- **urlPath** will if specified override `app` and `subPath` and redirect
+  blindly to the specified path.
 
 # Local development
 
