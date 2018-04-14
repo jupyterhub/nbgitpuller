@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='nbgitpuller',
-    version='0.3',
+    version='0.4',
     url='https://github.com/data-8/nbgitpuller',
     license='BSD',
     author='Peter Veerman',
