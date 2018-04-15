@@ -1,8 +1,11 @@
+"""PyPI packaging settings"""
+
 from setuptools import find_packages, setup
+from nbgitpuller import __version__
 
 setup(
     name='nbgitpuller',
-    version='0.4',
+    version=__version__,
     url='https://github.com/data-8/nbgitpuller',
     license='BSD',
     author='Peter Veerman',

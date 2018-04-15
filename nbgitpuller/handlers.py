@@ -11,6 +11,7 @@ from queue import Queue, Empty
 import jinja2
 
 from .pull import GitPuller
+from .version import __version__
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -152,7 +153,7 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path
+                repo=repo, branch=branch, path=path, version=__version__
             ))
         self.flush()
 
