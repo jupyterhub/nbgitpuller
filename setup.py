@@ -1,11 +1,8 @@
-"""PyPI packaging settings"""
-
 from setuptools import find_packages, setup
-from nbgitpuller import __version__
 
 setup(
     name='nbgitpuller',
-    version=__version__,
+    version='0.3',
     url='https://github.com/data-8/nbgitpuller',
     license='BSD',
     author='Peter Veerman',
@@ -14,7 +11,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=['notebook'],
+    install_requires=['notebook', 'tornado'],
     entry_points={
         'console_scripts': [
             'gitpuller = nbgitpuller.pull:main',
