@@ -134,8 +134,10 @@ class UIHandler(IPythonHandler):
 
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', 'master')
-        urlPath = self.get_argument('urlPath', None)
-        subPath = self.get_argument('subPath', '.')
+        urlPath = self.get_argument('urlpath', None) or \
+                  self.get_argument('urlPath', None)
+        subPath = self.get_argument('subpath', None) or \
+                  self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
 
         if urlPath:
@@ -143,9 +145,9 @@ class UIHandler(IPythonHandler):
         else:
             repo_dir = repo.split('/')[-1]
             path = os.path.join(repo_dir, subPath)
-            if app == 'lab':
+            if app.lower() == 'lab':
                 path = 'lab/tree/' + path
-            elif path.endswith('.ipynb'):
+            elif path.lower().endswith('.ipynb'):
                 path = 'notebooks/' + path
             else:
                 path = 'tree/' + path
