@@ -11,6 +11,7 @@ from queue import Queue, Empty
 import jinja2
 
 from .pull import GitPuller
+from .version import __version__
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -129,17 +130,32 @@ class UIHandler(IPythonHandler):
     @web.authenticated
     @gen.coroutine
     def get(self):
-        repo = self.get_argument('repo')
-        subPath = self.get_argument('subPath', '.')
-        branch = self.get_argument('branch', 'master')
+        app_env = os.getenv('NBGITPULLER_APP', default='notebook')
 
-        repo_dir = repo.split('/')[-1]
-        path = os.path.join(repo_dir, subPath)
+        repo = self.get_argument('repo')
+        branch = self.get_argument('branch', 'master')
+        urlPath = self.get_argument('urlpath', None) or \
+                  self.get_argument('urlPath', None)
+        subPath = self.get_argument('subpath', None) or \
+                  self.get_argument('subPath', '.')
+        app = self.get_argument('app', app_env)
+
+        if urlPath:
+            path = urlPath
+        else:
+            repo_dir = repo.split('/')[-1]
+            path = os.path.join(repo_dir, subPath)
+            if app.lower() == 'lab':
+                path = 'lab/tree/' + path
+            elif path.lower().endswith('.ipynb'):
+                path = 'notebooks/' + path
+            else:
+                path = 'tree/' + path
 
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, path=path, branch=branch
+                repo=repo, branch=branch, path=path, version=__version__
             ))
         self.flush()
 

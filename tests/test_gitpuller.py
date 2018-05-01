@@ -3,10 +3,8 @@ import shutil
 import subprocess as sp
 import glob
 import time
-import random
-import string
-import pytest
 from nbgitpuller import GitPuller
+
 
 class Remote:
     def __init__(self, path='remote'):
@@ -26,6 +24,7 @@ class Remote:
             cwd=self.path,
             stderr=sp.STDOUT
         ).decode().strip()
+
 
 class Pusher:
     def __init__(self, remote, path='pusher'):
@@ -61,6 +60,7 @@ class Pusher:
         self.git('add', path)
         self.git('commit', '-am', 'Ignore the message')
         self.git('push', 'origin', 'master')
+
 
 class Puller:
     def __init__(self, remote, path='puller'):
@@ -98,6 +98,7 @@ class Puller:
 # 5. Make change in puller to file, make change in pusher to same part of file, run puller
 # 6. Make untracked file in puller, add file with same name to pusher, run puller
 
+
 def test_initialize():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
@@ -107,6 +108,7 @@ def test_initialize():
             assert os.path.exists(os.path.join(puller.path, 'README.md'))
             assert puller.git('name-rev', '--name-only', 'HEAD') == 'master'
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
+
 
 def test_simple_push_pull():
     """
@@ -143,7 +145,7 @@ def test_simple_push_pull():
             assert puller.read_file('another-file') == pusher.read_file('another-file') == '3'
 
             pusher.git('rm', 'another-file')
-            pusher.git('commit', '-m','Removing File')
+            pusher.git('commit', '-m', 'Removing File')
             pusher.git('push', 'origin', 'master')
 
             for l in puller.gp.pull():
@@ -151,6 +153,7 @@ def test_simple_push_pull():
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert not os.path.exists(os.path.join(puller.path, 'another-file'))
+
 
 def test_git_lock():
     """
@@ -168,10 +171,9 @@ def test_git_lock():
                 for l in puller.gp.pull():
                     print(puller.path + l)
                 assert False
-            except:
+            except Exception:
                 # This should raise an exception, since our .git/lock is new
                 assert True
-
 
             new_time = time.time() - 700
             os.utime(os.path.join(puller.path, '.git', 'index.lock'), (new_time, new_time))
@@ -217,6 +219,7 @@ def test_merging_simple():
 
             assert puller.read_file('README.md') == '2'
 
+
 def test_untracked_puller():
     """
     Test that untracked files in puller are preserved when pulling
@@ -235,6 +238,7 @@ def test_untracked_puller():
             # Find file that was created!
             renamed_file = glob.glob(os.path.join(puller.path, 'another-file_*'))[0]
             assert puller.read_file(os.path.basename(renamed_file)) == '3'
+
 
 def test_reset_file():
     """

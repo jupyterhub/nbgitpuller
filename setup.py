@@ -1,8 +1,16 @@
 from setuptools import find_packages, setup
+from distutils.util import convert_path
+
+# Imports __version__, reference: https://stackoverflow.com/a/24517154/2220152
+ns = {}
+ver_path = convert_path('nbgitpuller/version.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), ns)
+__version__ = ns['__version__']
 
 setup(
     name='nbgitpuller',
-    version='0.3',
+    version=__version__,
     url='https://github.com/data-8/nbgitpuller',
     license='BSD',
     author='Peter Veerman',
@@ -11,7 +19,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=['notebook'],
+    install_requires=['notebook', 'tornado'],
     entry_points={
         'console_scripts': [
             'gitpuller = nbgitpuller.pull:main',

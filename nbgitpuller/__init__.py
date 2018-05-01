@@ -1,9 +1,9 @@
+from .version import __version__
 from .handlers import SyncHandler, UIHandler, LegacyInteractRedirectHandler, LegacyGitSyncRedirectHandler
+from .pull import GitPuller
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os
-from .pull import GitPuller
-
 
 def _jupyter_server_extension_paths():
     return [{
