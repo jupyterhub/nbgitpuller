@@ -1,13 +1,16 @@
 require([
     'jquery',
     'base/js/utils',
-    'components/xterm.js/dist/xterm'
+    'components/xterm.js/index',
+    'components/xterm.js-fit/index'
 ], function(
     $,
     utils,
-    Terminal
+    Terminal,
+    fit
 ) {
 
+    Terminal.applyAddon(fit);
 
     function GitSync(baseUrl, repo, branch, path) {
         // Class that talks to the API backend & emits events as appropriate
@@ -82,7 +85,7 @@ require([
             $(this.termSelector).parent().addClass('hidden');
         }
         this.visible = visible;
-        this._fitTerm();
+        this.term.fit();
     }
 
     GitSyncView.prototype.setProgressValue = function(val) {
@@ -108,45 +111,6 @@ require([
         } else {
             this.$progress.removeClass('progress-bar-danger');
         }
-    };
-
-    GitSyncView.prototype._fitTerm = function() {
-        // Vendored in from the xterm.js fit addon
-        // Because I can't for the life of me get the addon to be
-        // actually included here as an require.js thing.
-        // And life is too short.
-        var term = this.term;
-        if (!term.element.parentElement) {
-            return null;
-        }
-        var parentElementStyle = window.getComputedStyle(term.element.parentElement),
-            parentElementHeight = parseInt(parentElementStyle.getPropertyValue('height')),
-            parentElementWidth = Math.max(0, parseInt(parentElementStyle.getPropertyValue('width')) - 17),
-            elementStyle = window.getComputedStyle(term.element),
-            elementPaddingVer = parseInt(elementStyle.getPropertyValue('padding-top')) + parseInt(elementStyle.getPropertyValue('padding-bottom')),
-            elementPaddingHor = parseInt(elementStyle.getPropertyValue('padding-right')) + parseInt(elementStyle.getPropertyValue('padding-left')),
-            availableHeight = parentElementHeight - elementPaddingVer,
-            availableWidth = parentElementWidth - elementPaddingHor,
-            container = term.rowContainer,
-            subjectRow = term.rowContainer.firstElementChild,
-            contentBuffer = subjectRow.innerHTML,
-            characterHeight,
-            rows,
-            characterWidth,
-            cols,
-            geometry;
-
-        subjectRow.style.display = 'inline';
-        subjectRow.innerHTML = 'W'; // Common character for measuring width, although on monospace
-        characterWidth = subjectRow.getBoundingClientRect().width;
-        subjectRow.style.display = ''; // Revert style before calculating height, since they differ.
-        characterHeight = subjectRow.getBoundingClientRect().height;
-        subjectRow.innerHTML = contentBuffer;
-
-        rows = parseInt(availableHeight / characterHeight);
-        cols = parseInt(availableWidth / characterWidth);
-
-        term.resize(cols, rows);
     };
 
     var gs = new GitSync(
