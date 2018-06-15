@@ -7,9 +7,9 @@ with automatic conflict resolution.
 
 # Installation
 
-There is no package on PyPI available right now. You can install directly from master:
+You can install nbgitpuller from PyPI.
 
-    pip install git+https://github.com/data-8/nbgitpuller
+    pip install nbgitpuller
 
 You can then enable the serverextension
 
