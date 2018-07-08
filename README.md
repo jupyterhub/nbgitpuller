@@ -18,7 +18,7 @@ You can then enable the serverextension
 # What is it?
 
 nbgitpuller allows you to construct a URL that points to a remote git repository.
-When it is clicked, nbgitpuller will pull for the contents of this repository
+When it is clicked, nbgitpuller will pull the contents of this repository
 into the user's current folder within Jupyter, while rendering a nice status page.
 This is especially useful when running on a JupyterHub, since it allows easy distribution
 of materials to users without requiring them to understand git.
@@ -26,7 +26,7 @@ of materials to users without requiring them to understand git.
 # Merging behavior
 
 When a link is clicked, we try to make opinionated intelligent guesses on how to
-do a merge automatically, without making the user have to do a conflict resolution.
+do a merge automatically, without making the user do a conflict resolution.
 nbgitpuller is designed to be used by folks who do not know that git is being used
 underneath, and are only pulling content one way from a source and modifying it -
 not pushing it back.
@@ -72,12 +72,11 @@ myjupyterhub.org/hub/user-redirect/git-pull?repo=<your-repo-url>&branch=<your-br
   This parameter is optional and defaults to `master`.
 - **subPath** is the path of the directory / notebook inside the repo to launch after cloning.
   This parameter is optional, and defaults to opening the base directory of the linked Git repository.
-- **app** is the branch name to use when cloning from the repository.
-  This parameter is optional and defaults to either the environment variable
+- **app** This parameter is optional and defaults to either the environment variable
   `NBGITPULLER_APP`'s value or `notebook` if it is undefined. The allowed values
   are `lab` and `notebook`, the value will determine in what application view
   you end up in.
-- **urlPath** will if specified override `app` and `subPath` and redirect
+- **urlPath** will, if specified, override `app` and `subPath` and redirect
   blindly to the specified path.
 
 # Local development
