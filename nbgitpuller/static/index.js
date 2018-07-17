@@ -66,7 +66,6 @@ require([
             convertEol: true
         });
         this.visible = false;
-        this.term.open($(termSelector)[0]);
         this.$progress = $(progressSelector);
 
         this.$termToggle = $(termToggleSelector);
@@ -85,7 +84,14 @@ require([
             $(this.termSelector).parent().addClass('hidden');
         }
         this.visible = visible;
-        this.term.fit();
+        if (visible) {
+            // See https://github.com/data-8/nbgitpuller/pull/46 on why this is here.
+            if (!this.term.element) {
+                this.term.open($(this.termSelector)[0]);
+            }
+            this.term.fit();
+        }
+
     }
 
     GitSyncView.prototype.setProgressValue = function(val) {
