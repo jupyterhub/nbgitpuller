@@ -20,6 +20,10 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=['notebook>=5.5.0', 'tornado'],
+    data_files=[
+        ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/nbgitpuller.json'])
+    ],
+    zip_safe=False,
     entry_points={
         'console_scripts': [
             'gitpuller = nbgitpuller.pull:main',
