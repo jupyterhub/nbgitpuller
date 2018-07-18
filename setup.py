@@ -19,7 +19,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=['notebook', 'tornado'],
+    install_requires=['notebook>=5.5.0', 'tornado'],
     entry_points={
         'console_scripts': [
             'gitpuller = nbgitpuller.pull:main',
