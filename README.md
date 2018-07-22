@@ -1,5 +1,7 @@
 # nbgitpuller
 
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-8/nbgitpuller/master?urlpath=apps/binder%2Flink_generator.ipynb)
+
 One-way synchronization of a remote git repository to a local git repository,
 with automatic conflict resolution.
 
@@ -60,6 +62,9 @@ You should *not* use this when:
    to cause surprises on an ongoing basis, and should be avoided.
 
 # Constructing the nbgitpuller URL
+
+Launch this Binder for an interactive link generator
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-8/nbgitpuller/master?urlpath=apps/binder%2Flink_generator.ipynb)
 
 You can construct a working nbgitpuller URL like this:
 
