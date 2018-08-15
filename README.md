@@ -5,6 +5,9 @@
 One-way synchronization of a remote git repository to a local git repository,
 with automatic conflict resolution.
 
+[YouTube video instructions for teachers.](https://youtu.be/o7U0ZuICVFg)
+
+
 ![nbgitpuller demo](doc/nbpuller.gif)
 
 # Installation
