@@ -39,7 +39,6 @@ require([
 
     GitSync.prototype.start = function() {
         console.log('START');
-        console.log(this);
         // Start git pulling handled by SyncHandler, declared in handlers.py
         var syncUrl = this.baseUrl + 'hs-pull/api?' + $.param({
             id: this.id
