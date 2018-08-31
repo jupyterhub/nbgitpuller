@@ -19,7 +19,7 @@ You can then enable the serverextension
 
 # How to use `nbgitpuller`
 
-[Follow the `nbgitpuller` usage guide](https://the-littlest-jupyterhub.readthedocs.io/en/latest/tutorials/nbgitpuller.html)
+[Follow the `nbgitpuller` usage guide](https://the-littlest-jupyterhub.readthedocs.io/en/latest/howto/content/nbgitpuller.html)
 to learn how to distribute content for your JupyterHub using `nbgitpuller`.
 
 # What is it?
