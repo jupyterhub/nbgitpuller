@@ -1,6 +1,8 @@
-# nbgitpuller
+# nbfetch
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/jupyterhub/nbgitpuller/master?urlpath=apps/binder%2Flink_generator.ipynb)
+Experimental fork of nbgitpuller.  NOT WORKING YET!!!
+
+-------------------
 
 One-way synchronization of a remote git repository to a local git repository,
 with automatic conflict resolution.

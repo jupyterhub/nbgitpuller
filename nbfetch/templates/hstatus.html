@@ -1,0 +1,74 @@
+{% extends "page.html" %}
+
+{% block params %}
+{{super()}}
+data-base-url="{{ base_url | urlencode }}"
+data-id="{{ id | urlencode }}"
+data-path="{{ path | urlencode }}"
+{% endblock %}
+
+{% block site %}
+<div class="container"">
+    <div class="page-header">
+        Loading resources before sending you to <strong>{{ path }}...</strong>
+    </div>
+
+    <div class="panel panel-default">
+    <div class="panel-heading" id="status-panel-toggle">
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%" id="status-panel-title">
+                <span></span>
+            </div>
+        </div>
+        <small>Click to see more details</small>
+    </div>
+    <div class="panel-body hidden" id="status-details-container">
+            <div id="status-details"></div>
+    </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{super()}}
+<script src="{{ base_url }}hs-pull/static/hindex.js?v={{ version }}">
+</script>
+{% endblock %}
+
+{% block stylesheet %}
+{{super()}}
+
+<link rel="stylesheet" href="{{ static_url("terminal/css/override.css") }}" type="text/css" />
+<link rel="stylesheet" href="{{ static_url("components/xterm.js-css/index.css") }}" type="text/css" />
+<style>
+#status-details-container {
+    padding: 16px;
+    background-color: black;
+}
+#status-details {
+    min-height: 360px;
+}
+
+#status-panel-toggle {
+    cursor: pointer;
+}
+
+#status-panel-toggle small {
+    font-size: smaller;
+    color: #ccc;
+    float: right;
+    margin-top: -10px;
+}
+
+.progress {
+    position: relative;
+}
+
+.progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+}
+</style>
+{% endblock %}

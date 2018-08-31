@@ -10,8 +10,9 @@ import os
 from queue import Queue, Empty
 import jinja2
 
-from .pull import GitPuller
+from .pull import GitPuller, HSPuller
 from .version import __version__
+
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -113,6 +114,88 @@ class SyncHandler(IPythonHandler):
         finally:
             self.git_lock.release()
 
+
+class HSyncHandler(IPythonHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.log.info("HSyncHandler")
+
+    @gen.coroutine
+    def emit(self, data):
+        if type(data) is not str:
+            serialized_data = json.dumps(data)
+            if 'output' in data:
+                self.log.info(data['output'].rstrip())
+        else:
+            serialized_data = data
+            self.log.info(data)
+        self.write('data: {}\n\n'.format(serialized_data))
+        yield self.flush()
+
+    @web.authenticated
+    @gen.coroutine
+    def get(self):
+        self.log.info("HSYNC GET")
+        try:
+            id = self.get_argument('id')
+
+            # We gonna send out event streams!
+            self.set_header('content-type', 'text/event-stream')
+            self.set_header('cache-control', 'no-cache')
+
+            hs = HSPuller(id)
+
+            q = Queue()
+            def pull():
+                try:
+                    for line in hs.pull():
+                        q.put_nowait(line)
+                    # Sentinel when we're done
+                    q.put_nowait(None)
+                except Exception as e:
+                    q.put_nowait(e)
+                    raise e
+            self.hs_thread = threading.Thread(target=pull)
+
+            self.hs_thread.start()
+
+            while True:
+                try:
+                    progress = q.get_nowait()
+                except Empty:
+                    yield gen.sleep(0.5)
+                    continue
+                if progress is None:
+                    break
+                if isinstance(progress, Exception):
+                    self.emit({
+                        'phase': 'error',
+                        'message': str(progress),
+                        'output': '\n'.join([
+                            l.strip()
+                            for l in traceback.format_exception(
+                                type(progress), progress, progress.__traceback__
+                            )
+                        ])
+                    })
+                    return
+
+                self.emit({'output': progress, 'phase': 'syncing'})
+
+            self.emit({'phase': 'finished'})
+        except Exception as e:
+            self.emit({
+                'phase': 'error',
+                'message': str(e),
+                'output': '\n'.join([
+                    l.strip()
+                    for l in traceback.format_exception(
+                        type(e), e, e.__traceback__
+                    )
+                ])
+            })
+        
+
 class UIHandler(IPythonHandler):
     def initialize(self):
         super().initialize()
@@ -159,6 +242,51 @@ class UIHandler(IPythonHandler):
             ))
         self.flush()
 
+class HSHandler(IPythonHandler):
+    def initialize(self):
+        super().initialize()
+        jinja2_env = self.settings['jinja2_env']
+        jinja2_env.loader = jinja2.ChoiceLoader([
+            jinja2_env.loader,
+            jinja2.FileSystemLoader(
+                os.path.join(os.path.dirname(__file__), 'templates')
+            )
+        ])
+
+    @web.authenticated
+    @gen.coroutine
+    def get(self):
+        app_env = 'notebook'
+
+        id = self.get_argument('id')
+        urlPath = self.get_argument('urlpath', None) or \
+                  self.get_argument('urlPath', None)
+        start = self.get_argument('start', '')
+        app = self.get_argument('app', app_env)
+
+        self.log.info('HS GET')
+        self.log.info('id= %s' % id)
+
+        # FIXME: We always overwrite.  Should probably have a dialog before doing that.
+        if urlPath:
+            path = urlPath
+        else:
+            path = os.path.join(id, id, 'data', 'contents', start)
+            if app.lower() == 'lab':
+                path = 'lab/tree/' + path
+            elif path.lower().endswith('.ipynb'):
+                path = 'notebooks/' + path
+            else:
+                path = 'tree/' + path
+
+        self.log.info('path=%s' % path)
+
+        self.write(
+            self.render_template(
+                'hstatus.html',
+                id=id, path=path, version=__version__
+            ))
+        self.flush()
 
 class LegacyGitSyncRedirectHandler(IPythonHandler):
     @web.authenticated
