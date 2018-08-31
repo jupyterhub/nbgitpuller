@@ -51,7 +51,12 @@ class HSPuller:
         """
         Pull selected repo from a remote hydroshare repository,
         """
-        user = os.getenv('JUPYTERHUB_USER', os.getlogin())
+        try:
+            def_login = os.getlogin()
+        except:
+            def_login = "none"
+
+        user = os.getenv('JUPYTERHUB_USER', def_login)
         pwfile = os.path.expanduser("~/.hs_pass")
         try:
             with open(pwfile) as f:
