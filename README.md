@@ -20,6 +20,11 @@ You can then enable the serverextension
 
     jupyter serverextension enable --py nbgitpuller --sys-prefix
 
+# How to use `nbgitpuller`
+
+[Follow the `nbgitpuller` usage guide](https://the-littlest-jupyterhub.readthedocs.io/en/latest/howto/content/nbgitpuller.html)
+to learn how to distribute content for your JupyterHub using `nbgitpuller`.
+
 # What is it?
 
 nbgitpuller allows you to construct a URL that points to a remote git repository.
