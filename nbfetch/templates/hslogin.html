@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
 <style>
@@ -36,6 +35,7 @@ button:hover {
 
 <body>
 <form action="{{hslogin}}?next={{next}}" method="post">
+  {{ xsrf_form_html }}
   <div class="imgcontainer">
     <a href="https://hydroshare.org"><img src="{{image}}" alt="Hydroshare"></a>
   </div>
