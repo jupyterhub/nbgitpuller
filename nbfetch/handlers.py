@@ -287,7 +287,7 @@ class HSHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         app_env = 'notebook'
-        self.log.info('HS GET')
+        self.log.info('HS GET ' + str(self.request))
 
         # look for these files.  If they exist, 
         # try to log in with their contents
