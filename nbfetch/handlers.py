@@ -20,6 +20,8 @@ class HSLoginHandler(IPythonHandler):
     def get(self):
         self.log.info('LOGIN GET' + self.request.uri)
         params = {
+            "hslogin": urljoin(self.request.uri, 'hslogin'),
+            "image": urljoin(self.request.uri, 'hs-pull/static/hydroshare_logo.png'),
             "error": self.get_argument("error",'Login Needed'),
             "next": self.get_argument("next", "/")
         }
