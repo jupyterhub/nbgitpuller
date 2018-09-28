@@ -1,6 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+form {border: 3px solid #f1f1f1; width: 50%;}
 
-    <form action="/hslogin?next={{next}}" method="post">
-        Name: <input type="text" name="name">
-        Password:  <input type="password" name="pass">
-        <input type="submit" value="OK">
-    </form>
+input[type=text], input[type=password] {
+    width: 50%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 50%;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.container {
+    padding: 16px;
+}
+</style>
+</head>
+
+<body>
+<form action="/hslogin?next={{next}}" method="post">
+  <div class="imgcontainer">
+    <a href="https://hydroshare.org"><img src="/hs-pull/static/hydroshare_logo.png" alt="Hydroshare"></a>
+  </div>
+  <label>{{error}}</label>
+  <div class="container">
+    <label for="name"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="name" required>
+    <br>
+    <label for="pass"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="pass" required>
+    <button type="submit">Login</button>
+  </div>
+</form>
+</body>
+</html>

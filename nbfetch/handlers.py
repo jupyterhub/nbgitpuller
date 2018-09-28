@@ -19,7 +19,7 @@ class HSLoginHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         params = {
-            "error": self.get_argument("error",''),
+            "error": self.get_argument("error",'Login Needed'),
             "next": self.get_argument("next", "/")
         }
         temp = self.render_template("hslogin.html", **params)
@@ -165,10 +165,6 @@ class HSyncHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         self.log.info("HSYNC GET")
-        #self.log.info('settings=%s' % self.settings)
-        self.log.info(self.request.arguments)
-        self.log.info(self.request.uri)
-
 
         try:
             id = self.get_argument('id')
@@ -292,9 +288,12 @@ class HSHandler(IPythonHandler):
     def get(self):
         app_env = 'notebook'
         self.log.info('HS GET')
+
+        # look for these files.  If they exist, 
+        # try to log in with their contents
         pwfile = os.path.expanduser("~/.hs_pass")
         userfile = os.path.expanduser("~/.hs_user")
-        self.log.info(userfile)
+
         needs_login = False
         login_error = False
 
@@ -315,39 +314,15 @@ class HSHandler(IPythonHandler):
             needs_login = True
 
         if needs_login or login_error:
-            self.log.info('REDIRECTING')
-            self.redirect('/hslogin?next=%s' % url_escape(url_escape(self.request.uri)))
+            if login_error:
+                message = url_escape("Login Failed. Please Try again")
+            else:
+                message = url_escape("You need to provide login credentials to access HydroShare Resources.")
+            next = url_escape(url_escape(self.request.uri))
+            self.redirect('/hslogin?error=%s&next=%s' % (message, next))
             return
 
-            # try:
-            #     def_login = os.getlogin()
-            # except:
-            #     def_login = "none"
-
-            # user = os.getenv('JUPYTERHUB_USER', def_login)
-            # pwfile = os.path.expanduser("~/.hs_pass")
-            # try:
-            #     with open(pwfile) as f:
-            #         password = f.read().strip()
-            # except:
-            #     password = 'none'
-
-            # if True:
-            #     print('Xpassword=', password)
-            #     self.write(
-            #         self.render_template(
-            #             'login.html'
-            #         ))
-            #     self.flush()
-            #     return
-
-            # client_id = "XXXX"
-            # client_secret = "XXXX"
-            # auth = HydroShareAuthOAuth2(client_id, client_secret,
-            #                             username='user', password='pass')
         id = self.get_argument('id')
-        self.log.info('id= %s' % id)
-
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         start = self.get_argument('start', '')
