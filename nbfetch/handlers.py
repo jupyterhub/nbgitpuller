@@ -1,7 +1,7 @@
 from tornado import gen, web, locks
 from tornado.escape import url_escape, url_unescape
 import traceback
-import urllib.parse
+from urllib.parse import urljoin
 from notebook.base.handlers import IPythonHandler
 import threading
 import json
@@ -18,6 +18,7 @@ from notebook.utils import url_path_join
 class HSLoginHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
+        self.log.info('LOGIN GET' + self.request.uri)
         params = {
             "error": self.get_argument("error",'Login Needed'),
             "next": self.get_argument("next", "/")
@@ -287,7 +288,7 @@ class HSHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         app_env = 'notebook'
-        self.log.info('HS GET ' + str(self.request))
+        self.log.info('HS GET ' + str(self.request.uri))
 
         # look for these files.  If they exist, 
         # try to log in with their contents
@@ -318,8 +319,9 @@ class HSHandler(IPythonHandler):
                 message = url_escape("Login Failed. Please Try again")
             else:
                 message = url_escape("You need to provide login credentials to access HydroShare Resources.")
-            next = url_escape(url_escape(self.request.uri))
-            self.redirect('/hslogin?error=%s&next=%s' % (message, next))
+            _next = url_escape(url_escape(self.request.uri))
+            upath = urljoin(self.request.uri, 'hslogin')
+            self.redirect('%s?error=%s&next=%s' % (upath, message, _next))
             return
 
         id = self.get_argument('id')
