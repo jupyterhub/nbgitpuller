@@ -1,17 +1,39 @@
 from tornado import gen, web, locks
+from tornado.escape import url_escape, url_unescape
 import traceback
 import urllib.parse
-
-from notebook.utils import url_path_join
 from notebook.base.handlers import IPythonHandler
 import threading
 import json
 import os
 from queue import Queue, Empty
 import jinja2
-
+from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
 from .pull import GitPuller, HSPuller
 from .version import __version__
+from notebook.utils import url_path_join
+
+#https://gist.github.com/guillaumevincent/4771570
+
+class HSLoginHandler(IPythonHandler):
+    @gen.coroutine
+    def get(self):
+        params = {
+            "error": self.get_argument("error",''),
+            "next": self.get_argument("next", "/")
+        }
+        temp = self.render_template("hslogin.html", **params)
+        self.write(temp)
+
+    @gen.coroutine
+    def post(self):
+        pwfile = os.path.expanduser("~/.hs_pass")
+        userfile = os.path.expanduser("~/.hs_user")
+        with open(userfile, 'w') as f:
+            f.write(self.get_argument("name"))
+        with open(pwfile, 'w') as f:
+            f.write(self.get_argument("pass"))
+        self.redirect(url_unescape(self.get_argument("next", "/")))
 
 
 class SyncHandler(IPythonHandler):
@@ -132,10 +154,22 @@ class HSyncHandler(IPythonHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
-    @web.authenticated
+
+    @gen.coroutine
+    def post(self):
+        print(self.get_argument("email"), self.get_argument("name"))
+        print('id=', self.get_argument('id'))
+
+
+    # @web.authenticated
     @gen.coroutine
     def get(self):
         self.log.info("HSYNC GET")
+        #self.log.info('settings=%s' % self.settings)
+        self.log.info(self.request.arguments)
+        self.log.info(self.request.uri)
+
+
         try:
             id = self.get_argument('id')
 
@@ -143,7 +177,7 @@ class HSyncHandler(IPythonHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            hs = HSPuller(id)
+            hs = HSPuller(id, self.settings['hydroshare'])
 
             q = Queue()
             def pull():
@@ -257,15 +291,67 @@ class HSHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         app_env = 'notebook'
+        self.log.info('HS GET')
+        pwfile = os.path.expanduser("~/.hs_pass")
+        userfile = os.path.expanduser("~/.hs_user")
+        self.log.info(userfile)
+        needs_login = False
+        login_error = False
 
+        try:
+            with open(userfile) as f:
+                username = f.read().strip()
+            with open(pwfile) as f:
+                password = f.read().strip()
+            auth = HydroShareAuthBasic(username=username, password=password)
+            hs = HydroShare(auth=auth)
+            try:
+                info = hs.getUserInfo()
+                self.settings['hydroshare'] = hs
+                self.log.info('info=%s' % info)
+            except:
+                login_error = True
+        except:
+            needs_login = True
+
+        if needs_login or login_error:
+            self.log.info('REDIRECTING')
+            self.redirect('/hslogin?next=%s' % url_escape(url_escape(self.request.uri)))
+            return
+
+            # try:
+            #     def_login = os.getlogin()
+            # except:
+            #     def_login = "none"
+
+            # user = os.getenv('JUPYTERHUB_USER', def_login)
+            # pwfile = os.path.expanduser("~/.hs_pass")
+            # try:
+            #     with open(pwfile) as f:
+            #         password = f.read().strip()
+            # except:
+            #     password = 'none'
+
+            # if True:
+            #     print('Xpassword=', password)
+            #     self.write(
+            #         self.render_template(
+            #             'login.html'
+            #         ))
+            #     self.flush()
+            #     return
+
+            # client_id = "XXXX"
+            # client_secret = "XXXX"
+            # auth = HydroShareAuthOAuth2(client_id, client_secret,
+            #                             username='user', password='pass')
         id = self.get_argument('id')
+        self.log.info('id= %s' % id)
+
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         start = self.get_argument('start', '')
         app = self.get_argument('app', app_env)
-
-        self.log.info('HS GET')
-        self.log.info('id= %s' % id)
 
         # FIXME: We always overwrite.  Should probably have a dialog before doing that.
         if urlPath:
@@ -287,32 +373,3 @@ class HSHandler(IPythonHandler):
                 id=id, path=path, version=__version__
             ))
         self.flush()
-
-class LegacyGitSyncRedirectHandler(IPythonHandler):
-    @web.authenticated
-    @gen.coroutine
-    def get(self):
-        new_url = '{base}git-pull?{query}'.format(
-            base=self.base_url,
-            query=self.request.query
-        )
-        self.redirect(new_url)
-
-class LegacyInteractRedirectHandler(IPythonHandler):
-    @web.authenticated
-    @gen.coroutine
-    def get(self):
-        repo = self.get_argument('repo')
-        account = self.get_argument('account', 'data-8')
-        repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)
-        query = {
-            'repo': repo_url,
-            'branch': self.get_argument('branch', 'gh-pages'),
-            'subPath': self.get_argument('path')
-        }
-        new_url = '{base}git-pull?{query}'.format(
-            base=self.base_url,
-            query=urllib.parse.urlencode(query)
-        )
-
-        self.redirect(new_url)

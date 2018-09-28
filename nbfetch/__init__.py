@@ -1,9 +1,10 @@
 from .version import __version__
-from .handlers import SyncHandler, HSyncHandler, UIHandler, HSHandler, LegacyInteractRedirectHandler, LegacyGitSyncRedirectHandler
+from .handlers import HSLoginHandler, SyncHandler, HSyncHandler, UIHandler, HSHandler
 from .pull import GitPuller
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os
+
 
 def _jupyter_server_extension_paths():
     return [{
@@ -20,8 +21,6 @@ def load_jupyter_server_extension(nbapp):
         (url_path_join(hs_url, 'api'), HSyncHandler),
         (base_url, UIHandler),
         (hs_url, HSHandler),
-        # (url_path_join(web_app.settings['base_url'], 'git-sync'), LegacyGitSyncRedirectHandler),
-        # (url_path_join(web_app.settings['base_url'], 'interact'), LegacyInteractRedirectHandler),
         (
             url_path_join(base_url, 'static', '(.*)'),
             StaticFileHandler,
@@ -31,6 +30,7 @@ def load_jupyter_server_extension(nbapp):
             url_path_join(hs_url, 'static', '(.*)'),
             StaticFileHandler,
             {'path': os.path.join(os.path.dirname(__file__), 'static')}
-        )
+        ),
+        (url_path_join(web_app.settings['base_url'], 'hslogin'), HSLoginHandler),
     ]
     web_app.add_handlers('.*', handlers)

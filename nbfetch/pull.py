@@ -5,7 +5,7 @@ import time
 import argparse
 import datetime
 from functools import partial
-from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
+from hs_restclient import HydroShare
 
 
 def execute_cmd(cmd, **kwargs):
@@ -43,34 +43,15 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 class HSPuller:
-    def __init__(self, id):
+    def __init__(self, id, hs):
         assert id
         self.id = id
+        self.hs = hs
 
     def pull(self):
         """
         Pull selected repo from a remote hydroshare repository,
         """
-        try:
-            def_login = os.getlogin()
-        except:
-            def_login = "none"
-
-        user = os.getenv('JUPYTERHUB_USER', def_login)
-        pwfile = os.path.expanduser("~/.hs_pass")
-        try:
-            with open(pwfile) as f:
-                password = f.read().strip()
-        except:
-            password = 'none'
-        auth = HydroShareAuthBasic(username=user, password=password)
-        
-        # client_id = "XXXX"
-        # client_secret = "XXXX"
-        # auth = HydroShareAuthOAuth2(client_id, client_secret,
-        #                             username='user', password='pass')
-        self.hs = HydroShare(auth=auth)
-        # self.hs.getUserInfo()
         yield 'Successfully established a connection with HydroShare'
         self.hs.getResource(self.id, destination='.', unzip=True)
 
