@@ -12,6 +12,7 @@ from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
 from .pull import GitPuller, HSPuller
 from .version import __version__
 from notebook.utils import url_path_join
+import pickle
 
 #https://gist.github.com/guillaumevincent/4771570
 
@@ -167,8 +168,6 @@ class HSyncHandler(IPythonHandler):
     # @web.authenticated
     @gen.coroutine
     def get(self):
-        self.log.info("HSYNC GET")
-
         try:
             id = self.get_argument('id')
 
@@ -286,45 +285,63 @@ class HSHandler(IPythonHandler):
             )
         ])
 
+    def check_auth(self, auth):
+        hs = HydroShare(auth=auth)
+        try:
+            info = hs.getUserInfo()
+            self.settings['hydroshare'] = hs
+            self.log.info('info=%s' % info)
+        except:
+            hs = None
+        return hs
+
+    def login(self):
+        hs = None
+
+        # check for oauth
+        authfile = os.path.expanduser("~/.hs_auth")
+        try:
+            with open(authfile, 'rb') as f:
+                token, cid, cs = pickle.load(f)
+            auth = HydroShareAuthOAuth2(cid, cs, token=token)
+            hs = self.check_auth(auth)
+            if hs is None:
+                message = url_escape("Oauth Login Failed.  Login with username and password or logout from JupyterHub and reauthenticate with Hydroshare.")
+        except:
+            message = ''
+
+        if hs is None:
+            # If oauth fails, we can log in using
+            # user name and password.  These are saved in
+            # files in the home directory.
+            pwfile = os.path.expanduser("~/.hs_pass")
+            userfile = os.path.expanduser("~/.hs_user")
+
+            try:
+                with open(userfile) as f:
+                    username = f.read().strip()
+                with open(pwfile) as f:
+                    password = f.read().strip()
+                auth = HydroShareAuthBasic(username=username, password=password)
+                hs = self.check_auth(auth)
+                if hs is None:
+                    message = url_escape("Login Failed. Please Try again")
+            except:
+                message = url_escape("You need to provide login credentials to access HydroShare Resources.")
+                
+        if hs is None:
+            _next = url_escape(url_escape(self.request.uri))
+            upath = urljoin(self.request.uri, 'hslogin')
+            self.redirect('%s?error=%s&next=%s' % (upath, message, _next))
+
+
     @web.authenticated
     @gen.coroutine
     def get(self):
         app_env = 'notebook'
         self.log.info('HS GET ' + str(self.request.uri))
 
-        # look for these files.  If they exist, 
-        # try to log in with their contents
-        pwfile = os.path.expanduser("~/.hs_pass")
-        userfile = os.path.expanduser("~/.hs_user")
-
-        needs_login = False
-        login_error = False
-
-        try:
-            with open(userfile) as f:
-                username = f.read().strip()
-            with open(pwfile) as f:
-                password = f.read().strip()
-            auth = HydroShareAuthBasic(username=username, password=password)
-            hs = HydroShare(auth=auth)
-            try:
-                info = hs.getUserInfo()
-                self.settings['hydroshare'] = hs
-                self.log.info('info=%s' % info)
-            except:
-                login_error = True
-        except:
-            needs_login = True
-
-        if needs_login or login_error:
-            if login_error:
-                message = url_escape("Login Failed. Please Try again")
-            else:
-                message = url_escape("You need to provide login credentials to access HydroShare Resources.")
-            _next = url_escape(url_escape(self.request.uri))
-            upath = urljoin(self.request.uri, 'hslogin')
-            self.redirect('%s?error=%s&next=%s' % (upath, message, _next))
-            return
+        self.login()
 
         id = self.get_argument('id')
         urlPath = self.get_argument('urlpath', None) or \
