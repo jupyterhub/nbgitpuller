@@ -13,7 +13,7 @@ Pull Hydroshare resources to a local directory.
 
 You can install nbgitpuller from PyPI.
 
-    pip install -U --no-cache-dir --upgrade-strategy only-if-needed git+https://github.com/martin-hunt/nbfetch
+    pip install -U --no-cache-dir --upgrade-strategy only-if-needed git+https://github.com/hydroshare/nbfetch
 
 You can then enable the serverextension
 
@@ -26,7 +26,9 @@ See https://github.com/jupyterhub/nbgitpuller.
 Additional Hydroshare functionality allows useds to download a resource and optionally start a notebook in that resource.
 
 Example on a local Jupyter installation.
-http://localhost:8888/hs-pull?id=8caa62c46c424a818899ebeca6f30a83&start=spiro3D.ipynb
+
+  http://localhost:8888/hs-pull?id=8caa62c46c424a818899ebeca6f30a83&start=spiro3D.ipynb
 
 On JupyterHub,
-https://jupyterhub-dev.uwrl.usu.edu/hub/user-redirect/hs-pull?id=8caa62c46c424a818899ebeca6f30a83&start=spiro3D.ipynb
+
+  https://jupyterhub-dev.uwrl.usu.edu/hub/user-redirect/hs-pull?id=8caa62c46c424a818899ebeca6f30a83&start=spiro3D.ipynb
