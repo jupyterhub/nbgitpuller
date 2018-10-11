@@ -53,7 +53,7 @@ class HSPuller:
         Pull selected repo from a remote hydroshare repository,
         """
         yield 'Successfully established a connection with HydroShare'
-        self.hs.getResource(self.id, destination='.', unzip=True)
+        self.hs.getResource(self.id, destination='Downloads', unzip=True)
 
         
 class GitPuller:
