@@ -302,8 +302,8 @@ class HSHandler(IPythonHandler):
         authfile = os.path.expanduser("~/.hs_auth")
         try:
             with open(authfile, 'rb') as f:
-                token, cid, cs = pickle.load(f)
-            auth = HydroShareAuthOAuth2(cid, cs, token=token)
+                token, cid = pickle.load(f)
+            auth = HydroShareAuthOAuth2(cid, '', token=token)
             hs = self.check_auth(auth)
             if hs is None:
                 message = url_escape("Oauth Login Failed.  Login with username and password or logout from JupyterHub and reauthenticate with Hydroshare.")
