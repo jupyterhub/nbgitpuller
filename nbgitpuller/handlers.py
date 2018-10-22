@@ -156,7 +156,7 @@ class UIHandler(IPythonHandler):
         if urlPath:
             path = urlPath
         else:
-            repo_dir = self.get_argument('repodir', repo.split('/')[-1])
+            repo_dir = self.get_argument('targetPath', repo.split('/')[-1])
             path = os.path.join(repo_dir, subPath)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
@@ -195,7 +195,8 @@ class LegacyInteractRedirectHandler(IPythonHandler):
             'branch': self.get_argument('branch', 'gh-pages'),
             'depth': self.get_argument('depth'),
             'repodir': self.get_argument('repodir'),
-            'subPath': self.get_argument('path')
+            'subPath': self.get_argument('path'),
+            'targetPath': self.get_argument('targetPath')
         }
         new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,
