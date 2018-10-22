@@ -12,13 +12,13 @@ require([
 
     Terminal.applyAddon(fit);
 
-    function GitSync(baseUrl, repo, branch, depth, repodir, path) {
+    function GitSync(baseUrl, repo, branch, depth, targetpath, path) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
         this.branch = branch;
         this.depth = depth;
-        this.repodir = repodir;
+        this.targetpath = targetpath;
         this.redirectUrl = baseUrl + path;
 
         this.callbacks = {};
@@ -45,7 +45,7 @@ require([
         var syncUrlParams = {
             repo: this.repo,
             branch: this.branch,
-            repodir: this.repodir
+            targetpath: this.targetpath
         }
         if (typeof this.depth !== 'undefined' && this.depth != undefined) {
             syncUrlParams['depth'] = this.depth;
@@ -131,7 +131,7 @@ require([
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
         utils.get_body_data('depth'),
-        utils.get_body_data('repodir'),
+        utils.get_body_data('targetpath'),
         utils.get_body_data('path')
     );
 

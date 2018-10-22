@@ -65,7 +65,7 @@ class SyncHandler(IPythonHandler):
             # scope after cloning. Sometimes server_root_dir will include
             # things like `~` and so the path must be expanded.
             repo_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
-                                    self.get_argument('repodir', repo.split('/')[-1]))
+                                    self.get_argument('targetpath', repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
@@ -152,12 +152,13 @@ class UIHandler(IPythonHandler):
         subPath = self.get_argument('subpath', None) or \
                   self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
+        targetpath = self.get_argument('targetpath', None) or \
+                     self.get_argument('targetPath', repo.split('/')[-1])
 
         if urlPath:
             path = urlPath
         else:
-            repo_dir = self.get_argument('targetPath', repo.split('/')[-1])
-            path = os.path.join(repo_dir, subPath)
+            path = os.path.join(targetpath, subPath)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
@@ -168,7 +169,7 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, repodir=repo_dir, version=__version__
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
             ))
         self.flush()
 
@@ -196,7 +197,7 @@ class LegacyInteractRedirectHandler(IPythonHandler):
             'depth': self.get_argument('depth'),
             'repodir': self.get_argument('repodir'),
             'subPath': self.get_argument('path'),
-            'targetPath': self.get_argument('targetPath')
+            'targetPath': self.get_argument('targetpath')
         }
         new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,
