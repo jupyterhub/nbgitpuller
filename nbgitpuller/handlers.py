@@ -65,7 +65,7 @@ class SyncHandler(IPythonHandler):
             # scope after cloning. Sometimes server_root_dir will include
             # things like `~` and so the path must be expanded.
             repo_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
-                                    repo.split('/')[-1])
+                                    self.get_argument('repodir', repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
@@ -156,7 +156,7 @@ class UIHandler(IPythonHandler):
         if urlPath:
             path = urlPath
         else:
-            repo_dir = repo.split('/')[-1]
+            repo_dir = self.get_argument('repodir', repo.split('/')[-1])
             path = os.path.join(repo_dir, subPath)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
@@ -168,7 +168,7 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, version=__version__
+                repo=repo, branch=branch, path=path, depth=depth, repodir=repo_dir, version=__version__
             ))
         self.flush()
 
@@ -194,6 +194,7 @@ class LegacyInteractRedirectHandler(IPythonHandler):
             'repo': repo_url,
             'branch': self.get_argument('branch', 'gh-pages'),
             'depth': self.get_argument('depth'),
+            'repodir': self.get_argument('repodir'),
             'subPath': self.get_argument('path')
         }
         new_url = '{base}git-pull?{query}'.format(
