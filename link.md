@@ -1,11 +1,7 @@
-Generate an nbgitpuller link for your JupyterHub
-================================================
-
-** Build your URL with the form below**
-
-.. raw:: html
+# Generate an nbgitpuller link for your JupyterHub
 
    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+
    <style>
    input#generatebutton {
     font-size: 1rem;
