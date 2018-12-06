@@ -49,9 +49,8 @@
        huburl.pathname += 'hub/user-redirect/git-pull';
 
        var newurl = huburl.toString();
-       newurl = encodeURI(newurl);
+       /*newurl = encodeURI(newurl);*/
 
-       // var a = document.createElement('a');
        var a = document.getElementById('link')
        a.setAttribute('id', "link");
        a.setAttribute('href', newurl);
