@@ -17,23 +17,17 @@
    body { padding: 1em; }
 
    input[type=button] {
-    font-size: 1rem;
-    line-height: 1.5;
-    background-color: #477dca;
-    border-radius: 3px;
-    border: none;
-    color: white;
-    display: inline-block;
-    font-weight: 700;
-    padding: 6px 18px;
-    margin-top: 1em;
-    text-decoration: none
-   }
-   input[type=button]:disabled {
-     background-color: grey;
-   }
-   #error {
-     color: red;
+     font-size: 1rem;
+     line-height: 1.5;
+     background-color: #477dca;
+     border-radius: 3px;
+     border: none;
+     color: white;
+     display: inline-block;
+     font-weight: 700;
+     padding: 6px 18px;
+     margin-top: 1em;
+     text-decoration: none
    }
 
    /* https://www.the-art-of-web.com/html/html5-form-validation/ */
@@ -50,96 +44,60 @@
    </style>
 
    <script>
-   /* enable or disable generate button depending on input validity */
-   function setButtonState(form) {
-     var button = document.getElementById("generatebutton");
+   /* dynamically generate link on input changes */
+   function setLink(form) {
      var formValid = form.checkValidity();
-     button.disabled = !form.checkValidity();
-   }
+     var a = document.getElementById('link')
 
-   /* generate and display the link */
-   function generateLink() {
-       var hub   = document.getElementById("hub").value;
-       var error = document.getElementById('error')
-       try {
-         var huburl = new URL(hub);
-       } catch(err) {
-         error.innerHTML = "invalid url";
-         return;
-       }
-       error.innerHTML = "";
-       var query  = huburl.searchParams;
+     if (!formValid) {
+       console.log("form invalid");
+       a.setAttribute('href', "");
+       a.innerHTML = "";
+       return;
+     }
 
-       var val, elements = ['repo', 'branch', 'urlpath'];
-       for (var i=0; i < elements.length; i++) {
-         val = document.getElementById(elements[i]).value;
-         if (val.length == 0) continue;
-         query.set(elements[i], val)
-       }
+     var hub = document.getElementById("hub").value;
 
-       huburl.pathname += 'hub/user-redirect/git-pull';
+     try {
+       var huburl = new URL(hub);
+     } catch(err) {
+       a.setAttribute('href', "");
+       a.innerHTML = "invalid url";
+       return;
+     }
+     var query  = huburl.searchParams;
 
-       var newurl = huburl.toString();
+     var val, elements = ['repo', 'branch', 'urlpath'];
+     for (var i=0; i < elements.length; i++) {
+       val = document.getElementById(elements[i]).value;
+       if (val.length == 0) continue;
+       query.set(elements[i], val)
+     }
 
-       var a = document.getElementById('link')
-       a.setAttribute('id', "link");
-       a.setAttribute('href', newurl);
-       a.innerHTML = newurl;
+     huburl.pathname += 'hub/user-redirect/git-pull';
 
-       console.log(newurl);
+     var newurl = huburl.toString();
+
+     a.setAttribute('href', newurl);
+     a.innerHTML = newurl;
    }
 
    /* blank all input fields and remove the read-only attributes. we don't
     * invoke reset on the form itself since we have to loop over the
     * elements anyways to make them read/write */
    function resetForm() {
-     var i, input, elements = ['hub', 'repo', 'branch', 'urlpath'];
+     var i, input, a, elements = ['hub', 'repo', 'branch', 'urlpath'];
      for (i=0; i < elements.length; i++) {
        input = document.getElementById(elements[i]);
        input.value = "";
        input.readOnly = false;
      }
-     document.getElementById('error').innerHTML = "";
+     a = document.getElementById('link')
+     a.setAttribute('href', "");
+     a.innerHTML = "";
    }
-   </script>
-</head>
-<body>
-   <h1>nbgitpuller link generator</h1>
 
-   <form id="linkgenerator" class="pure-form pure-form-aligned">
-     <fieldset>
-       <div class="pure-control-group">
-         <label for="hub">JupyterHub URL</label>
-         <input class="pure-input-2-3" type="url" name="hub" id="hub" placeholder="https://example.com" oninput="setButtonState(this.form)" required pattern="https?://.+">
-         <span id="error" class="pure-form-message-inline"></span>
-       </div>
-       <div class="pure-control-group">
-         <label for="urlpath">URL path</label>
-         <input class="pure-input-1-3" type="text" id="urlpath" placeholder="urlpath">
-         <span class="pure-form-message-inline">(e.g. "lab", "rstudio", "notebooks/materials-fa18/materials/fa18/lab/lab01/lab01.ipynb")</span>
-       </div>
-     </fieldset>
-     <fieldset>
-       <div class="pure-control-group">
-         <label for="repo">Repository URL</label>
-         <input class="pure-input-2-3" type="text" id="repo" placeholder="https://github.com/example/test" oninput="setButtonState(this.form)" required>
-       </div>
-       <div class="pure-control-group">
-         <label for="repo">Git Branch</label>
-         <input class="pure-input-1-3" type="text" id="branch" placeholder="branch">
-       </div>
-       <div class="pure-control-group">
-         <input type="button" id="generatebutton" onclick="generateLink()" value="Generate Link" disabled>
-         <input type="button" id="resetbutton" onclick="resetForm()" value="Reset" >
-       </div>
-     </fieldset>
-   </form>
-
-   <hr />
-
-   <div><a id="link" href=""></a></div>
-
-   <script>
+   function preseed() {
      /* preseed read-only values if specified on the url */
      var urlparams = new URLSearchParams(window.location.search);
      var i, val, input, elements = ['hub', 'repo', 'branch', 'urlpath'];
@@ -149,9 +107,46 @@
        input = document.getElementById(elements[i]);
        input.value = val;
        input.readOnly = true;
-       setButtonState(input.form);
+       setLink(input.form);
      }
+   }
+
+   window.onload = preseed;
    </script>
+
+</head>
+<body>
+   <h1>nbgitpuller link generator</h1>
+
+   <form id="linkgenerator" class="pure-form pure-form-aligned">
+     <fieldset>
+       <div class="pure-control-group">
+         <label for="hub">JupyterHub URL</label>
+         <input class="pure-input-1-3" type="url" name="hub" id="hub" placeholder="https://hub.example.com" oninput="setLink(this.form)" required pattern="https?://.+">
+       </div>
+       <div class="pure-control-group">
+         <label for="urlpath">URL path</label>
+         <input class="pure-input-1-3" type="text" id="urlpath" placeholder="e.g. 'lab', 'rstudio', or 'path/to/a/notebook.ipynb'" oninput="setLink(this.form)">
+         <span class="pure-form-message-inline">optional</span>
+       </div>
+     </fieldset>
+     <fieldset>
+       <div class="pure-control-group">
+         <label for="repo">Repository URL</label>
+         <input class="pure-input-1-3" type="text" id="repo" placeholder="https://github.com/example/test" oninput="setLink(this.form)" required>
+       </div>
+       <div class="pure-control-group">
+         <label for="repo">Git Branch</label>
+         <input class="pure-input-1-3" type="text" id="branch" placeholder="branch" oninput="setLink(this.form)">
+         <span class="pure-form-message-inline">optional</span>
+       </div>
+       <div class="pure-control-group">
+         <input type="button" id="resetbutton" onclick="resetForm()" value="Reset" >
+       </div>
+     </fieldset>
+   </form>
+
+   <div><a id="link" href=""></a></div>
 
 </body>
 </html>
