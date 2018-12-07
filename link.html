@@ -29,6 +29,9 @@
     margin-top: 1em;
     text-decoration: none
    }
+   input[type=button]:disabled {
+     background-color: grey;
+   }
    #error {
      color: red;
    }
@@ -53,7 +56,7 @@
      <fieldset>
        <div class="pure-control-group">
          <label for="hub">JupyterHub URL</label>
-         <input class="pure-input-2-3" type="url" name="hub" id="hub" placeholder="https://example.com" required pattern="https?://.+">
+         <input class="pure-input-2-3" type="url" name="hub" id="hub" placeholder="https://example.com" oninput="inputaction(this.form)" required pattern="https?://.+">
          <span id="error" class="pure-form-message-inline"></span>
        </div>
        <div class="pure-control-group">
@@ -65,14 +68,14 @@
      <fieldset>
        <div class="pure-control-group">
          <label for="repo">Repository URL</label>
-         <input class="pure-input-2-3" type="text" id="repo" placeholder="https://github.com/example/test" required>
+         <input class="pure-input-2-3" type="text" id="repo" placeholder="https://github.com/example/test" oninput="inputaction(this.form)" required>
        </div>
        <div class="pure-control-group">
          <label for="repo">Git Branch</label>
          <input class="pure-input-1-3" type="text" id="branch" placeholder="branch">
        </div>
        <div class="pure-control-group">
-         <input type="button" id="generatebutton" onclick="generateLink()" value="Generate Link" >
+         <input type="button" id="generatebutton" onclick="generateLink()" value="Generate Link" disabled>
          <input type="button" id="resetbutton" onclick="resetForm()" value="Reset" >
        </div>
      </fieldset>
@@ -96,6 +99,13 @@
    </script>
 
    <script>
+   /* enable or disable generate button depending on input validity */
+   function inputaction(form) {
+     var button = document.getElementById("generatebutton");
+     var formValid = form.checkValidity();
+     button.disabled = !form.checkValidity();
+   }
+
    /* generate and display the link */
    function generateLink() {
        var hub   = document.getElementById("hub").value;
