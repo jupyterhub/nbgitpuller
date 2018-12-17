@@ -45,7 +45,7 @@ So we have made the following opinionated decisions.
 3. If a file exists locally but is untracked by git (maybe someone uploaded it manually),
    then rename the file, and pull in remote copy.
 
-# When to use / not use nbgitpuller
+# When to use nbgitpuller
 
 You should use this when:
 
@@ -64,7 +64,7 @@ You should *not* use this when:
    using nbgitpuller. Mixing manual git operations + automatic nbgitpuller operations is going
    to cause surprises on an ongoing basis, and should be avoided.
 
-# How to use `nbgitpuller`
+# How to use nbgitpuller
 
 1. Visit the nbgitpuller link generator at https://jupyterhub.github.io/nbgitpuller/link.
 2. Enter the IP address or URL to your JupyterHub. Include http:// or https:// as appropriate.
