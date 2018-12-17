@@ -74,6 +74,8 @@ You should *not* use this when:
 
 The link printed at the bottom of the form can be distributed to users. You can also click it to test that it is working as intended, and adjust the form values until you get something you are happy with.
 
+To preseed the form, append query string arguments to the link generator itself, for example https://jupyterhub.github.io/nbgitpuller/link?hub=http://jupyterhub.example.com. This may be useful when you want to suggest initial values to someone else. The other parameters are `urlpath`, `repo`, and `branch`. Resetting the form will remove the seeded values and re-enable the form fields.
+
 # Local development
 
 You can easily set up to develop this locally, without requiring a JupyterHub. It requires python3.
