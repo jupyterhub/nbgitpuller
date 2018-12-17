@@ -30,9 +30,6 @@ You can then enable the serverextension
 
 The link printed at the bottom of the form can be distributed to users. You can also click it to test that it is working as intended, and adjust the form values until you get something you are happy with.
 
-[Follow the `nbgitpuller` usage guide](https://the-littlest-jupyterhub.readthedocs.io/en/latest/howto/content/nbgitpuller.html)
-to learn how to distribute content for your JupyterHub using `nbgitpuller`.
-
 # What is it?
 
 nbgitpuller allows you to construct a URL that points to a remote git repository.
