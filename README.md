@@ -22,6 +22,14 @@ You can then enable the serverextension
 
 # How to use `nbgitpuller`
 
+1. Visit the nbgitpuller link generator at https://jupyterhub.github.io/nbgitpuller/link.
+2. Enter the IP address or URL to your JupyterHub. Include http:// or https:// as appropriate.
+3. Enter an alternative URL path if desired. If not set, the generated link will take users to the default hub url, however this can be changed. For example specifying "lab" will launch JupyterLab if installed. Entering "path/to/a/notebook.ipynb" will open that notebook.
+4. Enter the URL to your Git repository. This can reference any Git service provider such as GitHub, GitLab, or a local instance.
+5. If your git repository is using a non-default branch name, you can specify that under branch. Most people do not need to customize this.
+
+The link printed at the bottom of the form can be distributed to users. You can also click it to test that it is working as intended, and adjust the form values until you get something you are happy with.
+
 [Follow the `nbgitpuller` usage guide](https://the-littlest-jupyterhub.readthedocs.io/en/latest/howto/content/nbgitpuller.html)
 to learn how to distribute content for your JupyterHub using `nbgitpuller`.
 
