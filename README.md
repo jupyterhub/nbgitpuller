@@ -20,11 +20,6 @@ You can then enable the serverextension
 
     jupyter serverextension enable --py nbgitpuller --sys-prefix
 
-# How to use `nbgitpuller`
-
-[Follow the `nbgitpuller` usage guide](https://the-littlest-jupyterhub.readthedocs.io/en/latest/howto/content/nbgitpuller.html)
-to learn how to distribute content for your JupyterHub using `nbgitpuller`.
-
 # What is it?
 
 nbgitpuller allows you to construct a URL that points to a remote git repository.
@@ -50,7 +45,7 @@ So we have made the following opinionated decisions.
 3. If a file exists locally but is untracked by git (maybe someone uploaded it manually),
    then rename the file, and pull in remote copy.
 
-# When to use / not use nbgitpuller
+# When to use nbgitpuller
 
 You should use this when:
 
@@ -69,28 +64,17 @@ You should *not* use this when:
    using nbgitpuller. Mixing manual git operations + automatic nbgitpuller operations is going
    to cause surprises on an ongoing basis, and should be avoided.
 
-# Constructing the nbgitpuller URL
+# How to use nbgitpuller
 
-Launch this Binder for an interactive link generator
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/data-8/nbgitpuller/master?urlpath=apps/binder%2Flink_generator.ipynb)
+1. Visit the nbgitpuller link generator at https://jupyterhub.github.io/nbgitpuller/link.
+2. Enter the IP address or URL to your JupyterHub. Include http:// or https:// as appropriate.
+3. Enter an alternative URL path if desired. If not set, the generated link will take users to the default hub url, however this can be changed. For example specifying "lab" will launch JupyterLab if installed. Entering "path/to/a/notebook.ipynb" will open that notebook.
+4. Enter the URL to your Git repository. This can reference any Git service provider such as GitHub, GitLab, or a local instance.
+5. If your git repository is using a non-default branch name, you can specify that under branch. Most people do not need to customize this.
 
-You can construct a working nbgitpuller URL like this:
+The link printed at the bottom of the form can be distributed to users. You can also click it to test that it is working as intended, and adjust the form values until you get something you are happy with.
 
-```
-myjupyterhub.org/hub/user-redirect/git-pull?repo=<your-repo-url>&branch=<your-branch-name>&subPath=<subPath>&app=<notebook | lab>
-```
-
-- **repo** is the URL of the git repository you want to clone. This parameter is required.
-- **branch** is the branch name to use when cloning from the repository.
-  This parameter is optional and defaults to `master`.
-- **subPath** is the path of the directory / notebook inside the repo to launch after cloning.
-  This parameter is optional, and defaults to opening the base directory of the linked Git repository.
-- **app** This parameter is optional and defaults to either the environment variable
-  `NBGITPULLER_APP`'s value or `notebook` if it is undefined. The allowed values
-  are `lab` and `notebook`, the value will determine in what application view
-  you end up in.
-- **urlPath** will, if specified, override `app` and `subPath` and redirect
-  blindly to the specified path.
+To preseed the form, append query string arguments to the link generator itself, for example https://jupyterhub.github.io/nbgitpuller/link?hub=http://jupyterhub.example.com. This may be useful when you want to suggest initial values to someone else. The other parameters are `urlpath`, `repo`, and `branch`. Resetting the form will remove the seeded values and re-enable the form fields.
 
 # Local development
 
