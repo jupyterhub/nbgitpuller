@@ -1,12 +1,11 @@
 # nbgitpuller
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/jupyterhub/nbgitpuller/master?urlpath=apps/binder%2Flink_generator.ipynb)
+Create links for one-way synchronization of a remote git repository to a local git repository,
+with automatic conflict resolution. Meant for use with a Jupyter server.
 
-One-way synchronization of a remote git repository to a local git repository,
-with automatic conflict resolution.
+[Generate your own nbgitpuller links here](https://jupyterhub.github.io/nbgitpuller/link).
 
 [YouTube video instructions for teachers.](https://youtu.be/o7U0ZuICVFg)
-
 
 ![nbgitpuller demo](doc/nbpuller.gif)
 
