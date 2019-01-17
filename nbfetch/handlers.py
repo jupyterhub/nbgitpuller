@@ -364,7 +364,7 @@ class HSHandler(IPythonHandler):
         if urlPath:
             path = urlPath
         else:
-            path = os.path.join('Downloads', id, 'data', 'contents', start)
+            path = os.path.join('Downloads', id, id, 'data', 'contents', start)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
