@@ -355,16 +355,20 @@ class HSHandler(IPythonHandler):
                   self.get_argument('urlPath', None)
         start = self.get_argument('start', '')
         app = self.get_argument('app', app_env)
+        
+        
 
         # create Downloads if necessary
-        if not os.path.isdir('Downloads'):
-            os.mkdir('Downloads')
+        download_dir = os.environ.get('JUPYTER_DOWNLOADS', 'Downloads')
+        if not os.path.isdir(download_dir):
+            os.mkdirs(download_dir)
 
         # FIXME: We always overwrite.  Should probably have a dialog before doing that.
         if urlPath:
             path = urlPath
         else:
-            path = os.path.join('Downloads', id, id, 'data', 'contents', start)
+            path = os.path.join(download_dir,
+                                id, id, 'data', 'contents', start)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
