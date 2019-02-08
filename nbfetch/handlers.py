@@ -367,8 +367,8 @@ class HSHandler(IPythonHandler):
         if urlPath:
             path = urlPath
         else:
-            relative_download_dir = os.path.relpath(os.environ.get('NOTEBOOK_HOME'),
-                                                    download_dir)
+            relative_download_dir = download_dir.replace(os.environ.get(
+                                                         'NOTEBOOK_HOME'), '')
             path = os.path.join(relative_download_dir,
                                 id, id, 'data', 'contents', start)
             if app.lower() == 'lab':
