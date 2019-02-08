@@ -369,7 +369,7 @@ class HSHandler(IPythonHandler):
         else:
             relative_download_dir = os.path.relpath(os.environ.get('NOTEBOOK_HOME'),
                                                     download_dir)
-            path = os.path.join(relative, download_dir,
+            path = os.path.join(relative_download_dir,
                                 id, id, 'data', 'contents', start)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
