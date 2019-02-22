@@ -6,7 +6,7 @@ import time
 from nbgitpuller import GitPuller
 
 
-class Remote:
+class Repository:
     def __init__(self, path='remote'):
         self.path = path
 
@@ -18,35 +18,6 @@ class Remote:
     def __exit__(self, *args):
         shutil.rmtree(self.path)
 
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
-
-class Pusher:
-    def __init__(self, remote, path='pusher'):
-        self.path = path
-        self.remote = remote
-
-    def __enter__(self):
-        sp.check_output(['git', 'clone', self.remote.path, self.path])
-        self.git('config', '--local', 'user.email', 'pusher@example.com')
-        self.git('config', '--local', 'user.name', 'pusher')
-        return self
-
-    def __exit__(self, *args):
-        shutil.rmtree(self.path)
-
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
     def write_file(self, path, content):
         with open(os.path.join(self.path, path), 'w') as f:
             f.write(content)
@@ -54,6 +25,29 @@ class Pusher:
     def read_file(self, path):
         with open(os.path.join(self.path, path)) as f:
             return f.read()
+
+    def git(self, *args):
+        return sp.check_output(
+            ['git'] + list(args),
+            cwd=self.path,
+            stderr=sp.STDOUT
+        ).decode().strip()
+
+
+class Remote(Repository):
+    pass
+
+
+class Pusher(Repository):
+    def __init__(self, remote, path='pusher'):
+        self.remote = remote
+        super().__init__(path=path)
+
+    def __enter__(self):
+        sp.check_output(['git', 'clone', self.remote.path, self.path])
+        self.git('config', '--local', 'user.email', 'pusher@example.com')
+        self.git('config', '--local', 'user.name', 'pusher')
+        return self
 
     def push_file(self, path, content):
         self.write_file(path, content)
@@ -62,33 +56,15 @@ class Pusher:
         self.git('push', 'origin', 'master')
 
 
-class Puller:
+class Puller(Repository):
     def __init__(self, remote, path='puller'):
-        self.path = path
+        super().__init__(path)
         self.gp = GitPuller(remote.path, 'master', path)
 
     def __enter__(self):
         for line in self.gp.pull():
             print(line)
         return self
-
-    def __exit__(self, *args):
-        shutil.rmtree(self.path)
-
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
-    def write_file(self, path, content):
-        with open(os.path.join(self.path, path), 'w') as f:
-            f.write(content)
-
-    def read_file(self, path):
-        with open(os.path.join(self.path, path)) as f:
-            return f.read()
 
 # Tests to write:
 # 1. Initialize puller with gitpuller, test for user config & commit presence
