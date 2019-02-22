@@ -167,13 +167,13 @@ def test_git_lock():
 
             puller.write_file('.git/index.lock', '')
 
+            exception_raised = False
             try:
                 for l in puller.gp.pull():
                     print(puller.path + l)
-                assert False
             except Exception:
-                # This should raise an exception, since our .git/lock is new
-                assert True
+                exception_raised = True
+            assert exception_raised
 
             new_time = time.time() - 700
             os.utime(os.path.join(puller.path, '.git', 'index.lock'), (new_time, new_time))
