@@ -63,8 +63,9 @@ class Puller(Repository):
         self.gp = GitPuller(remotepath, 'master', path)
 
     def __enter__(self):
+        print()
         for line in self.gp.pull():
-            print(line)
+            print(line.rstrip())
         return self
 
 # Tests to write:
