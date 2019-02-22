@@ -3,8 +3,9 @@ import shutil
 import subprocess as sp
 import glob
 import time
-from nbgitpuller import GitPuller
+import pytest
 
+from nbgitpuller import GitPuller
 
 class Repository:
     def __init__(self, path='remote'):
@@ -57,10 +58,10 @@ class Pusher(Repository):
 
 
 class Puller(Repository):
-    def __init__(self, remote, path='puller'):
+    def __init__(self, remote, path='puller', depth=None):
         super().__init__(path)
         remotepath = "file://%s" % os.path.abspath(remote.path)
-        self.gp = GitPuller(remotepath, 'master', path)
+        self.gp = GitPuller(remotepath, 'master', path, depth=depth)
 
     def __enter__(self):
         print()
@@ -233,3 +234,68 @@ def test_reset_file():
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+@pytest.fixture(scope='module')
+def long_remote():
+    with Remote() as remote, Pusher(remote) as pusher:
+        for i in range(0, 10):
+            pusher.git('commit', '--allow-empty', '-m', "Empty message %d" % i)
+            pusher.git('push', 'origin', 'master')
+
+        yield remote
+
+@pytest.fixture(scope="function")
+def clean_environment():
+    """
+    Save and restore the state of named VARIABLES before, during, and
+    after tests.
+    """
+
+    VARIABLES = ['NBGITPULLER_DEPTH']
+    backups = {}
+    for var in VARIABLES:
+        backups[var] = os.environ.get(var)
+        if backups[var]:
+            del os.environ[var]
+
+    yield
+
+    for var in backups:
+        if backups[var]:
+            os.environ[var] = backups[var]
+        elif os.environ.get(var):
+            del os.environ[var]
+
+def count_loglines(repository):
+    return len(repository.git('log', '--oneline').split("\n"))
+
+def test_unshallow_clone(long_remote, clean_environment):
+    """
+    Sanity-test that clones with 10 commits have 10 log entries
+    """
+    with Puller(long_remote, 'normal') as puller:
+        assert count_loglines(puller) == 10
+
+def test_shallow_clone(long_remote, clean_environment):
+    """
+    Test that shallow clones only have a portion of the git history
+    """
+    with Puller(long_remote, 'shallow4', depth=4) as puller:
+        assert count_loglines(puller) == 4
+
+def test_environment_shallow_clone(long_remote, clean_environment):
+    """
+    Test that shallow clones respect the NBGITPULLER_DEPTH environment variable
+    by default
+    """
+    os.environ['NBGITPULLER_DEPTH'] = "2"
+    with Puller(long_remote, 'shallow_env') as puller:
+        assert count_loglines(puller) == 2
+
+def test_explicit_unshallow(long_remote, clean_environment):
+    """
+    Test that we can disable environment-specified shallow clones
+    """
+    os.environ['NBGITPULLER_DEPTH'] = "2"
+    with Puller(long_remote, 'explicitly_full', depth=0) as puller:
+        assert count_loglines(puller) == 10
