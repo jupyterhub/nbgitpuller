@@ -4,6 +4,8 @@ import logging
 import time
 import argparse
 import datetime
+from traitlets import Integer, default
+from traitlets.config import Configurable
 from functools import partial
 
 def execute_cmd(cmd, **kwargs):
@@ -40,14 +42,33 @@ def execute_cmd(cmd, **kwargs):
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
 
-class GitPuller:
-    def __init__(self, git_url, branch_name, repo_dir, depth=None):
+class GitPuller(Configurable):
+    depth = Integer(None, allow_none=True, config=True,
+                    help="""
+                    Depth (ie, commit count) to which to perform a
+                    shallow git clone.
+
+                    If not set, disables shallow clones.
+
+                    Defaults to reading from the NBGITPULLER_DEPTH
+                    environment variable.
+                    """)
+
+    @default('depth')
+    def _depth_default(self):
+        depth = os.environ.get('NBGITPULLER_DEPTH')
+        if depth:
+            return int(depth)
+        return None
+
+    def __init__(self, git_url, branch_name, repo_dir, **kwargs):
         assert git_url and branch_name
 
         self.git_url = git_url
         self.branch_name = branch_name
         self.repo_dir = repo_dir
-        self.depth = depth
+        newargs = {k: v for k, v in kwargs.items() if v is not None}
+        super(Configurable, self).__init__(**newargs)
 
     def pull(self):
         """
