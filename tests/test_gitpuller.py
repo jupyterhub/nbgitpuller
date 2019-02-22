@@ -33,8 +33,8 @@ class Pusher:
 
     def __enter__(self):
         sp.check_output(['git', 'clone', self.remote.path, self.path])
-        self.git('config', 'user.email', 'pusher@example.com')
-        self.git('config', 'user.name', 'pusher')
+        self.git('config', '--local', 'user.email', 'pusher@example.com')
+        self.git('config', '--local', 'user.name', 'pusher')
         return self
 
     def __exit__(self, *args):
