@@ -231,7 +231,7 @@ def test_reset_file():
 
 @pytest.fixture(scope='module')
 def long_remote():
-    with Remote() as remote, Pusher(remote) as pusher:
+    with Remote("long_remote") as remote, Pusher(remote, "lr_pusher") as pusher:
         for i in range(0, 10):
             pusher.git('commit', '--allow-empty', '-m', "Empty message %d" % i)
             pusher.git('push', 'origin', 'master')
