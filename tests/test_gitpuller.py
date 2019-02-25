@@ -63,11 +63,15 @@ class Puller(Repository):
         remotepath = "file://%s" % os.path.abspath(remote.path)
         self.gp = GitPuller(remotepath, 'master', path, depth=depth)
 
+    def pull_all(self):
+        for l in self.gp.pull():
+            print('{}: {}'.format(self.path, l.rstrip()))
+
     def __enter__(self):
         print()
-        for line in self.gp.pull():
-            print(line.rstrip())
+        self.pull_all()
         return self
+
 
 # Tests to write:
 # 1. Initialize puller with gitpuller, test for user config & commit presence
@@ -109,16 +113,14 @@ def test_simple_push_pull():
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
 
             pusher.push_file('README.md', '2')
-            for l in puller.gp.pull():
-                print(puller.path + l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '2'
 
             pusher.push_file('another-file', '3')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('another-file') == pusher.read_file('another-file') == '3'
@@ -127,8 +129,7 @@ def test_simple_push_pull():
             pusher.git('commit', '-m', 'Removing File')
             pusher.git('push', 'origin', 'master')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert not os.path.exists(os.path.join(puller.path, 'another-file'))
@@ -148,8 +149,7 @@ def test_git_lock():
 
             exception_raised = False
             try:
-                for l in puller.gp.pull():
-                    print(puller.path + l)
+                puller.pull_all()
             except Exception:
                 exception_raised = True
             assert exception_raised
@@ -157,8 +157,7 @@ def test_git_lock():
             new_time = time.time() - 700
             os.utime(os.path.join(puller.path, '.git', 'index.lock'), (new_time, new_time))
 
-            for l in puller.gp.pull():
-                print(puller.path + l)
+            puller.pull_all()
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
 
 
@@ -176,8 +175,7 @@ def test_merging_simple():
 
             pusher.push_file('README.md', '3')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.read_file('README.md') == '2'
             assert pusher.read_file('README.md') == '3'
@@ -185,16 +183,14 @@ def test_merging_simple():
             # Make sure that further pushes to other files are reflected
             pusher.push_file('another-file', '4')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.read_file('another-file') == pusher.read_file('another-file') == '4'
 
             # Make sure our merging works across commits
 
             pusher.push_file('README.md', '5')
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.read_file('README.md') == '2'
 
@@ -211,8 +207,7 @@ def test_untracked_puller():
 
             puller.write_file('another-file', '3')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
             assert puller.read_file('another-file') == '2'
             # Find file that was created!
             renamed_file = glob.glob(os.path.join(puller.path, 'another-file_*'))[0]
@@ -229,8 +224,7 @@ def test_reset_file():
         with Puller(remote) as puller:
             os.remove(os.path.join(puller.path, 'README.md'))
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
