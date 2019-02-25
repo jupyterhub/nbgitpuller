@@ -293,3 +293,21 @@ def test_explicit_unshallow(long_remote, clean_environment):
     os.environ['NBGITPULLER_DEPTH'] = "2"
     with Puller(long_remote, 'explicitly_full', depth=0) as puller:
         assert count_loglines(puller) == 10
+
+def test_pull_on_shallow_clone(long_remote, clean_environment):
+    """
+    Test that we can perform a pull on a shallow clone
+    """
+    with Puller(long_remote, depth=0) as shallow_puller:
+        with Pusher(long_remote) as pusher:
+            pusher.push_file('test_file', 'test')
+
+            orig_head = shallow_puller.git('rev-parse', 'HEAD')
+            shallow_puller.pull_all()
+            new_head = shallow_puller.git('rev-parse', 'HEAD')
+            upstream_head = long_remote.git('rev-parse', 'HEAD')
+
+            assert orig_head != new_head
+            assert new_head == upstream_head
+
+            pusher.git('push', '--force', 'origin', '%s:master' % orig_head)
