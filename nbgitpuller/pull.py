@@ -4,6 +4,8 @@ import logging
 import time
 import argparse
 import datetime
+from traitlets import Integer, default
+from traitlets.config import Configurable
 from functools import partial
 
 def execute_cmd(cmd, **kwargs):
@@ -40,13 +42,33 @@ def execute_cmd(cmd, **kwargs):
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
 
-class GitPuller:
-    def __init__(self, git_url, branch_name, repo_dir):
+class GitPuller(Configurable):
+    depth = Integer(None, allow_none=True, config=True,
+                    help="""
+                    Depth (ie, commit count) to which to perform a
+                    shallow git clone.
+
+                    If not set, disables shallow clones.
+
+                    Defaults to reading from the NBGITPULLER_DEPTH
+                    environment variable.
+                    """)
+
+    @default('depth')
+    def _depth_default(self):
+        depth = os.environ.get('NBGITPULLER_DEPTH')
+        if depth:
+            return int(depth)
+        return None
+
+    def __init__(self, git_url, branch_name, repo_dir, **kwargs):
         assert git_url and branch_name
 
         self.git_url = git_url
         self.branch_name = branch_name
         self.repo_dir = repo_dir
+        newargs = {k: v for k, v in kwargs.items() if v is not None}
+        super(Configurable, self).__init__(**newargs)
 
     def pull(self):
         """
@@ -64,8 +86,12 @@ class GitPuller:
         """
 
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
-        yield from execute_cmd(['git', 'clone', self.git_url, self.repo_dir])
-        yield from execute_cmd(['git', 'checkout', self.branch_name], cwd=self.repo_dir)
+        clone_args = ['git', 'clone']
+        if self.depth and self.depth > 0:
+            clone_args.extend(['--depth', str(self.depth)])
+        clone_args.extend(['--branch', self.branch_name])
+        clone_args.extend([self.git_url, self.repo_dir])
+        yield from execute_cmd(clone_args)
         yield from execute_cmd(['git', 'config', 'user.email', 'nbgitpuller@example.com'], cwd=self.repo_dir)
         yield from execute_cmd(['git', 'config', 'user.name', 'nbgitpuller'], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))

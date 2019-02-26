@@ -3,10 +3,11 @@ import shutil
 import subprocess as sp
 import glob
 import time
+import pytest
+
 from nbgitpuller import GitPuller
 
-
-class Remote:
+class Repository:
     def __init__(self, path='remote'):
         self.path = path
 
@@ -18,35 +19,6 @@ class Remote:
     def __exit__(self, *args):
         shutil.rmtree(self.path)
 
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
-
-class Pusher:
-    def __init__(self, remote, path='pusher'):
-        self.path = path
-        self.remote = remote
-
-    def __enter__(self):
-        sp.check_output(['git', 'clone', self.remote.path, self.path])
-        self.git('config', 'user.email', 'pusher@example.com')
-        self.git('config', 'user.name', 'pusher')
-        return self
-
-    def __exit__(self, *args):
-        shutil.rmtree(self.path)
-
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
     def write_file(self, path, content):
         with open(os.path.join(self.path, path), 'w') as f:
             f.write(content)
@@ -54,6 +26,29 @@ class Pusher:
     def read_file(self, path):
         with open(os.path.join(self.path, path)) as f:
             return f.read()
+
+    def git(self, *args):
+        return sp.check_output(
+            ['git'] + list(args),
+            cwd=self.path,
+            stderr=sp.STDOUT
+        ).decode().strip()
+
+
+class Remote(Repository):
+    pass
+
+
+class Pusher(Repository):
+    def __init__(self, remote, path='pusher'):
+        self.remote = remote
+        super().__init__(path=path)
+
+    def __enter__(self):
+        sp.check_output(['git', 'clone', self.remote.path, self.path])
+        self.git('config', '--local', 'user.email', 'pusher@example.com')
+        self.git('config', '--local', 'user.name', 'pusher')
+        return self
 
     def push_file(self, path, content):
         self.write_file(path, content)
@@ -62,33 +57,21 @@ class Pusher:
         self.git('push', 'origin', 'master')
 
 
-class Puller:
-    def __init__(self, remote, path='puller'):
-        self.path = path
-        self.gp = GitPuller(remote.path, 'master', path)
+class Puller(Repository):
+    def __init__(self, remote, path='puller', depth=None):
+        super().__init__(path)
+        remotepath = "file://%s" % os.path.abspath(remote.path)
+        self.gp = GitPuller(remotepath, 'master', path, depth=depth)
+
+    def pull_all(self):
+        for l in self.gp.pull():
+            print('{}: {}'.format(self.path, l.rstrip()))
 
     def __enter__(self):
-        for line in self.gp.pull():
-            print(line)
+        print()
+        self.pull_all()
         return self
 
-    def __exit__(self, *args):
-        shutil.rmtree(self.path)
-
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
-    def write_file(self, path, content):
-        with open(os.path.join(self.path, path), 'w') as f:
-            f.write(content)
-
-    def read_file(self, path):
-        with open(os.path.join(self.path, path)) as f:
-            return f.read()
 
 # Tests to write:
 # 1. Initialize puller with gitpuller, test for user config & commit presence
@@ -130,16 +113,14 @@ def test_simple_push_pull():
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
 
             pusher.push_file('README.md', '2')
-            for l in puller.gp.pull():
-                print(puller.path + l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '2'
 
             pusher.push_file('another-file', '3')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('another-file') == pusher.read_file('another-file') == '3'
@@ -148,8 +129,7 @@ def test_simple_push_pull():
             pusher.git('commit', '-m', 'Removing File')
             pusher.git('push', 'origin', 'master')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert not os.path.exists(os.path.join(puller.path, 'another-file'))
@@ -167,19 +147,17 @@ def test_git_lock():
 
             puller.write_file('.git/index.lock', '')
 
+            exception_raised = False
             try:
-                for l in puller.gp.pull():
-                    print(puller.path + l)
-                assert False
+                puller.pull_all()
             except Exception:
-                # This should raise an exception, since our .git/lock is new
-                assert True
+                exception_raised = True
+            assert exception_raised
 
             new_time = time.time() - 700
             os.utime(os.path.join(puller.path, '.git', 'index.lock'), (new_time, new_time))
 
-            for l in puller.gp.pull():
-                print(puller.path + l)
+            puller.pull_all()
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
 
 
@@ -197,8 +175,7 @@ def test_merging_simple():
 
             pusher.push_file('README.md', '3')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.read_file('README.md') == '2'
             assert pusher.read_file('README.md') == '3'
@@ -206,16 +183,14 @@ def test_merging_simple():
             # Make sure that further pushes to other files are reflected
             pusher.push_file('another-file', '4')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.read_file('another-file') == pusher.read_file('another-file') == '4'
 
             # Make sure our merging works across commits
 
             pusher.push_file('README.md', '5')
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.read_file('README.md') == '2'
 
@@ -232,8 +207,7 @@ def test_untracked_puller():
 
             puller.write_file('another-file', '3')
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
             assert puller.read_file('another-file') == '2'
             # Find file that was created!
             renamed_file = glob.glob(os.path.join(puller.path, 'another-file_*'))[0]
@@ -250,8 +224,90 @@ def test_reset_file():
         with Puller(remote) as puller:
             os.remove(os.path.join(puller.path, 'README.md'))
 
-            for l in puller.gp.pull():
-                print(l)
+            puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+@pytest.fixture(scope='module')
+def long_remote():
+    with Remote("long_remote") as remote, Pusher(remote, "lr_pusher") as pusher:
+        for i in range(0, 10):
+            pusher.git('commit', '--allow-empty', '-m', "Empty message %d" % i)
+            pusher.git('push', 'origin', 'master')
+
+        yield remote
+
+@pytest.fixture(scope="function")
+def clean_environment():
+    """
+    Save and restore the state of named VARIABLES before, during, and
+    after tests.
+    """
+
+    VARIABLES = ['NBGITPULLER_DEPTH']
+    backups = {}
+    for var in VARIABLES:
+        backups[var] = os.environ.get(var)
+        if backups[var]:
+            del os.environ[var]
+
+    yield
+
+    for var in backups:
+        if backups[var]:
+            os.environ[var] = backups[var]
+        elif os.environ.get(var):
+            del os.environ[var]
+
+def count_loglines(repository):
+    return len(repository.git('log', '--oneline').split("\n"))
+
+def test_unshallow_clone(long_remote, clean_environment):
+    """
+    Sanity-test that clones with 10 commits have 10 log entries
+    """
+    with Puller(long_remote, 'normal') as puller:
+        assert count_loglines(puller) == 10
+
+def test_shallow_clone(long_remote, clean_environment):
+    """
+    Test that shallow clones only have a portion of the git history
+    """
+    with Puller(long_remote, 'shallow4', depth=4) as puller:
+        assert count_loglines(puller) == 4
+
+def test_environment_shallow_clone(long_remote, clean_environment):
+    """
+    Test that shallow clones respect the NBGITPULLER_DEPTH environment variable
+    by default
+    """
+    os.environ['NBGITPULLER_DEPTH'] = "2"
+    with Puller(long_remote, 'shallow_env') as puller:
+        assert count_loglines(puller) == 2
+
+def test_explicit_unshallow(long_remote, clean_environment):
+    """
+    Test that we can disable environment-specified shallow clones
+    """
+    os.environ['NBGITPULLER_DEPTH'] = "2"
+    with Puller(long_remote, 'explicitly_full', depth=0) as puller:
+        assert count_loglines(puller) == 10
+
+def test_pull_on_shallow_clone(long_remote, clean_environment):
+    """
+    Test that we can perform a pull on a shallow clone
+    """
+    with Puller(long_remote, depth=0) as shallow_puller:
+        with Pusher(long_remote) as pusher:
+            pusher.push_file('test_file', 'test')
+
+            orig_head = shallow_puller.git('rev-parse', 'HEAD')
+            shallow_puller.pull_all()
+            new_head = shallow_puller.git('rev-parse', 'HEAD')
+            upstream_head = long_remote.git('rev-parse', 'HEAD')
+
+            assert orig_head != new_head
+            assert new_head == upstream_head
+
+            pusher.git('push', '--force', 'origin', '%s:master' % orig_head)

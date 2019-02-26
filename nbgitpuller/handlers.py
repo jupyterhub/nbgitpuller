@@ -53,13 +53,16 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch')
+            depth = self.get_argument('depth', None)
+            if depth:
+                depth = int(depth)
             repo_dir = repo.split('/')[-1]
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, branch, repo_dir)
+            gp = GitPuller(repo, branch, repo_dir, depth=depth)
 
             q = Queue()
             def pull():
@@ -134,6 +137,7 @@ class UIHandler(IPythonHandler):
 
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', 'master')
+        depth = self.get_argument('depth', None)
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
@@ -155,7 +159,7 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, version=__version__
+                repo=repo, branch=branch, path=path, depth=depth, version=__version__
             ))
         self.flush()
 
@@ -180,6 +184,7 @@ class LegacyInteractRedirectHandler(IPythonHandler):
         query = {
             'repo': repo_url,
             'branch': self.get_argument('branch', 'gh-pages'),
+            'depth': self.get_argument('depth'),
             'subPath': self.get_argument('path')
         }
         new_url = '{base}git-pull?{query}'.format(
