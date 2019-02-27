@@ -56,6 +56,14 @@ class SyncHandler(IPythonHandler):
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
+            # The default working directory is the directory from which Jupyter
+            # server is launched, which is not the same as the root notebook
+            # directory assuming either --notebook-dir= is used from the
+            # command line or c.NotebookApp.notebook_dir is set in the jupyter
+            # configuration. This line assures that all repos are cloned
+            # relative to server_root_dir, so that all repos are always in
+            # scope after cloning. Sometimes server_root_dir will include
+            # things like `~` and so the path must be expanded.
             repo_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
                                     repo.split('/')[-1])
 
