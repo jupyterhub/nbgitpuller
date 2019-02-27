@@ -56,7 +56,8 @@ class SyncHandler(IPythonHandler):
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
-            repo_dir = repo.split('/')[-1]
+            repo_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
+                                    repo.split('/')[-1])
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
