@@ -280,7 +280,6 @@ def test_shallow_clone(long_remote, clean_environment):
     with Puller(long_remote, 'shallow4', depth=4) as puller:
         assert count_loglines(puller) == 4
 
-@pytest.mark.xfail(strict=True)
 def test_shallow_clone_config(long_remote, clean_environment):
     """
     Test that shallow clones can be configured via parent Configurables
