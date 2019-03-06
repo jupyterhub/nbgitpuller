@@ -58,10 +58,10 @@ class Pusher(Repository):
 
 
 class Puller(Repository):
-    def __init__(self, remote, path='puller', depth=None):
+    def __init__(self, remote, path='puller', *args, **kwargs):
         super().__init__(path)
         remotepath = "file://%s" % os.path.abspath(remote.path)
-        self.gp = GitPuller(remotepath, 'master', path, depth=depth)
+        self.gp = GitPuller(remotepath, 'master', path, *args, **kwargs)
 
     def pull_all(self):
         for l in self.gp.pull():
