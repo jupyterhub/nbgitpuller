@@ -7,7 +7,7 @@ with automatic conflict resolution. Meant for use with a Jupyter server.
 
 [YouTube video instructions for teachers.](https://youtu.be/o7U0ZuICVFg)
 
-![nbgitpuller demo](doc/nbpuller.gif)
+![nbgitpuller demo](docs/nbpuller.gif)
 
 # Installation
 
