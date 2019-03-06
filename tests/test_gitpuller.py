@@ -4,6 +4,9 @@ import subprocess as sp
 import glob
 import time
 import pytest
+from tempfile import NamedTemporaryFile
+
+from traitlets.config.configurable import Configurable
 
 from nbgitpuller import GitPuller
 
@@ -276,6 +279,20 @@ def test_shallow_clone(long_remote, clean_environment):
     """
     with Puller(long_remote, 'shallow4', depth=4) as puller:
         assert count_loglines(puller) == 4
+
+@pytest.mark.xfail(strict=True)
+def test_shallow_clone_config(long_remote, clean_environment):
+    """
+    Test that shallow clones can be configured via parent Configurables
+    """
+    class TempConfig(Configurable):
+        def __init__(self):
+            super(TempConfig)
+            self.config['GitPuller']['depth'] = 5
+
+
+    with Puller(long_remote, 'shallow4', parent=TempConfig()) as puller:
+        assert count_loglines(puller) == 5
 
 def test_environment_shallow_clone(long_remote, clean_environment):
     """
