@@ -68,7 +68,7 @@ class GitPuller(Configurable):
         self.branch_name = branch_name
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
-        super(Configurable, self).__init__(**newargs)
+        super(GitPuller, self).__init__(**newargs)
 
     def pull(self):
         """

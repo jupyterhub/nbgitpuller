@@ -62,7 +62,7 @@ class SyncHandler(IPythonHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, branch, repo_dir, depth=depth)
+            gp = GitPuller(repo, branch, repo_dir, depth=depth, parent=self.settings['nbapp'])
 
             q = Queue()
             def pull():

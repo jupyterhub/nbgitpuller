@@ -25,4 +25,5 @@ def load_jupyter_server_extension(nbapp):
             {'path': os.path.join(os.path.dirname(__file__), 'static')}
         )
     ]
+    web_app.settings['nbapp'] = nbapp
     web_app.add_handlers('.*', handlers)
