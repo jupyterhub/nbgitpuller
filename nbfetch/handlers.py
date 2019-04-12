@@ -14,8 +14,6 @@ from .version import __version__
 from notebook.utils import url_path_join
 import pickle
 
-#https://gist.github.com/guillaumevincent/4771570
-
 class HSLoginHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
@@ -226,7 +224,7 @@ class HSyncHandler(IPythonHandler):
                     )
                 ])
             })
-        
+
 
 class UIHandler(IPythonHandler):
     def initialize(self):
@@ -288,7 +286,7 @@ class HSHandler(IPythonHandler):
     def check_auth(self, auth):
         hs = HydroShare(auth=auth)
         self.log.info('hs=%s' % str(hs))
-            
+
 
         try:
             info = hs.getUserInfo()
@@ -335,7 +333,7 @@ class HSHandler(IPythonHandler):
                     message = url_escape("Login Failed. Please Try again")
             except:
                 message = url_escape("You need to provide login credentials to access HydroShare Resources.")
-                
+
         if hs is None:
             _next = url_escape(url_escape(self.request.uri))
             upath = urljoin(self.request.uri, 'hslogin')
@@ -345,40 +343,53 @@ class HSHandler(IPythonHandler):
     @web.authenticated
     @gen.coroutine
     def get(self):
+        """
+        Get or go to the required resource. Parameters:
+        id - Resource id (required)
+        start - notebook to launch (optional)
+        app - Optinal. 'lab' will try to run jupyter lab
+        overwrite - Overwrite any existing local copy or the resource
+        goto - Do not overwrite.  Just go to the resouce 
+        """
+
         app_env = 'notebook'
         self.log.info('HS GET ' + str(self.request.uri))
 
         self.login()
 
         id = self.get_argument('id')
-        urlPath = self.get_argument('urlpath', None) or \
-                  self.get_argument('urlPath', None)
         start = self.get_argument('start', '')
         app = self.get_argument('app', app_env)
-        
-        
+        overwrite = self.get_argument('overwrite', 0)
+        goto = self.get_argument('goto', 0)
 
-        # create Downloads if necessary
+        print('GET', id , start, app, overwrite, goto)
+
+        # create Downloads directory if necessary
         download_dir = os.environ.get('JUPYTER_DOWNLOADS', 'Downloads')
         if not os.path.isdir(download_dir):
-            os.mkdirs(download_dir)
+            os.makedirs(download_dir)
 
-        # FIXME: We always overwrite.  Should probably have a dialog before doing that.
-        if urlPath:
-            path = urlPath
+        relative_download_dir = download_dir.replace(os.environ.get('NOTEBOOK_HOME'), '')
+        pathid = os.path.join(relative_download_dir, id)
+        if os.path.exists(pathid) and goto == 0 and overwrite == 0:
+            # overwrite or not? display modal dialog
+            self.write(self.render_template('confirm.html', directory=pathid))
+            self.flush()
+            return
+
+        path = os.path.join(pathid, id, 'data', 'contents', start)
+        if app.lower() == 'lab':
+            path = 'lab/tree/' + path
+        elif path.lower().endswith('.ipynb'):
+            path = 'notebooks/' + path
         else:
-            relative_download_dir = download_dir.replace(os.environ.get(
-                                                         'NOTEBOOK_HOME'), '')
-            path = os.path.join(relative_download_dir,
-                                id, id, 'data', 'contents', start)
-            if app.lower() == 'lab':
-                path = 'lab/tree/' + path
-            elif path.lower().endswith('.ipynb'):
-                path = 'notebooks/' + path
-            else:
-                path = 'tree/' + path
+            path = 'tree/' + path
 
         self.log.info('path=%s' % path)
+        if goto:
+            self.redirect(path)
+            return
 
         self.write(
             self.render_template(
