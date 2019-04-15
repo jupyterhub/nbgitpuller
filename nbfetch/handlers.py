@@ -363,7 +363,7 @@ class HSHandler(IPythonHandler):
         overwrite = self.get_argument('overwrite', 0)
         goto = self.get_argument('goto', 0)
 
-        print('GET', id , start, app, overwrite, goto)
+        self.log.info('GET %s %s %s %s %s' % (id , start, app, overwrite, goto))
 
         # create Downloads directory if necessary
         download_dir = os.environ.get('JUPYTER_DOWNLOADS', 'Downloads')
