@@ -21,13 +21,13 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="confirmModalLabel">Overwrite Existing Directory?</h5>
+          <h5 class="modal-title" id="confirmModalLabel">Directory Exists</h5>
         </div>
         <div class="modal-body">
-          Directory "{{directory}}" already exists.  
+          Directory "{{directory}}" already exists on JupyterHub.
           <br><br>
-          Do you want to simply go to the current directory or 
-          do you want to overwrite the current contents, possibly erasing any changes you have made?
+          Do you want to overwrite the current contents, replacing it with files from HydroShare?
+          Or just go to the current directory on JupyterHub?
         </div>
         <div class="modal-footer">
           <button id="overwrite" class="btn btn-danger" data-dismiss="modal">Overwrite</button>
