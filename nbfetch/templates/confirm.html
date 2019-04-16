@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmModalLabel">Directory Exists</h5>
+        </div>
+        <div class="modal-body">
+          Directory "{{directory}}" already exists on JupyterHub.
+          <br><br>
+          Do you want to overwrite the current contents, replacing it with files from HydroShare?
+          Or just go to the current directory on JupyterHub?
+        </div>
+        <div class="modal-footer">
+          <button id="overwrite" class="btn btn-danger" data-dismiss="modal">Overwrite</button>
+          <button id="goto" class="btn btn-primary" data-dismiss="modal">Go to Directory</button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <script> $(function () { 
+      console.log('starting modal dialog');
+      $('#confirmModal').modal({keyboard: false, backdrop: 'static'});
+      
+      $('#confirmModal').on('keypress', function (event) {
+        // enter key goes to the existing code
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+          window.location.replace(window.location.href + '&goto=1');
+        }
+      });
+
+      $('#confirmModal').on('hide.bs.modal', function (e) {
+        // get the id of the button that was clicked
+        var res = $(document.activeElement).attr('id');
+        // redirect to calling url with "goto" or "overwrite" parameter
+        window.location.replace(window.location.href + '&' + res + '=1');
+      });
+    });
+    </script>
+  </body>
+</html>
+
+
