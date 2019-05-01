@@ -370,7 +370,8 @@ class HSHandler(IPythonHandler):
         if not os.path.isdir(download_dir):
             os.makedirs(download_dir)
 
-        relative_download_dir = download_dir.replace(os.environ.get('NOTEBOOK_HOME'), '')
+        nbdir = os.environ.get('NOTEBOOK_HOME')
+        relative_download_dir = os.path.relpath(download_dir, nbdir)
         pathid = os.path.join(relative_download_dir, id)
         if os.path.exists(pathid) and goto == 0 and overwrite == 0:
             # overwrite or not? display modal dialog
