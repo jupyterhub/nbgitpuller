@@ -1,5 +1,5 @@
 // Pure function that generates an nbgitpuller URL
-function generateUrl(hubUrl, urlPath, repoUrl, branch) {
+function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
@@ -15,6 +15,30 @@ function generateUrl(hubUrl, urlPath, repoUrl, branch) {
     }
 
     url.pathname += 'hub/user-redirect/git-pull';
+
+    return url.toString();
+}
+
+function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
+    // assume hubUrl is a valid URL
+    var url = new URL(hubUrl);
+
+    var nextUrlParams = new URLSearchParams();
+
+    nextUrlParams.append('repo', repoUrl);
+
+    if (urlPath) {
+        nextUrlParams.append('urlpath', urlPath);
+    }
+
+    if (branch) {
+        nextUrlParams.append('branch', branch);
+    }
+
+    var nextUrl = '/hub/user-redirect/git-pull?' + nextUrlParams.toString();
+
+    url.pathname = '/hub/lti/launch'
+    url.searchParams.append('next', nextUrl);
 
     return url.toString();
 }
@@ -51,7 +75,10 @@ function displayLink() {
             var urlPath = apps[appName].generateUrlPath(filePath);
         }
 
-        document.getElementById('link').value = generateUrl(
+        document.getElementById('default-link').value = generateRegularUrl(
+            hubUrl, urlPath, repoUrl, branch
+        );
+        document.getElementById('canvas-link').value = generateCanvasUrl(
             hubUrl, urlPath, repoUrl, branch
         );
     }
