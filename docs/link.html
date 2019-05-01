@@ -26,7 +26,29 @@
     <form id="linkgenerator" class="form needs-validation" onchange="onFormChange">
 
         <div class="form-group">
-          <input type="text" readonly class="form-control form-control-lg" id="link" name="link" placeholder="Generated link appears here...">
+
+          <ul class="nav nav-tabs justify-content-end" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="tab-auth-default" data-toggle="tab" role="tab" href="#auth-default" aria-controls="auth-default">
+                <small>Default</small>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-auth-canvas" data-toggle="tab" role="tab" href="#auth-canvas" aria-controls="auth-canvas">
+                <small>Launch from Canvas</small>
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="auth-default" role="tabpanel" aria-labelledby="tab-auth-default">
+              <input type="text" readonly class="form-control form-control" id="default-link" name="auth-default-link" placeholder="Generated link appears here...">
+            </div>
+            <div class="tab-pane fade" id="auth-canvas" role="tabpanel" aria-labelledby="tab-auth-canvas">
+              <input type="text" readonly class="form-control form-control" id="canvas-link" name="auth-canvas-link" placeholder="Generated canvas 'external app' link appears here...">
+            </div>
+          </div>
+          </ul>
         </div>
 
         <div class="form-group row">
@@ -43,6 +65,7 @@
             </small>
           </div>
         </div>
+
         <div class="form-group row">
           <label for="repo" class="col-sm-2 col-form-label">Git Repository URL</label>
           <div class="col-sm-6">
