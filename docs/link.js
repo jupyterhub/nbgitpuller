@@ -72,7 +72,8 @@ function displayLink() {
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
         } else {
-            var urlPath = apps[appName].generateUrlPath(filePath);
+            var repoName = new URL(repoUrl).pathname.split('/').pop().replace(/\.git$/, '');
+            var urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
         }
 
         document.getElementById('default-link').value = generateRegularUrl(
