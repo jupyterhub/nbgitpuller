@@ -33,6 +33,11 @@ The link printed at the bottom of the form can be distributed to users. You can 
 
 To preseed the form, append query string arguments to the link generator itself, for example https://jupyterhub.github.io/nbgitpuller/link?hub=http://jupyterhub.example.com. This may be useful when you want to suggest initial values to someone else. The other parameters are `urlpath`, `repo`, and `branch`. Resetting the form will remove the seeded values and re-enable the form fields.
 
+# Git clone destination
+
+Git repositories are cloned into the default working directory.
+You can specify a different parent directory for the clone by setting the environment variable `NBGITPULLER_PARENTPATH`, this should be relative to the working directory.
+If you require full control over the destination directory, or want to set the directory at runtime in the nbgitpuller link use the `targetPath` parameter.
 
 ## Using the command line interface
 
