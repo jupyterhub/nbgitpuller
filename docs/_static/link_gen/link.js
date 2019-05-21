@@ -3,10 +3,10 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
-   
+
     url.searchParams.set('repo', repoUrl);
 
-    if (urlPath)  {
+    if (urlPath) {
         url.searchParams.set('urlpath', urlPath);
     }
 
@@ -89,7 +89,7 @@ function populateFromQueryString() {
     var params = new URLSearchParams(window.location.search);
     // Parameters are read from query string, and <input> fields are set to them
     var allowedParams = ['hub', 'repo', 'branch'];
-    for (var i=0; i < allowedParams.length; i++) {
+    for (var i = 0; i < allowedParams.length; i++) {
         var param = allowedParams[i];
         if (params.has(param)) {
             document.getElementById(param).value = params.get(param);
@@ -132,12 +132,12 @@ function render() {
 function main() {
     // Hook up any changes in form elements to call render()
     document.querySelectorAll('#linkgenerator input[type="radio"]').forEach(
-        function(element) { 
+        function (element) {
             element.addEventListener('change', render);
         }
     )
     document.querySelectorAll('#linkgenerator input[type="text"], #linkgenerator input[type="url"]').forEach(
-        function(element) { 
+        function (element) {
             element.addEventListener('input', render);
         }
     )
