@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Using nbgitpuller &#8212; nbgitpuller 0.1b documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -61,6 +59,15 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+   <div class='prev-next-top'>
+     
+      <a class='left-prev' href="index.html" title="previous chapter">Previous</a>
+      <a class='right-next' href="link.html" title="next chapter">Next</a>
+   <div style='clear:both;'></div>
+ 
+   </div>
+
+
           <div class="body" role="main">
             
   <div class="section" id="using-nbgitpuller">
@@ -70,30 +77,30 @@
 <span id="when-to-use-nbgitpuller"></span><h2>When to use nbgitpuller<a class="headerlink" href="#when-to-use-nbgitpuller" title="Permalink to this headline">¶</a></h2>
 <p>You should use nbgitpuller when:</p>
 <ol class="simple">
-<li>You are running a JupyterHub for a class &amp; want an easy way to distribute materials to
-your students without them having to understand what git is.</li>
-<li>You have a different out of band method for collecting completed assignments / notebooks
-from students, since they can not just ‘push it back’ via git.</li>
+<li><p>You are running a JupyterHub for a class &amp; want an easy way to distribute materials to
+your students without them having to understand what git is.</p></li>
+<li><p>You have a different out of band method for collecting completed assignments / notebooks
+from students, since they can not just ‘push it back’ via git.</p></li>
 </ol>
 <p>You should <em>not</em> use this when:</p>
 <ol class="simple">
-<li>You are an instructor using a JupyterHub / running notebooks locally to create materials
+<li><p>You are an instructor using a JupyterHub / running notebooks locally to create materials
 and push them to a git repository. You should just use git directly, since the assumptions
 and design of nbgitpuller <strong>will</strong> surprise you in unexpected ways if you are pushing with
-git but pulling with nbgitpuller.</li>
-<li>Your students are performing manual git operations on the git repository cloned as well as
+git but pulling with nbgitpuller.</p></li>
+<li><p>Your students are performing manual git operations on the git repository cloned as well as
 using nbgitpuller. Mixing manual git operations + automatic nbgitpuller operations is going
-to cause surprises on an ongoing basis, and should be avoided.</li>
+to cause surprises on an ongoing basis, and should be avoided.</p></li>
 </ol>
 </div>
 <div class="section" id="how-to-use-nbgitpuller">
 <span id="how-to-use-nbgitpuller"></span><h2>How to use nbgitpuller<a class="headerlink" href="#how-to-use-nbgitpuller" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
-<li>Visit the nbgitpuller link generator at https://jupyterhub.github.io/nbgitpuller/link.html.</li>
-<li>Enter the IP address or URL to your JupyterHub. Include http:// or https:// as appropriate.</li>
-<li>Enter an alternative URL path if desired. If not set, the generated link will take users to the default hub url, however this can be changed. For example specifying “lab” will launch JupyterLab if installed. Entering “path/to/a/notebook.ipynb” will open that notebook.</li>
-<li>Enter the URL to your Git repository. This can reference any Git service provider such as GitHub, GitLab, or a local instance.</li>
-<li>If your git repository is using a non-default branch name, you can specify that under branch. Most people do not need to customize this.</li>
+<li><p>Visit the nbgitpuller link generator at https://jupyterhub.github.io/nbgitpuller/link.html.</p></li>
+<li><p>Enter the IP address or URL to your JupyterHub. Include http:// or https:// as appropriate.</p></li>
+<li><p>Enter an alternative URL path if desired. If not set, the generated link will take users to the default hub url, however this can be changed. For example specifying “lab” will launch JupyterLab if installed. Entering “path/to/a/notebook.ipynb” will open that notebook.</p></li>
+<li><p>Enter the URL to your Git repository. This can reference any Git service provider such as GitHub, GitLab, or a local instance.</p></li>
+<li><p>If your git repository is using a non-default branch name, you can specify that under branch. Most people do not need to customize this.</p></li>
 </ol>
 <p>The link printed at the bottom of the form can be distributed to users. You can also click it to test that it is working as intended, and adjust the form values until you get something you are happy with.</p>
 <p>To preseed the form, append query string arguments to the link generator itself, for example https://jupyterhub.github.io/nbgitpuller/link?hub=http://jupyterhub.example.com. This may be useful when you want to suggest initial values to someone else. The other parameters are <code class="docutils literal notranslate"><span class="pre">urlpath</span></code>, <code class="docutils literal notranslate"><span class="pre">repo</span></code>, and <code class="docutils literal notranslate"><span class="pre">branch</span></code>. Resetting the form will remove the seeded values and re-enable the form fields.</p>
@@ -113,6 +120,14 @@ called <code class="docutils literal notranslate"><span class="pre">my_materials
 
 
           </div>
+   <div class='prev-next-bottom'>
+     
+      <a class='left-prev' href="index.html" title="previous chapter">NBGitpuller</a>
+      <a class='right-next' href="link.html" title="next chapter">nbgitpuller link generator</a>
+   <div style='clear:both;'></div>
+ 
+   </div>
+
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -141,8 +156,6 @@ called <code class="docutils literal notranslate"><span class="pre">my_materials
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -155,8 +168,8 @@ called <code class="docutils literal notranslate"><span class="pre">my_materials
       &copy;2017, The nbgitpuller Team.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/using.md.txt"
