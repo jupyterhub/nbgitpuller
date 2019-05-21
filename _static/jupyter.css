@@ -1,0 +1,159 @@
+/* Ensure the body doesn't cut off text on mobile */
+div.body {
+    min-width: 10px;
+}
+
+/* Caption titles in the main text */
+div.body p.caption {
+    font-size: 1.2em;
+}
+
+/* Sidebar */
+@media screen and (min-width: 875px) {
+    div.sphinxsidebar {
+        position: fixed;
+        margin-left: 0px;
+        overflow-y: auto;
+        height: 95%;
+        top: 30px;
+        border-right: 1px solid #767677;
+        padding-right: 5px;
+        background-color: white;
+    }
+}
+
+img.logo {
+    max-width: 60%;
+}
+
+.sphinxsidebar::-webkit-scrollbar { width: 0 !important }
+.sphinxsidebar { overflow: -moz-scrollbars-none; }
+
+div.sphinxsidebarwrapper h1 {
+    font-size: 1.8em;
+}
+
+div.sphinxsidebarwrapper p.caption {
+    font-size: 1.4em;
+}
+
+div.sphinxsidebarwrapper ul {
+    font-size: .8em;
+    padding-left: 1em;
+}
+
+/* Prevent body from scrolling under the left sidebar */
+.bodywrapper {
+    overflow-x: hidden;
+}
+
+/* Right sidebar */
+@media screen and (min-width: 1150px) {
+    div.body {
+        /* To allow room for sidebar */
+        max-width: 700px;
+    }
+
+    div.document {
+        width: 1160px;
+    }
+}
+
+@media screen and (min-width: 1150px) {
+    div.rightsidebar {
+        /* Positioning */
+        display: block;
+        width: 220px;
+        position: fixed;
+        top: 72px;
+        right: 0;
+        padding-right: 24px;
+        z-index: 1;
+        left: 50%;
+        transform: translateX(400px);
+    }
+}
+
+@media screen and (max-width: 1150px) {
+    div.rightsidebar {
+        display: none;
+    }
+}
+
+div.rightsidebar {
+    /* Font text */
+    font-size: .8em;
+    color: #767677;
+    text-decoration: none;
+}
+
+div.rightsidebar a {
+    color: #767677;
+    text-decoration: none;
+    border-bottom: none;
+}
+
+/* Top level TOC is just the page title, make it inivisble */
+div.rightsidebar h3 + ul > li > a {
+    display: none;
+}
+
+/* Right sidebar indentation */
+div.rightsidebar ul {
+    list-style: none;
+    margin: 5px 0 5px 0px;
+}
+
+div.rightsidebar ul li {
+    margin: 3px 0px 3px 0px;
+}
+
+div.rightsidebar ul > li > ul {
+    margin: 5px 0 5px 0px;
+}
+
+div.rightsidebar ul > li > ul > li > ul {
+    margin: 5px 0 5px 15px;
+}
+
+/* Prev / Next buttons */
+a.left-prev, a.right-next {
+    border: 1px solid #767677;
+    color: #767677;
+    border-radius: 6px;
+    padding: 5px;
+    text-decoration: none;
+    overflow-x: hidden;
+    margin: 0px 10px 10px 30px;
+
+    /* Opacity control */
+    opacity: 0.6;
+    transition: opacity .3s ease-out;
+    -moz-transition: opacity .3s ease-out;
+    -webkit-transition: opacity .3s ease-out;
+    -o-transition: opacity .3s ease-out;
+}
+
+a.left-prev:hover, a.right-next:hover {
+    opacity: 1;
+}
+
+.right-next {
+    float: right;
+    max-width: 45%;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.left-prev {
+    float: left;
+    max-width: 45%;
+    overflow: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.prev-next-top, .prev-next-bottom {
+    max-width: 700px;
+}
