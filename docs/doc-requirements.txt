@@ -1,0 +1,10 @@
+recommonmark==0.4.0
+sphinx_copybutton
+traitlets
+jupyterhub
+sphinx>=1.3.6,!=1.5.4
+alabaster
+alabaster_jupyterhub
+memory_profiler
+pytest
+PyGitHub

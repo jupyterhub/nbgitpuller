@@ -1,0 +1,21 @@
+{%- extends "alabaster_jupyterhub/layout.html" %}
+
+<!-- Adding CSS to make the link generator wider -->
+{% block extrahead %}
+{% if pagename == 'link' %}
+<style>
+    div.body {
+        max-width: 1000px !important;
+        padding-right: 0px !important;
+    }
+</style>
+{% endif %}
+{{ super() }}
+{% endblock %}
+
+<!-- Don't include the "on this page" sidebar for the link generator -->
+{% block sidebar1 %}
+{% if pagename != 'link' %}
+{%- include "rightsidebar.html" %}
+{% endif %}
+{% endblock %}
