@@ -2,14 +2,15 @@ require([
     'jquery',
     'base/js/utils',
     'components/xterm.js/index',
-    'components/xterm.js-fit/index'
+    'components/xterm.js-fit/index',
+    'eventsource'
 ], function(
     $,
     utils,
     Terminal,
-    fit
+    fit,
+    _
 ) {
-
     Terminal.applyAddon(fit);
 
     function GitSync(baseUrl, repo, branch, depth, path) {

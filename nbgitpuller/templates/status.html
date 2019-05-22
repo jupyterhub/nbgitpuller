@@ -33,8 +33,14 @@ data-branch="{{ branch | urlencode }}"
 
 {% block script %}
 {{super()}}
-<script src="{{ base_url }}git-pull/static/index.js?v={{ version }}">
+<script>
+    require.config({
+        paths: {
+            'eventsource': '{{ base_url }}git-pull/static/vendor/eventsource-1.0.5.js?v={{ version }}'
+        }
+    });
 </script>
+<script src="{{ base_url }}git-pull/static/index.js?v={{ version }}"></script>
 {% endblock %}
 
 {% block stylesheet %}
