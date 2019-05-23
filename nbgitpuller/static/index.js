@@ -65,7 +65,8 @@ require([
         });
     };
 
-    function GitSyncView(termSelector, progressSelector, termToggleSelector) {
+    function GitSyncView(termSelector, progressSelector,
+                         termToggleSelector, autoRedirect) {
         // Class that encapsulates view rendering as much as possible
         this.term = new Terminal({
             convertEol: true
@@ -80,6 +81,8 @@ require([
         this.$termToggle.click(function() {
             that.setTerminalVisibility(!that.visible);
         });
+
+        this.autoRedirect = autoRedirect;
     }
 
     GitSyncView.prototype.setTerminalVisibility = function(visible) {
@@ -132,10 +135,14 @@ require([
         utils.get_body_data('path')
     );
 
+    let redirect_str = utils.get_body_data('autoRedirect');
+    negative = new Set(["false", "none", "0", ""]);
+    let autoRedirect = ! negative.has(redirect_str.toLowerCase());
     var gsv = new GitSyncView(
         '#status-details',
         '#status-panel-title',
-        '#status-panel-toggle'
+        '#status-panel-toggle',
+        autoRedirect,
     );
 
     gs.addHandler('syncing', function(data) {
@@ -144,8 +151,13 @@ require([
     gs.addHandler('finished', function(data) {
         progressTimers.forEach(function(timer)  { clearInterval(timer); });
         gsv.setProgressValue(100);
-        gsv.setProgressText('Sync finished, redirecting...');
-        window.location.href = gs.redirectUrl;
+        if (gsv.autoRedirect) {
+            gsv.setProgressText('Sync finished, redirecting...');
+            window.location.href = gs.redirectUrl;
+        } else {
+            gsv.setProgressText('Sync finished');
+            gsv.setTerminalVisibility(true);
+        }
     });
     gs.addHandler('error', function(data) {
         progressTimers.forEach(function(timer)  { clearInterval(timer); });
