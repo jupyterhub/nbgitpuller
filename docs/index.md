@@ -46,4 +46,4 @@ So we have made the following opinionated decisions.
    to local repository. This allows users to get a 'fresh copy' of a file by
    just deleting the file locally & clicking the link again.
 3. If a file exists locally but is untracked by git (maybe someone uploaded it manually),
-   then rename the file, and pull in remote copy.
+   and the updated commit contains that file, then rename the file, and pull in remote copy.
