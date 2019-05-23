@@ -6,8 +6,14 @@ data-base-url="{{ base_url | urlencode }}"
 data-repo="{{ repo | urlencode }}"
 data-path="{{ path | urlencode }}"
 data-branch="{{ branch | urlencode }}"
+data-redirect="{{ redirect }}"
 {% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
 {% endblock %}
+
+<!-- in a second iteration it would be easy to conditionnally,
+     i.e. when redirect is false,
+     add a button so that one can do the redirect manually
+     once the logs have been inspected -->
 
 {% block site %}
 <div class="container"">

@@ -56,6 +56,9 @@ class SyncHandler(IPythonHandler):
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
+            redirect = self.get_argument('redirect', True)
+            if redirect is not True:
+                redirect = redirect.lower() in ('true', '1', 'yes')
             # The default working directory is the directory from which Jupyter
             # server is launched, which is not the same as the root notebook
             # directory assuming either --notebook-dir= is used from the
@@ -147,6 +150,7 @@ class UIHandler(IPythonHandler):
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', 'master')
         depth = self.get_argument('depth', None)
+        redirect = self.get_argument('redirect', None) or True
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
@@ -168,7 +172,8 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, version=__version__
+                repo=repo, branch=branch, path=path,
+                depth=depth, redirect=redirect, version=__version__
             ))
         self.flush()
 
