@@ -29,6 +29,9 @@ data-autoRedirect="{{ autoRedirect }}"
             <div id="status-details"></div>
     </div>
     </div>
+    <div id="follow-redirection">
+        <a>Proceed</a>
+    </div>
 </div>
 {% endblock %}
 
@@ -72,6 +75,11 @@ data-autoRedirect="{{ autoRedirect }}"
     display: block;
     width: 100%;
     color: black;
+}
+
+#follow-redirection {
+    display: none;
+    text-align: right;
 }
 </style>
 {% endblock %}
