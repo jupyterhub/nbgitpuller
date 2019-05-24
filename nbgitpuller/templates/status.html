@@ -8,6 +8,7 @@ data-path="{{ path | urlencode }}"
 data-branch="{{ branch | urlencode }}"
 {% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
 data-autoRedirect="{{ autoRedirect }}"
+data-toplevel="{{ toplevel }}"
 {% endblock %}
 
 {% block site %}

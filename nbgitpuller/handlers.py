@@ -13,6 +13,18 @@ import jinja2
 from .pull import GitPuller
 from .version import __version__
 
+# helpers
+def repo_name(url):
+    """
+    computes meaningful part of a git url
+    e.g.
+        https://github.com/someone/repo -> repo
+        https://github.com/someone/repo.git -> repo
+    """
+    radical = url.split('/')[-1]
+    return radical.replace(".git", "")
+
+
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,8 +76,12 @@ class SyncHandler(IPythonHandler):
             # relative to server_root_dir, so that all repos are always in
             # scope after cloning. Sometimes server_root_dir will include
             # things like `~` and so the path must be expanded.
-            repo_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
-                                    repo.split('/')[-1])
+            toplevel = self.get_argument('toplevel', None)
+            if toplevel is None:
+                toplevel = repo_name(repo)
+            repo_dir = os.path.join(
+                os.path.expanduser(self.settings['server_root_dir']),
+                toplevel)
 
 
             # We gonna send out event streams!
@@ -155,11 +171,18 @@ class UIHandler(IPythonHandler):
                   self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
 
+        toplevel = self.get_argument('toplevel', None)
+        if toplevel is None:
+            toplevel = repo_name(repo)
+
+
         if urlPath:
             path = urlPath
         else:
-            repo_dir = repo.split('/')[-1]
-            path = os.path.join(repo_dir, subPath)
+            toplevel = self.get_argument('toplevel', None)
+            if toplevel is None:
+                toplevel = repo.split('/')[-1]
+            path = os.path.join(toplevel, subPath)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
@@ -171,7 +194,8 @@ class UIHandler(IPythonHandler):
             self.render_template(
                 'status.html',
                 repo=repo, branch=branch, path=path, depth=depth,
-                autoRedirect=autoRedirect, version=__version__
+                autoRedirect=autoRedirect, toplevel=toplevel,
+                version=__version__
             ))
         self.flush()
 
