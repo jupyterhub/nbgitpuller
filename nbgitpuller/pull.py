@@ -79,6 +79,9 @@ class GitPuller(Configurable):
         """
         if not os.path.exists(self.repo_dir):
             yield from self.initialize_repo()
+        elif not os.path.exists(os.path.join(self.repo_dir, ".git")):
+            yield from self.initialize_repo_from_existing_dir()
+            yield from self.update()
         else:
             yield from self.update()
 
@@ -105,6 +108,23 @@ class GitPuller(Configurable):
         yield from self.configure_git_user_if_needed()
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
+    def initialize_repo_from_existing_dir(self):
+        """
+        Create git repo inside an existing directory
+        """
+        # the logic of creating a slave git repo from an existing dir
+        # inspired by some of the answers in
+        # https://stackoverflow.com/questions/2411031/how-do-i-clone-into-a-non-empty-directory
+        # we create a tmp dir through 'git clone --no-checkout' because
+        # plain git clone refuses to  go into an already existing dir
+        logging.info('Dir {} exists but is no git repo. Cloning...'.format(self.repo_dir))
+        yield from execute_cmd(
+            ['git', 'clone', '--no-checkout', self.git_url, ".cloned"], cwd=self.repo_dir)
+        yield from execute_cmd(['mv', '-f', '.cloned/.git', '.git'], cwd=self.repo_dir)
+        yield from execute_cmd(['rmdir', '.cloned'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'reset'], cwd=self.repo_dir)
+        yield from self.configure_git_user_if_needed()
+        logging.info('Git repo created in {}'.format(self.repo_dir))
 
     def reset_deleted_files(self):
         """
