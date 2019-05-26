@@ -1,3 +1,5 @@
+# pylint: disable=w1202, c0111, c0301
+
 import os
 import subprocess
 import logging
