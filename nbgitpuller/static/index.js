@@ -19,7 +19,7 @@ require([
         this.branch = branch;
         this.depth = depth;
         this.toplevel = toplevel;
-        this.redirectUrl = baseUrl + path;
+        this.redirectUrl = redirectUrl || (baseUrl + path);
 
         this.callbacks = {};
     }
@@ -129,6 +129,12 @@ require([
         }
     };
 
+    negative = new Set(["false", "none", "0", ""]);
+    let redirect_str = utils.get_body_data('auto-redirect');
+    let autoRedirect = ! negative.has(redirect_str.toLowerCase());
+    let redirectUrl_str = utils.get_body_data('redirect-url');
+    let redirectUrl =
+        (negative.has(redirectUrl_str.toLowerCase()) ? false : redirectUrl_str);
     var gs = new GitSync(
         utils.get_body_data('baseUrl'),
         utils.get_body_data('repo'),
@@ -138,9 +144,6 @@ require([
         utils.get_body_data('path'),
     );
 
-    let redirect_str = utils.get_body_data('autoRedirect');
-    negative = new Set(["false", "none", "0", ""]);
-    let autoRedirect = ! negative.has(redirect_str.toLowerCase());
     var gsv = new GitSyncView(
         '#status-details',
         '#status-panel-title',
