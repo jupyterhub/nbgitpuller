@@ -10,11 +10,11 @@ make some opinionated choices on how we handle various cases where both the
 student (end user) and instructor (author of the repo) repo have modified the
 repository.
 
-Here, how describe we handle the various possible cases each time the
+Here, we describe how we handle the various possible cases each time the
 student clicks the nbgitpuller link.
 
-Case 1: Student and instructor changed different files
-======================================================
+Case 1: The instructor changed a file that the student has not changed
+======================================================================
 
 The student's changes are left alone, and the instructor's changes are pulled
 in to the local copy. Most common case. This is also what happens when the
