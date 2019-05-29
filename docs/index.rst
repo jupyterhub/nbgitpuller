@@ -37,7 +37,7 @@ Installation
 ============
 
 If you already have a JupyterHub, you can follow :ref:`these installation
-instructions <installation>` to install nbgitpuller there. They should also
+instructions <install>` to install nbgitpuller there. They should also
 work for installation on a local Jupyter Notebook installation without
 JupyterHub.
 

@@ -15,7 +15,7 @@ Troubleshooting
 ===============
 
 nbgitpuller link shows `404 Not Found` 
--------------------------------------
+--------------------------------------
 
 If you are on an old version of Jupyter Notebook, you might get a `404 Not Found`
 error when trying to access an nbgitpuller link. You might need to manually enable

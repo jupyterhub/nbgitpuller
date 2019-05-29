@@ -1,4 +1,4 @@
-.. _topic/merging:
+.. _topic/automatic-merging:
 
 ==========================
 Automatic Merging Behavior
