@@ -79,12 +79,16 @@ There is also a video showing you how to use nbgitpuller
         allowfullscreen>
    </iframe>
 
+If you are interested in the details of available options when creating
+the link, we have a :ref:`list of options <topic/url-options>` as well.
+
 Full Contents
-========
+=============
 
 .. toctree::
    :maxdepth: 2
  
    install
    topic/automatic-merging
+   topic/url-options
    link
