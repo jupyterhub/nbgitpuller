@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>NBGitpuller &#8212; nbgitpuller 0.1b documentation</title>
+    <title>nbgitpuller &#8212; nbgitpuller 0.1b documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/link_gen/vendor/bootstrap-4.1.3/js/bootstrap.bundle.min.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Using nbgitpuller" href="using.html" />
+    <link rel="next" title="Installation" href="install.html" />
 
 
 
@@ -43,11 +43,11 @@
 <div class="rightsidebar">
     <h3>On this page</h3>
     <ul>
-<li><a class="reference internal" href="#">NBGitpuller</a><ul>
-<li><a class="reference internal" href="#contents">Contents</a></li>
+<li><a class="reference internal" href="#">nbgitpuller</a><ul>
+<li><a class="reference internal" href="#when-to-use-nbgitpuller">When to use nbgitpuller?</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#what-is-it">What is it?</a></li>
-<li><a class="reference internal" href="#merging-behavior">Merging behavior</a></li>
+<li><a class="reference internal" href="#using-nbgitpuller-as-an-instructor">Using nbgitpuller as an instructor</a></li>
+<li><a class="reference internal" href="#full-contents">Full Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -61,7 +61,7 @@
         <div class="bodywrapper">
    <div class='prev-next-top'>
      
-      <a class='right-next' href="using.html" title="next chapter">Next</a>
+      <a class='right-next' href="install.html" title="next chapter">Next</a>
    <div style='clear:both;'></div>
  
    </div>
@@ -70,56 +70,101 @@
           <div class="body" role="main">
             
   <div class="section" id="nbgitpuller">
-<span id="nbgitpuller"></span><h1>NBGitpuller<a class="headerlink" href="#nbgitpuller" title="Permalink to this headline">¶</a></h1>
-<p>Create links for one-way synchronization of a remote git repository to a local git repository,
-with automatic conflict resolution. Meant for use with a Jupyter server.</p>
-<p><img alt="nbgitpuller demo" src="_images/nbpuller.gif" /></p>
-<div class="section" id="contents">
-<span id="contents"></span><h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
-<p>See below for some helpful links on how to use <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code>.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="using.html">Using nbgitpuller</a></li>
-<li class="toctree-l1"><a class="reference internal" href="link.html">Generate your own nbgitpuller links here</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://youtu.be/o7U0ZuICVFg">YouTube video instructions for teachers.</a></li>
-</ul>
-</div>
+<h1>nbgitpuller<a class="headerlink" href="#nbgitpuller" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> lets you distribute content in a git repository to your
+students by having them click a simple link. <a class="reference internal" href="topic/automatic-merging.html#topic-automatic-merging"><span class="std std-ref">Automatic, opinioned
+conflict resolution</span></a> ensures that your students are
+never exposed to <code class="docutils literal notranslate"><span class="pre">git</span></code> directly. It is primarily used with a JupyterHub,
+but can also work on students’ local laptops.</p>
+<img alt="_images/nbpuller.gif" src="_images/nbpuller.gif" />
+<div class="section" id="when-to-use-nbgitpuller">
+<h2>When to use nbgitpuller?<a class="headerlink" href="#when-to-use-nbgitpuller" title="Permalink to this headline">¶</a></h2>
+<p>You should use nbgitpuller when:</p>
+<ol class="arabic simple">
+<li><p>You are running a JupyterHub for a class &amp; want an easy way to distribute
+materials to your students without them having to understand what git is.</p></li>
+<li><p>You have a different out of band method for collecting completed
+assignments / notebooks from students, since they can not just ‘push it
+back’ via git.</p></li>
+</ol>
+<p>You should <strong>not</strong> use nbgitpuller when:</p>
+<ol class="arabic simple">
+<li><p>You are an instructor using a JupyterHub / running notebooks locally to
+create materials and push them to a git repository. You should just use
+git directly, since the assumptions and design of nbgitpuller <strong>will</strong>
+surprise you in unexpected ways if you are pushing with git but pulling
+with nbgitpuller.</p></li>
+<li><p>Your students are performing manual git operations on the git repository
+cloned as well as using nbgitpuller. Mixing manual git operations +
+automatic nbgitpuller operations is going to cause surprises on an ongoing
+basis, and should be avoided.</p></li>
+</ol>
 </div>
 <div class="section" id="installation">
-<span id="installation"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>You can install nbgitpuller from PyPI.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">nbgitpuller</span>
-</pre></div>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>If you already have a JupyterHub, you can follow <a class="reference internal" href="install.html#install"><span class="std std-ref">these installation
+instructions</span></a> to install nbgitpuller there. They should also
+work for installation on a local Jupyter Notebook installation without
+JupyterHub.</p>
+<p>If you do <em>not</em> have a JupyterHub, we recommend trying out <a class="reference external" href="https://tljh.jupyter.org">The Littlest
+JupyterHub</a> to set one up. It comes built
+in with nbgitpuller.</p>
 </div>
-<p>You can then enable the serverextension</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jupyter</span> <span class="n">serverextension</span> <span class="n">enable</span> <span class="o">--</span><span class="n">py</span> <span class="n">nbgitpuller</span> <span class="o">--</span><span class="n">sys</span><span class="o">-</span><span class="n">prefix</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="what-is-it">
-<span id="what-is-it"></span><h2>What is it?<a class="headerlink" href="#what-is-it" title="Permalink to this headline">¶</a></h2>
-<p>nbgitpuller allows you to construct a URL that points to a remote git repository.
-When it is clicked, nbgitpuller will pull the contents of this repository
-into the user’s current folder within Jupyter, while rendering a nice status page.
-This is especially useful when running on a JupyterHub, since it allows easy distribution
-of materials to users without requiring them to understand git.</p>
-</div>
-<div class="section" id="merging-behavior">
-<span id="merging-behavior"></span><h2>Merging behavior<a class="headerlink" href="#merging-behavior" title="Permalink to this headline">¶</a></h2>
-<p>When a link is clicked, we try to make opinionated intelligent guesses on how to
-do a merge automatically, without making the user do a conflict resolution.
-nbgitpuller is designed to be used by folks who do not know that git is being used
-underneath, and are only pulling content one way from a source and modifying it -
-not pushing it back.
-So we have made the following opinionated decisions.</p>
-<ol class="simple">
-<li><p>If content has changed in both places, prefer local changes over remote changes.</p></li>
-<li><p>If a file was deleted locally but present in the remote, remote file is restored
-to local repository. This allows users to get a ‘fresh copy’ of a file by
-just deleting the file locally &amp; clicking the link again.</p></li>
-<li><p>If a file exists locally but is untracked by git (maybe someone uploaded it manually),
-and the updated commit contains that file, then rename the file, and pull in remote copy.</p></li>
+<div class="section" id="using-nbgitpuller-as-an-instructor">
+<h2>Using nbgitpuller as an instructor<a class="headerlink" href="#using-nbgitpuller-as-an-instructor" title="Permalink to this headline">¶</a></h2>
+<p>Once installed, you create a specially crafted web link (called
+<em>nbgitpuller links</em>) and send to your students via any method you like -
+course website, LMS, email, etc. This link will contain at least the
+following information:</p>
+<ol class="arabic simple">
+<li><p>The location of the JupyterHub you are sending them to.</p></li>
+<li><p>The git repository where you have published your content.</p></li>
+<li><p>Optionally, a particular file or directory you want to automatically
+open for your students once the repository has been synchronized.</p></li>
 </ol>
+<p>The first time a particular student clicks the link, a local copy of the
+repository is made for the student. On successive clicks, the latest version
+of the remote repository is fetched, and merged automatically with the
+student’s local copy using a <a class="reference internal" href="topic/automatic-merging.html#topic-automatic-merging"><span class="std std-ref">series of rules</span></a>
+that ensure students never get merge conflicts.</p>
+<p>You can generate such <em>nbgitpuller links</em> with the <a class="reference external" href="https://jupyterhub.github.io/nbgitpuller/link">generator</a>.</p>
+<p>There is also a video showing you how to use nbgitpuller</p>
+<iframe
+     width="560" height="315"
+     src="https://www.youtube-nocookie.com/embed/o7U0ZuICVFg"
+     frameborder="0"
+     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+     allowfullscreen>
+</iframe><p>If you are interested in the details of available options when creating
+the link, we have a <a class="reference internal" href="topic/url-options.html#topic-url-options"><span class="std std-ref">list of options</span></a> as well.</p>
+</div>
+<div class="section" id="full-contents">
+<h2>Full Contents<a class="headerlink" href="#full-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="topic/automatic-merging.html">Automatic Merging Behavior</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="topic/automatic-merging.html#case-1-the-instructor-changed-a-file-that-the-student-has-not-changed">Case 1: The instructor changed a file that the student has not changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/automatic-merging.html#case-2-student-instructor-changed-different-lines-in-same-file">Case 2: Student &amp; instructor changed different lines in same file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/automatic-merging.html#case-3-student-instructor-change-same-lines-in-same-file">Case 3: Student &amp; instructor change same lines in same file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/automatic-merging.html#case-4-student-deletes-file-locally-but-instructor-doesn-t">Case 4: Student deletes file locally, but instructor doesn’t</a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/automatic-merging.html#case-5-student-creates-file-manually-but-instructor-adds-file-with-same-name">Case 5: Student creates file manually, but instructor adds file with same name</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="topic/url-options.html">Options in an nbgitpuller URL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="topic/url-options.html#repo"><code class="docutils literal notranslate"><span class="pre">repo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/url-options.html#branch"><code class="docutils literal notranslate"><span class="pre">branch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/url-options.html#urlpath"><code class="docutils literal notranslate"><span class="pre">urlpath</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/url-options.html#depth"><code class="docutils literal notranslate"><span class="pre">depth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="topic/url-options.html#deprecated-parameters">Deprecated parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="link.html">nbgitpuller link generator</a></li>
+</ul>
+</div>
 </div>
 </div>
 
@@ -127,7 +172,7 @@ and the updated commit contains that file, then rename the file, and pull in rem
           </div>
    <div class='prev-next-bottom'>
      
-      <a class='right-next' href="using.html" title="next chapter">Using nbgitpuller</a>
+      <a class='right-next' href="install.html" title="next chapter">Installation</a>
    <div style='clear:both;'></div>
  
    </div>
@@ -141,25 +186,25 @@ and the updated commit contains that file, then rename the file, and pull in rem
   </a></p>
 <h3><a href="#">Table of Contents</a></h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="using.html">Using nbgitpuller</a></li>
-<li class="toctree-l1"><a class="reference internal" href="link.html">Generate your own nbgitpuller links here</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://youtu.be/o7U0ZuICVFg">YouTube video instructions for teachers.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="topic/automatic-merging.html">Automatic Merging Behavior</a></li>
+<li class="toctree-l1"><a class="reference internal" href="topic/url-options.html">Options in an nbgitpuller URL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="link.html">nbgitpuller link generator</a></li>
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="using.html" title="next chapter">Using nbgitpuller</a></li>
+      <li>Next: <a href="install.html" title="next chapter">Installation</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
     <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-    </form>
+        <form class="search" action="search.html" method="get">
+            <input type="text" name="q" placeholder="Quick Search" aria-labelledby="searchlabel" />
+            <input type="submit" value="Go" />
+        </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
@@ -171,11 +216,11 @@ and the updated commit contains that file, then rename the file, and pull in rem
       &copy;2017, The nbgitpuller Team.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/index.md.txt"
+      <a href="_sources/index.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

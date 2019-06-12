@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Options in an nbgitpuller URL &#8212; nbgitpuller 0.1b documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/link_gen/vendor/bootstrap-4.1.3/css/bootstrap.min.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <script type="text/javascript" src="../_static/link_gen/vendor/jquery-3.3.1.slim.min.js"></script>
+    <script type="text/javascript" src="../_static/link_gen/link.js"></script>
+    <script type="text/javascript" src="../_static/link_gen/vendor/bootstrap-4.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nbgitpuller link generator" href="../link.html" />
+    <link rel="prev" title="Automatic Merging Behavior" href="automatic-merging.html" />
+
+
+
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+<!-- Add JupyterHub styling -->
+<link rel="stylesheet" href="../_static/jupyter.css" type="text/css" />
+<link rel="shortcut icon" href="../_static/favicon.ico"/>
+
+
+
+  </head><body>
+
+<div class="rightsidebar">
+    <h3>On this page</h3>
+    <ul>
+<li><a class="reference internal" href="#">Options in an nbgitpuller URL</a><ul>
+<li><a class="reference internal" href="#repo"><code class="docutils literal notranslate"><span class="pre">repo</span></code></a></li>
+<li><a class="reference internal" href="#branch"><code class="docutils literal notranslate"><span class="pre">branch</span></code></a></li>
+<li><a class="reference internal" href="#urlpath"><code class="docutils literal notranslate"><span class="pre">urlpath</span></code></a><ul>
+<li><a class="reference internal" href="#classic-jupyter-notebook">Classic Jupyter Notebook</a></li>
+<li><a class="reference internal" href="#jupyterlab">JupyterLab</a></li>
+<li><a class="reference internal" href="#rstudio">RStudio</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#depth"><code class="docutils literal notranslate"><span class="pre">depth</span></code></a></li>
+<li><a class="reference internal" href="#deprecated-parameters">Deprecated parameters</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+   <div class='prev-next-top'>
+     
+      <a class='left-prev' href="automatic-merging.html" title="previous chapter">Previous</a>
+      <a class='right-next' href="../link.html" title="next chapter">Next</a>
+   <div style='clear:both;'></div>
+ 
+   </div>
+
+
+          <div class="body" role="main">
+            
+  <div class="section" id="options-in-an-nbgitpuller-url">
+<span id="topic-url-options"></span><h1>Options in an nbgitpuller URL<a class="headerlink" href="#options-in-an-nbgitpuller-url" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you just want to generate an nbgitpuller link, we highly
+recommend just using the <a class="reference external" href="https://jupyterhub.github.io/nbgitpuller/link">link generator</a></p>
+</div>
+<p>Most aspects of the nbgitpuller student experience can be configured
+with various options in the nbgitpuller URL. This page documents
+the various options available, and their behavior.</p>
+<div class="section" id="repo">
+<h2><code class="docutils literal notranslate"><span class="pre">repo</span></code><a class="headerlink" href="#repo" title="Permalink to this headline">¶</a></h2>
+<p>The path to the git repository to be pulled from. This will accept
+any parameter that can be passed to a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> command.</p>
+</div>
+<div class="section" id="branch">
+<h2><code class="docutils literal notranslate"><span class="pre">branch</span></code><a class="headerlink" href="#branch" title="Permalink to this headline">¶</a></h2>
+<p>Branch in the git repo to pull from. Defaults to <code class="docutils literal notranslate"><span class="pre">master</span></code>.</p>
+</div>
+<div class="section" id="urlpath">
+<h2><code class="docutils literal notranslate"><span class="pre">urlpath</span></code><a class="headerlink" href="#urlpath" title="Permalink to this headline">¶</a></h2>
+<p>The URL to redirect the user to after synchronization has been complete. This
+URL is primarily used to open a specific file or directory in a specific
+application. This URL is interpreted relative to the base of the notebook
+server. The URL to be specified depends on the application you want
+the file to be opened in.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;full-path-to-file&gt;</span></code> is relative to the directory the notebook
+server was launched in - so the directory you see if you login to
+JupyterHub regularly. This means you <strong>must</strong> include the name of
+the local repository directory too, otherwise nbgitpuller can not
+find the file.</p>
+<p>For example, if the repository you are cloning is
+<code class="docutils literal notranslate"><span class="pre">https://github.com/my-user/my-repository</span></code>, and the file you want
+your students to see is <code class="docutils literal notranslate"><span class="pre">index.ipynb</span></code>, then <code class="docutils literal notranslate"><span class="pre">&lt;full-path-to-file&gt;</span></code>
+should be <code class="docutils literal notranslate"><span class="pre">my-repository/index.ipynb</span></code>, <strong>not</strong> <code class="docutils literal notranslate"><span class="pre">index.ipynb</span></code>.</p>
+<p>The <a class="reference external" href="https://jupyterhub.github.io/nbgitpuller/link">link generator</a>
+takes care of all of this for you, so it is recommended to use that.</p>
+</div>
+<div class="section" id="classic-jupyter-notebook">
+<h3>Classic Jupyter Notebook<a class="headerlink" href="#classic-jupyter-notebook" title="Permalink to this headline">¶</a></h3>
+<p>To open a notebook, file or directory in the classic Jupyter Notebook
+interface, your pattern should be: <code class="docutils literal notranslate"><span class="pre">/tree/&lt;full-path-to-file&gt;</span></code>.</p>
+</div>
+<div class="section" id="jupyterlab">
+<h3>JupyterLab<a class="headerlink" href="#jupyterlab" title="Permalink to this headline">¶</a></h3>
+<p>To open a notebook, file or directory in the classic Jupyter Notebook
+interface, your pattern should be:
+<code class="docutils literal notranslate"><span class="pre">/lab/tree/&lt;full-path-to-file&gt;%3Fautodecode</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">%3Fautodecode</span></code> at the end makes sure you never get <a class="reference external" href="https://github.com/jupyterlab/jupyterlab/pull/5950">a message</a> about needing to
+explicitly name a JupyterLab workspace.</p>
+</div>
+<div class="section" id="rstudio">
+<h3>RStudio<a class="headerlink" href="#rstudio" title="Permalink to this headline">¶</a></h3>
+<p>If you have RStudio installed and set up for use with your JupyterHub,
+you can pass <code class="docutils literal notranslate"><span class="pre">/rstudio</span></code> to <code class="docutils literal notranslate"><span class="pre">urlpath</span></code> to open RStudio after the
+repo has been pulled. You can not have RStudio open a specific file
+or directory, unfortunately.</p>
+</div>
+</div>
+<div class="section" id="depth">
+<h2><code class="docutils literal notranslate"><span class="pre">depth</span></code><a class="headerlink" href="#depth" title="Permalink to this headline">¶</a></h2>
+<p>How deep to clone the git repo on initial pull. By default, the
+entire history of the git repository is pulled. This might be
+slow if your git repository is large. You can set this to 1 to
+pull only the latest commit on initial pull.</p>
+<p>Only explicitly set this if you are actively having performance
+problems.</p>
+</div>
+<div class="section" id="deprecated-parameters">
+<h2>Deprecated parameters<a class="headerlink" href="#deprecated-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The following parameters are currently deprecated, and will be removed in
+a future version: <code class="docutils literal notranslate"><span class="pre">subpath</span></code>, <code class="docutils literal notranslate"><span class="pre">app</span></code>.</p>
+</div>
+</div>
+
+
+          </div>
+   <div class='prev-next-bottom'>
+     
+      <a class='left-prev' href="automatic-merging.html" title="previous chapter">Automatic Merging Behavior</a>
+      <a class='right-next' href="../link.html" title="next chapter">nbgitpuller link generator</a>
+   <div style='clear:both;'></div>
+ 
+   </div>
+
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <p class="logo"><a href="../index.html">
+    <img class="logo" src="../_static/jupyter_logo.png" alt="Logo"/>
+  </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automatic-merging.html">Automatic Merging Behavior</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Options in an nbgitpuller URL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#repo"><code class="docutils literal notranslate"><span class="pre">repo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#branch"><code class="docutils literal notranslate"><span class="pre">branch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#urlpath"><code class="docutils literal notranslate"><span class="pre">urlpath</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#depth"><code class="docutils literal notranslate"><span class="pre">depth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deprecated-parameters">Deprecated parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../link.html">nbgitpuller link generator</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="automatic-merging.html" title="previous chapter">Automatic Merging Behavior</a></li>
+      <li>Next: <a href="../link.html" title="next chapter">nbgitpuller link generator</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+        <form class="search" action="../search.html" method="get">
+            <input type="text" name="q" placeholder="Quick Search" aria-labelledby="searchlabel" />
+            <input type="submit" value="Go" />
+        </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, The nbgitpuller Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/topic/url-options.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

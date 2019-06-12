@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Automatic Merging Behavior &#8212; nbgitpuller 0.1b documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/link_gen/vendor/bootstrap-4.1.3/css/bootstrap.min.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <script type="text/javascript" src="../_static/link_gen/vendor/jquery-3.3.1.slim.min.js"></script>
+    <script type="text/javascript" src="../_static/link_gen/link.js"></script>
+    <script type="text/javascript" src="../_static/link_gen/vendor/bootstrap-4.1.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Options in an nbgitpuller URL" href="url-options.html" />
+    <link rel="prev" title="Installation" href="../install.html" />
+
+
+
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+<!-- Add JupyterHub styling -->
+<link rel="stylesheet" href="../_static/jupyter.css" type="text/css" />
+<link rel="shortcut icon" href="../_static/favicon.ico"/>
+
+
+
+  </head><body>
+
+<div class="rightsidebar">
+    <h3>On this page</h3>
+    <ul>
+<li><a class="reference internal" href="#">Automatic Merging Behavior</a><ul>
+<li><a class="reference internal" href="#case-1-the-instructor-changed-a-file-that-the-student-has-not-changed">Case 1: The instructor changed a file that the student has not changed</a></li>
+<li><a class="reference internal" href="#case-2-student-instructor-changed-different-lines-in-same-file">Case 2: Student &amp; instructor changed different lines in same file</a></li>
+<li><a class="reference internal" href="#case-3-student-instructor-change-same-lines-in-same-file">Case 3: Student &amp; instructor change same lines in same file</a></li>
+<li><a class="reference internal" href="#case-4-student-deletes-file-locally-but-instructor-doesn-t">Case 4: Student deletes file locally, but instructor doesn’t</a></li>
+<li><a class="reference internal" href="#case-5-student-creates-file-manually-but-instructor-adds-file-with-same-name">Case 5: Student creates file manually, but instructor adds file with same name</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+   <div class='prev-next-top'>
+     
+      <a class='left-prev' href="../install.html" title="previous chapter">Previous</a>
+      <a class='right-next' href="url-options.html" title="next chapter">Next</a>
+   <div style='clear:both;'></div>
+ 
+   </div>
+
+
+          <div class="body" role="main">
+            
+  <div class="section" id="automatic-merging-behavior">
+<span id="topic-automatic-merging"></span><h1>Automatic Merging Behavior<a class="headerlink" href="#automatic-merging-behavior" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> tries to make sure the end user who clicked the link
+<strong>never</strong> has to manually interact with the git repo. This requires us to
+make some opinionated choices on how we handle various cases where both the
+student (end user) and instructor (author of the repo) repo have modified the
+repository.</p>
+<p>Here, we describe how we handle the various possible cases each time the
+student clicks the nbgitpuller link.</p>
+<div class="section" id="case-1-the-instructor-changed-a-file-that-the-student-has-not-changed">
+<h2>Case 1: The instructor changed a file that the student has not changed<a class="headerlink" href="#case-1-the-instructor-changed-a-file-that-the-student-has-not-changed" title="Permalink to this headline">¶</a></h2>
+<p>The student’s changes are left alone, and the instructor’s changes are pulled
+in to the local copy. Most common case. This is also what happens when the
+instructor adds a new file / directory.</p>
+</div>
+<div class="section" id="case-2-student-instructor-changed-different-lines-in-same-file">
+<h2>Case 2: Student &amp; instructor changed different lines in same file<a class="headerlink" href="#case-2-student-instructor-changed-different-lines-in-same-file" title="Permalink to this headline">¶</a></h2>
+<p>Very similar to case 1 - the student’s changes are left alone, and the
+instructor’s changes are merged in to the existing local file.</p>
+</div>
+<div class="section" id="case-3-student-instructor-change-same-lines-in-same-file">
+<h2>Case 3: Student &amp; instructor change same lines in same file<a class="headerlink" href="#case-3-student-instructor-change-same-lines-in-same-file" title="Permalink to this headline">¶</a></h2>
+<p>In this case, we <strong>always keep the student’s changes</strong>. We want to never
+accidentally lose a student’s changes - <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> will not eat your
+homework.</p>
+</div>
+<div class="section" id="case-4-student-deletes-file-locally-but-instructor-doesn-t">
+<h2>Case 4: Student deletes file locally, but instructor doesn’t<a class="headerlink" href="#case-4-student-deletes-file-locally-but-instructor-doesn-t" title="Permalink to this headline">¶</a></h2>
+<p>If the student has deleted a file locally, but the file is still present in
+the remote repo, the file from the remote repo is pulled into the student’s
+directory. This enables the use case where a student wants to ‘start over’
+a file after having made many changes to it. They can simply delete the file,
+click the nbgitpuller link again, and get a fresh copy.</p>
+</div>
+<div class="section" id="case-5-student-creates-file-manually-but-instructor-adds-file-with-same-name">
+<h2>Case 5: Student creates file manually, but instructor adds file with same name<a class="headerlink" href="#case-5-student-creates-file-manually-but-instructor-adds-file-with-same-name" title="Permalink to this headline">¶</a></h2>
+<p>As an example, let’s say the student manually creates a file named
+<code class="docutils literal notranslate"><span class="pre">Untitled141.ipynb</span></code> in the directory where nbgitpuller has pulled a
+repository. At some point afterwards, the instructor creates a file <em>also</em>
+named <code class="docutils literal notranslate"><span class="pre">Untitled141.ipynb</span></code> and pushes it to the repo.</p>
+<p>When the student clicks the nbgitpuller link next, we want to make sure we
+don’t destroy the student’s work. Since they were created in two different
+places, the likelihood of them being mergeable is low. So we <strong>rename</strong> the
+student’s file, and pull the instructor’s file. So the student’s
+<code class="docutils literal notranslate"><span class="pre">Untitled141.ipynb</span></code> file will be renamed to
+<code class="docutils literal notranslate"><span class="pre">Untitled141_&lt;timestamp&gt;.ipynb</span></code>, and the instructor’s file will be kept at
+<code class="docutils literal notranslate"><span class="pre">Untitled141.ipynb</span></code>.</p>
+<p>This is a fairly rare case in our experience.</p>
+</div>
+</div>
+
+
+          </div>
+   <div class='prev-next-bottom'>
+     
+      <a class='left-prev' href="../install.html" title="previous chapter">Installation</a>
+      <a class='right-next' href="url-options.html" title="next chapter">Options in an nbgitpuller URL</a>
+   <div style='clear:both;'></div>
+ 
+   </div>
+
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <p class="logo"><a href="../index.html">
+    <img class="logo" src="../_static/jupyter_logo.png" alt="Logo"/>
+  </a></p>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic Merging Behavior</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#case-1-the-instructor-changed-a-file-that-the-student-has-not-changed">Case 1: The instructor changed a file that the student has not changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-2-student-instructor-changed-different-lines-in-same-file">Case 2: Student &amp; instructor changed different lines in same file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-3-student-instructor-change-same-lines-in-same-file">Case 3: Student &amp; instructor change same lines in same file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-4-student-deletes-file-locally-but-instructor-doesn-t">Case 4: Student deletes file locally, but instructor doesn’t</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-5-student-creates-file-manually-but-instructor-adds-file-with-same-name">Case 5: Student creates file manually, but instructor adds file with same name</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="url-options.html">Options in an nbgitpuller URL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../link.html">nbgitpuller link generator</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../install.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="url-options.html" title="next chapter">Options in an nbgitpuller URL</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+        <form class="search" action="../search.html" method="get">
+            <input type="text" name="q" placeholder="Quick Search" aria-labelledby="searchlabel" />
+            <input type="submit" value="Go" />
+        </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, The nbgitpuller Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/topic/automatic-merging.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
