@@ -221,7 +221,13 @@ class GitPuller(Configurable):
 
         # Merge master into local!
         yield from self.ensure_lock()
-        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+        yield from execute_cmd([
+            'git',
+            '-c', 'user.email=nbgitpuller@nbgitpuller.link',
+            '-c', 'user.name=nbgitpuller',
+            'merge', 
+            '-Xours', 'origin/{}'.format(self.branch_name)
+        ], cwd=self.repo_dir)
 
 
 
