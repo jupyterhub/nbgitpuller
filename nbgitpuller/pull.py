@@ -82,9 +82,8 @@ class GitPuller(Configurable):
 
     def initialize_repo(self):
         """
-        Clones repository & sets up usernames.
+        Clones repository
         """
-
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
         clone_args = ['git', 'clone']
         if self.depth and self.depth > 0:
@@ -92,8 +91,6 @@ class GitPuller(Configurable):
         clone_args.extend(['--branch', self.branch_name])
         clone_args.extend([self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
-        yield from execute_cmd(['git', 'config', 'user.email', 'nbgitpuller@example.com'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'config', 'user.name', 'nbgitpuller'], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
 
@@ -207,9 +204,16 @@ class GitPuller(Configurable):
         # positive, returning True even when there are no local changes (git diff-files seems to return
         # bogus output?). While ideally that would not happen, allowing empty commits keeps us
         # resilient to that issue.
+        # We explicitly set authorship of the commits we are making, to keep that separate from
+        # whatever author info is set in system / repo config by the user.
         if self.repo_is_dirty():
             yield from self.ensure_lock()
-            yield from execute_cmd(['git', 'commit', '-am', 'WIP', '--allow-empty'], cwd=self.repo_dir)
+            yield from execute_cmd([
+                'git', 'commit', 
+                '--author', 'nbgitpuller <nbgitpuller@nbgitpuller.link>',
+                '-am', 'Automatic commit by nbgitpuller', 
+                '--allow-empty'
+            ], cwd=self.repo_dir)
 
         # Merge master into local!
         yield from self.ensure_lock()
