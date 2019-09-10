@@ -214,8 +214,8 @@ class GitPuller(Configurable):
                 'git',
                 '-c', 'user.email=nbgitpuller@nbgitpuller.link',
                 '-c', 'user.name=nbgitpuller',
-                'commit', 
-                '-am', 'Automatic commit by nbgitpuller', 
+                'commit',
+                '-am', 'Automatic commit by nbgitpuller',
                 '--allow-empty'
             ], cwd=self.repo_dir)
 
@@ -225,7 +225,7 @@ class GitPuller(Configurable):
             'git',
             '-c', 'user.email=nbgitpuller@nbgitpuller.link',
             '-c', 'user.name=nbgitpuller',
-            'merge', 
+            'merge',
             '-Xours', 'origin/{}'.format(self.branch_name)
         ], cwd=self.repo_dir)
 
