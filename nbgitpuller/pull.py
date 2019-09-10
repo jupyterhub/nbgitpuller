@@ -204,13 +204,17 @@ class GitPuller(Configurable):
         # positive, returning True even when there are no local changes (git diff-files seems to return
         # bogus output?). While ideally that would not happen, allowing empty commits keeps us
         # resilient to that issue.
-        # We explicitly set authorship of the commits we are making, to keep that separate from
-        # whatever author info is set in system / repo config by the user.
+        # We explicitly set user info of the commits we are making, to keep that separate from
+        # whatever author info is set in system / repo config by the user. We pass '-c' to git
+        # itself (rather than to 'git commit') to temporarily set config variables. This is
+        # better than passing --author, since git treats author separately from committer.
         if self.repo_is_dirty():
             yield from self.ensure_lock()
             yield from execute_cmd([
-                'git', 'commit', 
-                '--author', 'nbgitpuller <nbgitpuller@nbgitpuller.link>',
+                'git',
+                '-c', 'user.email=nbgitpuller@nbgitpuller.link',
+                '-c', 'user.name=nbgitpuller',
+                'commit', 
                 '-am', 'Automatic commit by nbgitpuller', 
                 '--allow-empty'
             ], cwd=self.repo_dir)
