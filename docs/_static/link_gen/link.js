@@ -88,14 +88,17 @@ function populateFromQueryString() {
     // preseed values if specified in the url
     var params = new URLSearchParams(window.location.search);
     // Parameters are read from query string, and <input> fields are set to them
-    var allowedParams = ['hub', 'repo', 'branch'];
+    var allowedParams = ['hub', 'repo', 'branch', 'app'];
     for (var i = 0; i < allowedParams.length; i++) {
         var param = allowedParams[i];
         if (params.has(param)) {
-            document.getElementById(param).value = params.get(param);
+            if (param === 'app') {
+                form.querySelector('input[name="app"]:checked').value = params.get(param);
+            } else {
+                document.getElementById(param).value = params.get(param);
+            }
         }
     }
-
 }
 
 /**
