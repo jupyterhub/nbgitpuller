@@ -56,7 +56,7 @@ following information:
 #. The location of the JupyterHub you are sending them to.
 #. The git repository where you have published your content.
 #. Optionally, a particular file or directory you want to automatically
-   open for your students once the repository has been synchronized.
+   open for your students once the repository has been synchronized. Note the entire repository will be copied, not just the specified file.
 
 The first time a particular student clicks the link, a local copy of the
 repository is made for the student. On successive clicks, the latest version
