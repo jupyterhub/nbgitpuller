@@ -150,11 +150,15 @@ require([
     gs.addHandler('error', function(data) {
         progressTimers.forEach(function(timer)  { clearInterval(timer); });
         gsv.setProgressValue(100);
-        gsv.setProgressText('Error: ' + data.message);
-        gsv.setProgressError(true);
-        gsv.setTerminalVisibility(true);
-        if (data.output) {
-            gsv.term.write(data.output);
+        if (typeof data.message == 'undefined') {
+            location.reload();
+        } else {
+            gsv.setProgressText('Error: ' + data.message);
+            gsv.setProgressError(true);
+            gsv.setTerminalVisibility(true);
+            if (data.output) {
+              gsv.term.write(data.output);
+            }   
         }
     });
     gs.start();
