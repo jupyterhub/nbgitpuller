@@ -56,13 +56,6 @@ class GitPuller(Configurable):
         environment variable."""
     )
 
-    @default('depth')
-    def _depth_default(self):
-        depth = os.environ.get('NBGITPULLER_DEPTH')
-        if depth:
-            return int(depth)
-        return 1
-
     def __init__(self, git_url, branch_name, repo_dir, **kwargs):
         assert git_url and branch_name
 
