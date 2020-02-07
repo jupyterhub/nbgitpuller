@@ -43,23 +43,25 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 class GitPuller(Configurable):
-    depth = Integer(1, config=True,
-                    help="""
-                    Depth (ie, commit count) to which to perform a
-                    shallow git clone.
+    depth = Integer(
+        int(os.environ.get('NBGITPULLER_DEPTH', 1)),
+        config=True,
+        help="""
+        Depth (ie, commit count) to which to perform a
+        shallow git clone.
 
-                    If not set, clones to depth 1.
+        If not set, clones to depth 1.
 
-                    Defaults to reading from the NBGITPULLER_DEPTH
-                    environment variable.
-                    """)
+        Defaults to reading from the NBGITPULLER_DEPTH
+        environment variable."""
+    )
 
     @default('depth')
     def _depth_default(self):
         depth = os.environ.get('NBGITPULLER_DEPTH')
         if depth:
             return int(depth)
-        return None
+        return 1
 
     def __init__(self, git_url, branch_name, repo_dir, **kwargs):
         assert git_url and branch_name
