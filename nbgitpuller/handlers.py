@@ -196,9 +196,9 @@ class LegacyInteractRedirectHandler(IPythonHandler):
         repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)
         query = {
             'repo': repo_url,
+            # branch & subPath are optional
             'branch': self.get_argument('branch', 'gh-pages'),
-            'depth': self.get_argument('depth'),
-            'subPath': self.get_argument('path')
+            'subPath': self.get_argument('path', '.')
         }
         new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,

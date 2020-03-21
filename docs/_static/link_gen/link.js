@@ -88,14 +88,22 @@ function populateFromQueryString() {
     // preseed values if specified in the url
     var params = new URLSearchParams(window.location.search);
     // Parameters are read from query string, and <input> fields are set to them
-    var allowedParams = ['hub', 'repo', 'branch'];
+    var allowedParams = ['hub', 'repo', 'branch', 'app', 'urlpath'];
+    if (params.has("urlpath")) {
+        // setting urlpath implies a custom app
+        document.getElementById('app-custom').checked = true;
+    }
     for (var i = 0; i < allowedParams.length; i++) {
         var param = allowedParams[i];
         if (params.has(param)) {
-            document.getElementById(param).value = params.get(param);
+            if ((param === 'app') && !params.has("urlpath")) {
+                radioId = 'app-' + params.get(param).toLowerCase();
+                document.getElementById(radioId).checked = true;
+            } else {
+                document.getElementById(param).value = params.get(param);
+            }
         }
     }
-
 }
 
 /**

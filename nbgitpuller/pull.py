@@ -82,9 +82,8 @@ class GitPuller(Configurable):
 
     def initialize_repo(self):
         """
-        Clones repository & sets up usernames.
+        Clones repository
         """
-
         logging.info('Repo {} doesn\'t exist. Cloning...'.format(self.repo_dir))
         clone_args = ['git', 'clone']
         if self.depth and self.depth > 0:
@@ -92,8 +91,6 @@ class GitPuller(Configurable):
         clone_args.extend(['--branch', self.branch_name])
         clone_args.extend([self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
-        yield from execute_cmd(['git', 'config', 'user.email', 'nbgitpuller@example.com'], cwd=self.repo_dir)
-        yield from execute_cmd(['git', 'config', 'user.name', 'nbgitpuller'], cwd=self.repo_dir)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
 
@@ -111,7 +108,7 @@ class GitPuller(Configurable):
 
         for filename in deleted_files:
             if filename:  # Filter out empty lines
-                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
+                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
 
     def repo_is_dirty(self):
         """
@@ -207,13 +204,30 @@ class GitPuller(Configurable):
         # positive, returning True even when there are no local changes (git diff-files seems to return
         # bogus output?). While ideally that would not happen, allowing empty commits keeps us
         # resilient to that issue.
+        # We explicitly set user info of the commits we are making, to keep that separate from
+        # whatever author info is set in system / repo config by the user. We pass '-c' to git
+        # itself (rather than to 'git commit') to temporarily set config variables. This is
+        # better than passing --author, since git treats author separately from committer.
         if self.repo_is_dirty():
             yield from self.ensure_lock()
-            yield from execute_cmd(['git', 'commit', '-am', 'WIP', '--allow-empty'], cwd=self.repo_dir)
+            yield from execute_cmd([
+                'git',
+                '-c', 'user.email=nbgitpuller@nbgitpuller.link',
+                '-c', 'user.name=nbgitpuller',
+                'commit',
+                '-am', 'Automatic commit by nbgitpuller',
+                '--allow-empty'
+            ], cwd=self.repo_dir)
 
         # Merge master into local!
         yield from self.ensure_lock()
-        yield from execute_cmd(['git', 'merge', '-Xours', 'origin/{}'.format(self.branch_name)], cwd=self.repo_dir)
+        yield from execute_cmd([
+            'git',
+            '-c', 'user.email=nbgitpuller@nbgitpuller.link',
+            '-c', 'user.name=nbgitpuller',
+            'merge',
+            '-Xours', 'origin/{}'.format(self.branch_name)
+        ], cwd=self.repo_dir)
 
 
 

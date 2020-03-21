@@ -180,6 +180,10 @@ def test_merging_simple():
 
             puller.pull_all()
 
+            # There should be a commit made *before* the pull that has our explicit
+            # authorship, to record that it was made by nbgitpuller
+            assert puller.git('show', '-s', '--format="%an <%ae>"', 'HEAD^1') == '"nbgitpuller <nbgitpuller@nbgitpuller.link>"'
+
             assert puller.read_file('README.md') == '2'
             assert pusher.read_file('README.md') == '3'
 
