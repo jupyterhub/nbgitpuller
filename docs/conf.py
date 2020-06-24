@@ -91,10 +91,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import alabaster_jupyterhub
-
-html_theme = "alabaster_jupyterhub"
-html_theme_path = [alabaster_jupyterhub.get_html_theme_path()]
+html_theme = "sphinx_book_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -108,6 +105,12 @@ html_context = {
     "github_version": "master",
     "doc_path": "doc",
     "source_suffix": source_suffix,
+}
+
+html_theme_options = {
+    "repository_url": "https://github.com/jupyterhub/nbgitpuller",
+    "use_issues_button": True,
+    "use_repository_button": True
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
