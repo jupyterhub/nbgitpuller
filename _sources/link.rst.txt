@@ -5,11 +5,11 @@ Use the following form to create your own ``nbgitpuller`` links.
 
 .. raw:: html
 
-   <div class="container">     
+   <div class="container full-width">
        <form id="linkgenerator" class="form needs-validation" onchange="onFormChange">
-   
+
            <div class="form-group">
-   
+
              <ul class="nav nav-tabs justify-content-end" role="tablist">
                <li class="nav-item">
                  <a class="nav-link active" id="tab-auth-default" data-toggle="tab" role="tab" href="#auth-default" aria-controls="auth-default">
@@ -22,7 +22,7 @@ Use the following form to create your own ``nbgitpuller`` links.
                  </a>
                </li>
              </ul>
-   
+
              <div class="tab-content">
                <div class="tab-pane fade show active" id="auth-default" role="tabpanel" aria-labelledby="tab-auth-default">
                  <input type="text" readonly class="form-control form-control" id="default-link" name="auth-default-link" placeholder="Generated link appears here...">
@@ -33,7 +33,7 @@ Use the following form to create your own ``nbgitpuller`` links.
              </div>
              </ul>
            </div>
-   
+
            <div class="form-group row">
              <label for="hub" class="col-sm-2 col-form-label">JupyterHub URL</label>
              <div class="col-sm-10">
@@ -43,12 +43,12 @@ Use the following form to create your own ``nbgitpuller`` links.
                  Must be a valid web URL
                </div>
                <small class="form-text text-muted">
-                 The JupyterHub to send users to. 
+                 The JupyterHub to send users to.
                  <a href="https://github.com/jupyterhub/nbgitpuller">nbgitpuller</a> must be installed in this hub.
                </small>
              </div>
            </div>
-   
+
            <div class="form-group row">
              <label for="repo" class="col-sm-2 col-form-label">Git Repository URL</label>
              <div class="col-sm-6">
@@ -67,7 +67,7 @@ Use the following form to create your own ``nbgitpuller`` links.
                </div>
              </div>
            </div>
-   
+
            <div class="form-group row" id="filepath-container">
              <label for="filepath" class="col-sm-2 col-form-label">File to open</label>
              <div class="col-sm-10">
@@ -78,7 +78,7 @@ Use the following form to create your own ``nbgitpuller`` links.
                </small>
              </div>
            </div>
-   
+
            <div class="form-group row" id="app-container">
              <div class="col-sm-2 col-form-label">
                <label for="app" class=>Application to Open</label>
@@ -112,7 +112,7 @@ Use the following form to create your own ``nbgitpuller`` links.
                </div>
              </div>
            </div>
-   
+
        </form>
      </div>
      <br /><br /><br />
