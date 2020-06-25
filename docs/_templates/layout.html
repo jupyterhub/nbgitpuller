@@ -1,4 +1,4 @@
-{%- extends "alabaster_jupyterhub/layout.html" %}
+{%- extends "sphinx_book_theme/layout.html" %}
 
 <!-- Adding CSS to make the link generator wider -->
 {% block extrahead %}
@@ -11,11 +11,4 @@
 </style>
 {% endif %}
 {{ super() }}
-{% endblock %}
-
-<!-- Don't include the "on this page" sidebar for the link generator -->
-{% block sidebar1 %}
-{% if pagename != 'link' %}
-{%- include "rightsidebar.html" %}
-{% endif %}
 {% endblock %}
