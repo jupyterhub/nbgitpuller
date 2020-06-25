@@ -90,7 +90,8 @@ problems.
 ``targetPath``
 ==============
 
-Git repositories are cloned into the default working directory.
+Where to place the repository when it is cloned.
+By default, Git repositories are cloned into the default working directory.
 You can specify a different parent directory for the clone by setting the environment variable ``NBGITPULLER_PARENTPATH``, this should be relative to the working directory.
 If you require full control over the destination directory, or want to set the directory at runtime in the nbgitpuller link use this parameter.
 
