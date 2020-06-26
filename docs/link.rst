@@ -12,13 +12,18 @@ Use the following form to create your own ``nbgitpuller`` links.
 
              <ul class="nav nav-tabs justify-content-end" role="tablist">
                <li class="nav-item">
-                 <a class="nav-link active" id="tab-auth-default" data-toggle="tab" role="tab" href="#auth-default" aria-controls="auth-default">
+                 <a class="nav-link active" id="tab-auth-default" data-toggle="tab" role="tab" href="#auth-default" aria-controls="auth-default" onclick="changeTab(this)">
                    <small>Default</small>
                  </a>
                </li>
                <li class="nav-item">
-                 <a class="nav-link" id="tab-auth-canvas" data-toggle="tab" role="tab" href="#auth-canvas" aria-controls="auth-canvas">
+                 <a class="nav-link" id="tab-auth-canvas" data-toggle="tab" role="tab" href="#auth-canvas" aria-controls="auth-canvas" onclick="changeTab(this)">
                    <small>Launch from Canvas</small>
+                 </a>
+               </li>
+               <li class="nav-item">
+                 <a class="nav-link" id="tab-auth-mybinder" data-toggle="tab" role="tab" href="#auth-mybinder" aria-controls="auth-mybinder" onclick="changeTab(this)">
+                   <small>mybinder.org</small>
                  </a>
                </li>
              </ul>
@@ -29,6 +34,9 @@ Use the following form to create your own ``nbgitpuller`` links.
                </div>
                <div class="tab-pane fade" id="auth-canvas" role="tabpanel" aria-labelledby="tab-auth-canvas">
                  <input type="text" readonly class="form-control form-control" id="canvas-link" name="auth-canvas-link" placeholder="Generated canvas 'external app' link appears here...">
+               </div>
+               <div class="tab-pane fade" id="auth-mybinder" role="tabpanel" aria-labelledby="tab-auth-mybinder">
+                 <input type="text" readonly class="form-control form-control" id="mybinder-link" name="auth-mybinder-link" placeholder="Generated mybinder.org link appears here...">
                </div>
              </div>
              </ul>
@@ -63,10 +71,29 @@ Use the following form to create your own ``nbgitpuller`` links.
                  <div class="input-group-prepend">
                    <span class="input-group-text" id="branch-prepend-label">branch</span>
                  </div>
-                 <input name="branch" id="branch" type="text" class="form-control" placeholder="master" aria-label="Branch Name" aria-describedby="branch-prepend-label">
+                 <input name="branch" id="branch" type="text" class="form-control" placeholder="master" value="master" aria-label="Branch Name" aria-describedby="branch-prepend-label">
                </div>
              </div>
            </div>
+
+           <div class="form-group row">
+             <label for="content-repo" class="col-sm-2 col-form-label">Git Content Repository URL</label>
+             <div class="col-sm-6">
+               <input class="form-control" type="text" id="content-repo" placeholder="https://github.com/example/test"
+                 oninput="displayLink()" required pattern="((git|https?)://.+|git@.+:.+)" disabled >
+               <div class="invalid-feedback">
+                 Must be a valid git URL
+               </div>
+             </div>
+             <div class="col-sm-4">
+               <div class="input-group">
+                 <div class="input-group-prepend">
+                   <span class="input-group-text" id="content-branch-prepend-label">branch</span>
+                 </div>
+                 <input name="content-branch" id="content-branch" type="text" class="form-control" placeholder="master" value="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label" disabled>
+               </div>
+             </div>
+            </div>
 
            <div class="form-group row" id="filepath-container">
              <label for="filepath" class="col-sm-2 col-form-label">File to open</label>

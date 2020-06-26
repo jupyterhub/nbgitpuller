@@ -43,6 +43,32 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
     return url.toString();
 }
 
+function generateMyBinderUrl(hubUrl, userName, repoName, branch, urlPath,
+    contentRepoUrl, contentRepoBranch) {
+
+    var url = new URL(hubUrl);
+
+    var nextUrlParams = new URLSearchParams();
+
+    nextUrlParams.append('repo', contentRepoUrl);
+
+    if (urlPath) {
+        nextUrlParams.append('urlpath', urlPath);
+    }
+
+    if (branch) {
+        nextUrlParams.append('branch', branch);
+    }
+
+    var nextUrl = 'git-pull?' + nextUrlParams.toString();
+
+    var path = '/v2/gh/';
+    url.pathname = path.concat(userName, "/", repoName, "/", branch);
+    url.searchParams.append('urlpath', nextUrl);
+
+    return url.toString();
+}
+
 var apps = {
     classic: {
         title: 'Classic Notebook',
@@ -58,6 +84,27 @@ var apps = {
     }
 }
 
+function changeTab(div) {
+    var hub = document.getElementById("hub");
+    var env_repo = document.getElementById("repo");
+    var content_repo = document.getElementById("content-repo");
+    var content_branch = document.getElementById("content-branch");
+    var id = div.id;
+
+    if (id.includes("mybinder")) {
+        hub.placeholder = "https://mybinder.org";
+        env_repo.labels[0].innerHTML = "Git Environment Repository URL";
+        content_repo.disabled = false;
+        content_branch.disabled = false;
+    } else {
+        hub.placeholder = "https://hub.example.com";
+        hub.disabled = false;
+        env_repo.labels[0].innerHTML = "Git Repository URL";
+        content_repo.disabled = true;
+        content_branch.disabled = true;
+    }
+}
+
 function displayLink() {
     var form = document.getElementById('linkgenerator');
 
@@ -65,15 +112,24 @@ function displayLink() {
     if (form.checkValidity()) {
         var hubUrl = document.getElementById('hub').value;
         var repoUrl = document.getElementById('repo').value;
-        var filePath = document.getElementById('filepath').value;
         var branch = document.getElementById('branch').value;
+        var contentRepoUrl = document.getElementById('content-repo').value;
+        var contentRepoBranch = document.getElementById('content-branch').value;
+        var filePath = document.getElementById('filepath').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
 
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
         } else {
             var repoName = new URL(repoUrl).pathname.split('/').pop().replace(/\.git$/, '');
-            var urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
+            var userName = new URL(repoUrl).pathname.split('/')[1];
+            var urlPath;
+            if (contentRepoUrl.disabled) {
+                urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
+            } else {
+                var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
+                urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
+            }
         }
 
         document.getElementById('default-link').value = generateRegularUrl(
@@ -82,13 +138,16 @@ function displayLink() {
         document.getElementById('canvas-link').value = generateCanvasUrl(
             hubUrl, urlPath, repoUrl, branch
         );
+        document.getElementById('mybinder-link').value = generateMyBinderUrl(
+            hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
+        );
     }
 }
 function populateFromQueryString() {
     // preseed values if specified in the url
     var params = new URLSearchParams(window.location.search);
     // Parameters are read from query string, and <input> fields are set to them
-    var allowedParams = ['hub', 'repo', 'branch', 'app', 'urlpath'];
+    var allowedParams = ['hub', 'repo', 'content-repo', 'branch', 'app', 'urlpath'];
     if (params.has("urlpath")) {
         // setting urlpath implies a custom app
         document.getElementById('app-custom').checked = true;
