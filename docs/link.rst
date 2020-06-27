@@ -76,21 +76,21 @@ Use the following form to create your own ``nbgitpuller`` links.
              </div>
            </div>
 
-           <div class="form-group row">
+           <div class="form-group row" id="content-repo-group" hidden="true">
              <label for="content-repo" class="col-sm-2 col-form-label">Git Content Repository URL</label>
              <div class="col-sm-6">
                <input class="form-control" type="text" id="content-repo" placeholder="https://github.com/example/test"
-                 oninput="displayLink()" required pattern="((git|https?)://.+|git@.+:.+)" disabled >
+                 oninput="displayLink()" required pattern="((git|https?)://.+|git@.+:.+)">
                <div class="invalid-feedback">
                  Must be a valid git URL
                </div>
              </div>
              <div class="col-sm-4">
-               <div class="input-group">
+               <div class="input-group" id="content-branch-group" hidden="true">
                  <div class="input-group-prepend">
                    <span class="input-group-text" id="content-branch-prepend-label">branch</span>
                  </div>
-                 <input name="content-branch" id="content-branch" type="text" class="form-control" placeholder="master" value="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label" disabled>
+                 <input name="content-branch" id="content-branch" type="text" class="form-control" placeholder="master" value="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
                </div>
              </div>
             </div>

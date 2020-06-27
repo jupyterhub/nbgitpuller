@@ -87,21 +87,21 @@ var apps = {
 function changeTab(div) {
     var hub = document.getElementById("hub");
     var env_repo = document.getElementById("repo");
-    var content_repo = document.getElementById("content-repo");
-    var content_branch = document.getElementById("content-branch");
+    var content_repo = document.getElementById("content-repo-group");
+    var content_branch = document.getElementById("content-branch-group");
     var id = div.id;
 
     if (id.includes("mybinder")) {
         hub.placeholder = "https://mybinder.org";
         env_repo.labels[0].innerHTML = "Git Environment Repository URL";
-        content_repo.disabled = false;
-        content_branch.disabled = false;
+        content_repo.hidden = false;
+        content_branch.hidden = false;
     } else {
         hub.placeholder = "https://hub.example.com";
         hub.disabled = false;
         env_repo.labels[0].innerHTML = "Git Repository URL";
-        content_repo.disabled = true;
-        content_branch.disabled = true;
+        content_repo.hidden = true;
+        content_branch.hidden = true;
     }
 }
 
