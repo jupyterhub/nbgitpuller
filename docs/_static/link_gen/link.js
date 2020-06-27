@@ -86,20 +86,28 @@ var apps = {
 
 function changeTab(div) {
     var hub = document.getElementById("hub");
+    var hub_help_text = document.getElementById("hub-help-text");
     var env_repo = document.getElementById("repo");
+    var env_repo_help_text = document.getElementById("env-repo-help-text");
     var content_repo = document.getElementById("content-repo-group");
     var content_branch = document.getElementById("content-branch-group");
     var id = div.id;
 
     if (id.includes("mybinder")) {
         hub.placeholder = "https://mybinder.org";
+        hub.value = "https://mybinder.org";
+        hub_help_text.hidden = true;
+        hub.labels[0].innerHTML = "BinderHub URL";
         env_repo.labels[0].innerHTML = "Git Environment Repository URL";
+        env_repo_help_text.hidden = false;
         content_repo.hidden = false;
         content_branch.hidden = false;
     } else {
         hub.placeholder = "https://hub.example.com";
-        hub.disabled = false;
+        hub_help_text.hidden = false;
+        hub.labels[0].innerHTML = "JupyterHub URL";
         env_repo.labels[0].innerHTML = "Git Repository URL";
+        env_repo_help_text.hidden = true;
         content_repo.hidden = true;
         content_branch.hidden = true;
     }

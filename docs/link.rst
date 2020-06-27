@@ -50,7 +50,7 @@ Use the following form to create your own ``nbgitpuller`` links.
                <div class="invalid-feedback">
                  Must be a valid web URL
                </div>
-               <small class="form-text text-muted">
+               <small class="form-text text-muted" id="hub-help-text">
                  The JupyterHub to send users to.
                  <a href="https://github.com/jupyterhub/nbgitpuller">nbgitpuller</a> must be installed in this hub.
                </small>
@@ -65,6 +65,10 @@ Use the following form to create your own ``nbgitpuller`` links.
                <div class="invalid-feedback">
                  Must be a valid git URL
                </div>
+               <small class="form-text text-muted" id="env-repo-help-text" hidden="true">
+                 The environment repository must have
+                 <a href="https://github.com/jupyterhub/nbgitpuller">nbgitpuller</a> installed.
+               </small>
              </div>
              <div class="col-sm-4">
                <div class="input-group">
