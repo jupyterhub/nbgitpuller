@@ -61,11 +61,13 @@ class SyncHandler(IPythonHandler):
             # directory assuming either --notebook-dir= is used from the
             # command line or c.NotebookApp.notebook_dir is set in the jupyter
             # configuration. This line assures that all repos are cloned
-            # relative to server_root_dir, so that all repos are always in
-            # scope after cloning. Sometimes server_root_dir will include
-            # things like `~` and so the path must be expanded.
-            repo_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
-                                    repo.split('/')[-1])
+            # relative to server_root_dir/<optional NBGITPULLER_PARENTPATH>,
+            # so that all repos are always in scope after cloning. Sometimes
+            # server_root_dir will include things like `~` and so the path
+            # must be expanded.
+            repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
+                                           os.getenv('NBGITPULLER_PARENTPATH', ''))
+            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
@@ -152,12 +154,14 @@ class UIHandler(IPythonHandler):
         subPath = self.get_argument('subpath', None) or \
                   self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
+        parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
+        targetpath = self.get_argument('targetpath', None) or \
+                     self.get_argument('targetPath', repo.split('/')[-1])
 
         if urlPath:
             path = urlPath
         else:
-            repo_dir = repo.split('/')[-1]
-            path = os.path.join(repo_dir, subPath)
+            path = os.path.join(parent_reldir, targetpath, subPath)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
@@ -168,7 +172,7 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, version=__version__
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
             ))
         self.flush()
 

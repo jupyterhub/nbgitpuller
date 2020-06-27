@@ -12,12 +12,13 @@ require([
 
     Terminal.applyAddon(fit);
 
-    function GitSync(baseUrl, repo, branch, depth, path) {
+    function GitSync(baseUrl, repo, branch, depth, targetpath, path) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
         this.branch = branch;
         this.depth = depth;
+        this.targetpath = targetpath;
         this.redirectUrl = baseUrl + path;
 
         this.callbacks = {};
@@ -43,7 +44,8 @@ require([
         // Start git pulling handled by SyncHandler, declared in handlers.py
         var syncUrlParams = {
             repo: this.repo,
-            branch: this.branch
+            branch: this.branch,
+            targetpath: this.targetpath
         }
         if (typeof this.depth !== 'undefined' && this.depth != undefined) {
             syncUrlParams['depth'] = this.depth;
@@ -129,6 +131,7 @@ require([
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
         utils.get_body_data('depth'),
+        utils.get_body_data('targetpath'),
         utils.get_body_data('path')
     );
 
