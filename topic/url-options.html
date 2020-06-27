@@ -193,6 +193,10 @@
         </li>
     
         <li class="nav-item toc-entry toc-h2">
+            <a href="#targetpath" class="nav-link">targetPath</a>
+        </li>
+    
+        <li class="nav-item toc-entry toc-h2">
             <a href="#deprecated-parameters" class="nav-link">Deprecated parameters</a>
         </li>
     
@@ -276,6 +280,13 @@ slow if your git repository is large. You can set this to 1 to
 pull only the latest commit on initial pull.</p>
 <p>Only explicitly set this if you are actively having performance
 problems.</p>
+</div>
+<div class="section" id="targetpath">
+<h2><code class="docutils literal notranslate"><span class="pre">targetPath</span></code><a class="headerlink" href="#targetpath" title="Permalink to this headline">¶</a></h2>
+<p>Where to place the repository when it is cloned.
+By default, Git repositories are cloned into the default working directory.
+You can specify a different parent directory for the clone by setting the environment variable <code class="docutils literal notranslate"><span class="pre">NBGITPULLER_PARENTPATH</span></code>, this should be relative to the working directory.
+If you require full control over the destination directory, or want to set the directory at runtime in the nbgitpuller link use this parameter.</p>
 </div>
 <div class="section" id="deprecated-parameters">
 <h2>Deprecated parameters<a class="headerlink" href="#deprecated-parameters" title="Permalink to this headline">¶</a></h2>
