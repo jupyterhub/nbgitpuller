@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="_static/link_gen/vendor/bootstrap-4.1.3/css/bootstrap.min.css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/sphinx-book-theme.js"></script>
     <script src="_static/jquery.js"></script>
@@ -22,9 +21,7 @@
     <script src="_static/language_data.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
-    <script src="_static/link_gen/vendor/jquery-3.3.1.slim.min.js"></script>
     <script src="_static/link_gen/link.js"></script>
-    <script src="_static/link_gen/vendor/bootstrap-4.1.3/js/bootstrap.bundle.min.js"></script>
     <script src="_static/sphinx-book-theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -180,7 +177,7 @@
 <h1>nbgitpuller link generator<a class="headerlink" href="#nbgitpuller-link-generator" title="Permalink to this headline">¶</a></h1>
 <p>Use the following form to create your own <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> links.</p>
 <div class="container full-width">
-    <form id="linkgenerator" class="form needs-validation" onchange="onFormChange">
+    <form id="linkgenerator" class="form needs-validation">
 
         <div class="form-group">
 
@@ -258,7 +255,7 @@
           <label for="content-repo" class="col-sm-2 col-form-label">Git Content Repository URL</label>
           <div class="col-sm-6">
             <input class="form-control" type="text" id="content-repo" placeholder="https://github.com/example/test"
-              oninput="displayLink()" required pattern="((git|https?)://.+|git@.+:.+)">
+              oninput="displayLink()" pattern="((git|https?)://.+|git@.+:.+)">
             <div class="invalid-feedback">
               Must be a valid git URL
             </div>
