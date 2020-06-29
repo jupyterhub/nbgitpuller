@@ -20,7 +20,8 @@ def setup(app):
     app.add_transform(AutoStructify)
     app.add_stylesheet("custom.css")
     app.add_stylesheet("link_gen/vendor/bootstrap-4.1.3/css/bootstrap.min.css")
-    app.add_javascript("link_gen/vendor/jquery-3.3.1.slim.min.js")
+    # jquery is included in the theme
+    # app.add_javascript("link_gen/vendor/jquery-3.3.1.slim.min.js")
     app.add_javascript("link_gen/link.js")
     app.add_javascript("link_gen/vendor/bootstrap-4.1.3/js/bootstrap.bundle.min.js")
 
