@@ -125,6 +125,7 @@ function displayLink() {
         var contentRepoBranch = document.getElementById('content-branch').value;
         var filePath = document.getElementById('filepath').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
+        var activeTab = document.querySelector(".nav-link.active").id;
 
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
@@ -132,23 +133,29 @@ function displayLink() {
             var repoName = new URL(repoUrl).pathname.split('/').pop().replace(/\.git$/, '');
             var userName = new URL(repoUrl).pathname.split('/')[1];
             var urlPath;
-            if (contentRepoUrl.disabled) {
-                urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
-            } else {
-                var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
-                urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
+            if (activeTab === "tab-auth-binder") {
+                if (contentRepoUrl.disabled) {
+                    urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
+                } else {
+                    var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
+                    urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
+                }
             }
         }
 
-        document.getElementById('default-link').value = generateRegularUrl(
-            hubUrl, urlPath, repoUrl, branch
-        );
-        document.getElementById('canvas-link').value = generateCanvasUrl(
-            hubUrl, urlPath, repoUrl, branch
-        );
-        document.getElementById('binder-link').value = generateBinderUrl(
-            hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
-        );
+        if (activeTab === "tab-auth-default") {
+            document.getElementById('default-link').value = generateRegularUrl(
+                hubUrl, urlPath, repoUrl, branch
+            );
+        } else if (activeTab === "tab-auth-canvas"){
+            document.getElementById('canvas-link').value = generateCanvasUrl(
+                hubUrl, urlPath, repoUrl, branch
+            );
+        } else if (activeTab === "tab-auth-binder"){
+            document.getElementById('binder-link').value = generateBinderUrl(
+                hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
+            );
+        }
     }
 }
 function populateFromQueryString() {
