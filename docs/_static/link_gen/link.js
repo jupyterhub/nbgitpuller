@@ -43,7 +43,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
     return url.toString();
 }
 
-function generateMyBinderUrl(hubUrl, userName, repoName, branch, urlPath,
+function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
     contentRepoUrl, contentRepoBranch) {
 
     var url = new URL(hubUrl);
@@ -93,7 +93,7 @@ function changeTab(div) {
     var content_branch = document.getElementById("content-branch-group");
     var id = div.id;
 
-    if (id.includes("mybinder")) {
+    if (id.includes("binder")) {
         hub.placeholder = "https://mybinder.org";
         hub.value = "https://mybinder.org";
         hub_help_text.hidden = true;
@@ -146,7 +146,7 @@ function displayLink() {
         document.getElementById('canvas-link').value = generateCanvasUrl(
             hubUrl, urlPath, repoUrl, branch
         );
-        document.getElementById('mybinder-link').value = generateMyBinderUrl(
+        document.getElementById('binder-link').value = generateBinderUrl(
             hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
         );
     }
@@ -218,6 +218,16 @@ function main() {
     )
 
     populateFromQueryString();
+
+    // Activate tabs based on search parameters
+    var params = new URL(window.location).searchParams;
+    if (params.get("tab")) {
+      if (params.get("tab") === "binder") {
+        $("#tab-auth-binder").click()
+      } else if (params.get("tab") === "canvas") {
+        $("#tab-auth-canvas").click()
+      }
+    }
 
     // Do an initial render, to make sure our disabled / enabled properties are correctly set
     render();
