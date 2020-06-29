@@ -187,7 +187,7 @@
           <ul class="nav nav-tabs justify-content-end" role="tablist">
             <li class="nav-item">
               <a class="nav-link active" id="tab-auth-default" data-toggle="tab" role="tab" href="#auth-default" aria-controls="auth-default" onclick="changeTab(this)">
-                <small>Default</small>
+                <small>JupyterHub</small>
               </a>
             </li>
             <li class="nav-item">
@@ -196,8 +196,8 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="tab-auth-mybinder" data-toggle="tab" role="tab" href="#auth-mybinder" aria-controls="auth-mybinder" onclick="changeTab(this)">
-                <small>mybinder.org</small>
+              <a class="nav-link" id="tab-auth-binder" data-toggle="tab" role="tab" href="#auth-binder" aria-controls="auth-binder" onclick="changeTab(this)">
+                <small>Binder</small>
               </a>
             </li>
           </ul>
@@ -209,8 +209,8 @@
             <div class="tab-pane fade" id="auth-canvas" role="tabpanel" aria-labelledby="tab-auth-canvas">
               <input type="text" readonly class="form-control form-control" id="canvas-link" name="auth-canvas-link" placeholder="Generated canvas 'external app' link appears here...">
             </div>
-            <div class="tab-pane fade" id="auth-mybinder" role="tabpanel" aria-labelledby="tab-auth-mybinder">
-              <input type="text" readonly class="form-control form-control" id="mybinder-link" name="auth-mybinder-link" placeholder="Generated mybinder.org link appears here...">
+            <div class="tab-pane fade" id="auth-binder" role="tabpanel" aria-labelledby="tab-auth-binder">
+              <input type="text" readonly class="form-control form-control" id="binder-link" name="auth-binder-link" placeholder="Generated Binder link appears here...">
             </div>
           </div>
           </ul>
@@ -334,6 +334,13 @@ UC Berkeley DataHub as the JupyterHub:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>https://jupyterhub.github.io/nbgitpuller/link?hub=https://datahub.berkeley.edu
 </pre></div>
 </div>
+<p><strong>Activating a tab when someone lands on this page</strong></p>
+<p>You can also activate one of the tabs in the form above by default when a user lands
+on this page. To do so, use the <code class="docutils literal notranslate"><span class="pre">tab=</span></code> REST parameter. Here are the possible values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">?tab=binder</span></code> - activates the Binder tab</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">?tab=canvas</span></code> - activates the Canvas tab.</p></li>
+</ul>
 </div>
 
 
