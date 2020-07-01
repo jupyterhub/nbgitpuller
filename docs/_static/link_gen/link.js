@@ -56,8 +56,8 @@ function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
         nextUrlParams.append('urlpath', urlPath);
     }
 
-    if (branch) {
-        nextUrlParams.append('branch', branch);
+    if (contentRepoBranch) {
+        nextUrlParams.append('branch', contentRepoBranch);
     }
 
     var nextUrl = 'git-pull?' + nextUrlParams.toString();
