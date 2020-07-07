@@ -134,12 +134,10 @@ function displayLink() {
             var userName = new URL(repoUrl).pathname.split('/')[1];
             var urlPath;
             if (activeTab === "tab-auth-binder") {
-                if (contentRepoUrl.disabled) {
-                    urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
-                } else {
-                    var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
-                    urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
-                }
+                var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
+                urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
+            } else {
+                urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
             }
         }
 
