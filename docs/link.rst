@@ -76,6 +76,9 @@ Use the following form to create your own ``nbgitpuller`` links.
                    <span class="input-group-text" id="branch-prepend-label">branch</span>
                  </div>
                  <input name="branch" id="branch" type="text" class="form-control" placeholder="master" aria-label="Branch Name" aria-describedby="branch-prepend-label">
+                 <div class="invalid-feedback">
+                    Must specify a branch name
+                 </div>
                </div>
              </div>
            </div>
