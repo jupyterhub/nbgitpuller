@@ -75,7 +75,10 @@ Use the following form to create your own ``nbgitpuller`` links.
                  <div class="input-group-prepend">
                    <span class="input-group-text" id="branch-prepend-label">branch</span>
                  </div>
-                 <input name="branch" id="branch" type="text" class="form-control" placeholder="master" aria-label="Branch Name" aria-describedby="branch-prepend-label">
+                 <input name="branch" id="branch" type="text" class="form-control" value="master" aria-label="Branch Name" aria-describedby="branch-prepend-label">
+                 <div class="invalid-feedback">
+                    Must specify a branch name
+                 </div>
                </div>
              </div>
            </div>
@@ -94,7 +97,7 @@ Use the following form to create your own ``nbgitpuller`` links.
                  <div class="input-group-prepend">
                    <span class="input-group-text" id="content-branch-prepend-label">branch</span>
                  </div>
-                 <input name="content-branch" id="content-branch" type="text" class="form-control" placeholder="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
+                 <input name="content-branch" id="content-branch" type="text" class="form-control" value="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
                </div>
              </div>
             </div>
