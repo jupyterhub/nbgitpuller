@@ -60,21 +60,29 @@
 </form>
 
 <nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  
-  <ul class="nav sidenav_l1">
-  <li class="">
-    <a href="../install.html">Installation</a>
-  </li>
-  <li class="">
-    <a href="automatic-merging.html">Automatic Merging Behavior</a>
-  </li>
-  <li class="active">
-    <a href="">Options in an nbgitpuller URL</a>
-  </li>
-  <li class="">
-    <a href="../link.html">nbgitpuller link generator</a>
-  </li>
+  <ul class="current nav sidenav_l1">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../install.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="automatic-merging.html">
+   Automatic Merging Behavior
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Options in an nbgitpuller URL
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../link.html">
+   nbgitpuller link generator
+  </a>
+ </li>
 </ul>
+
 </nav>
 
  <!-- To handle the deprecated key -->
@@ -151,56 +159,84 @@
         <!-- Launch buttons -->
 
     </div>
+
+    <!-- Table of contents -->
     <div class="d-none d-md-block col-md-2 bd-toc show">
-<div class="tocsection onthispage pt-5 pb-3">
-    <i class="fas fa-list"></i> On this page
-</div>
+        <div class="tocsection onthispage pt-5 pb-3">
+            <i class="fas fa-list"></i> On this page
+        </div>
+        <nav id="bd-toc-nav">
+            <ul class="nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#repo">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     repo
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#branch">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     branch
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#urlpath">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     urlpath
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#classic-jupyter-notebook">
+     Classic Jupyter Notebook
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#jupyterlab">
+     JupyterLab
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#rstudio">
+     RStudio
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#depth">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     depth
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#targetpath">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     targetPath
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#deprecated-parameters">
+   Deprecated parameters
+  </a>
+ </li>
+</ul>
 
-<nav id="bd-toc-nav">
-    <ul class="nav section-nav flex-column">
-    
-        <li class="nav-item toc-entry toc-h2">
-            <a href="#repo" class="nav-link">repo</a>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h2">
-            <a href="#branch" class="nav-link">branch</a>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h2">
-            <a href="#urlpath" class="nav-link">urlpath</a><ul class="nav section-nav flex-column">
-                
-        <li class="nav-item toc-entry toc-h3">
-            <a href="#classic-jupyter-notebook" class="nav-link">Classic Jupyter Notebook</a>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h3">
-            <a href="#jupyterlab" class="nav-link">JupyterLab</a>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h3">
-            <a href="#rstudio" class="nav-link">RStudio</a>
-        </li>
-    
-            </ul>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h2">
-            <a href="#depth" class="nav-link">depth</a>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h2">
-            <a href="#targetpath" class="nav-link">targetPath</a>
-        </li>
-    
-        <li class="nav-item toc-entry toc-h2">
-            <a href="#deprecated-parameters" class="nav-link">Deprecated parameters</a>
-        </li>
-    
-    </ul>
-</nav>
-
-
+        </nav>
     </div>
 </div>
     <div id="main-content" class="row">
