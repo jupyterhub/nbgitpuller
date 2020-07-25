@@ -4,3 +4,11 @@ python:
   - "3.6"
 install: pip install tox-travis
 script: tox
+
+deploy:
+  - provider: pypi
+    user: __token__
+    # password: see secret PYPI_PASSWORD variable
+    distributions: sdist bdist_wheel
+    on:
+      tags: true
