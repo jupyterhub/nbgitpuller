@@ -16,6 +16,8 @@ setup(
     author='Peter Veerman, YuviPanda',
     author_email='peterkangveerman@gmail.com',
     description='Notebook Extension to do one-way synchronization of git repositories',
+    long_description=open('README.rst').read(),
+    long_description_content_type='text/x-rst',
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
