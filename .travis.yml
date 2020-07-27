@@ -2,13 +2,20 @@ sudo: false
 language: python
 python:
   - "3.6"
-install: pip install tox-travis
-script: tox
 
-deploy:
-  - provider: pypi
-    user: __token__
-    # password: see secret PYPI_PASSWORD variable
-    distributions: sdist bdist_wheel
-    on:
-      tags: true
+jobs:
+  include:
+    - name: test
+      install: pip install tox-travis
+      script: tox
+    - name: deploy
+      if: tag IS present
+      script: skip
+      skip_cleanup: true
+      deploy:
+        provider: pypi
+        user: __token__
+        # password: see secret PYPI_PASSWORD variable
+        distributions: sdist bdist_wheel
+        on:
+          tags: true
