@@ -192,7 +192,7 @@ class LegacyInteractRedirectHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         repo = self.get_argument('repo')
-        account = self.get_argument('account', 'jupyterhub')
+        account = self.get_argument('account', 'data-8')
         repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)
         query = {
             'repo': repo_url,
