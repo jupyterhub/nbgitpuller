@@ -38,6 +38,9 @@ class TestNbGitPullerApi:
         sleep(2)
 
     def test_clone_default(self, tmpdir):
+        """
+        Tests use of 'repo' and 'branch' parameters.
+        """
         jupyterdir = str(tmpdir)
         self.start_jupyter(jupyterdir, {})
         params = {
@@ -48,11 +51,14 @@ class TestNbGitPullerApi:
         assert r.code == 200
         s = r.read().decode()
         print(s)
-        assert '"$ git clone --branch master https://github.com/binder-examples/jupyter-extension ' in s
-        assert "\"Cloning into '{}/{}'".format(jupyterdir, 'jupyter-extension') in s
+        assert '--branch master' in s
+        assert "Cloning into '{}/{}'".format(jupyterdir, 'jupyter-extension') in s
         assert os.path.isdir(os.path.join(jupyterdir, 'jupyter-extension', '.git'))
 
     def test_clone_targetpath(self, tmpdir):
+        """
+        Tests use of 'targetpath' parameter.
+        """
         jupyterdir = str(tmpdir)
         target = str(uuid4())
         self.start_jupyter(jupyterdir, {})
@@ -65,11 +71,13 @@ class TestNbGitPullerApi:
         assert r.code == 200
         s = r.read().decode()
         print(s)
-        assert '"$ git clone --branch master https://github.com/binder-examples/jupyter-extension ' in s
-        assert "\"Cloning into '{}/{}'".format(jupyterdir, target) in s
+        assert "Cloning into '{}/{}'".format(jupyterdir, target) in s
         assert os.path.isdir(os.path.join(jupyterdir, target, '.git'))
 
     def test_clone_parenttargetpath(self, tmpdir):
+        """
+        Tests use of the NBGITPULLER_PARENTPATH environment variable.
+        """
         jupyterdir = str(tmpdir)
         parent = str(uuid4())
         target = str(uuid4())
@@ -83,6 +91,5 @@ class TestNbGitPullerApi:
         assert r.code == 200
         s = r.read().decode()
         print(s)
-        assert '"$ git clone --branch master https://github.com/binder-examples/jupyter-extension ' in s
-        assert "\"Cloning into '{}/{}/{}'".format(jupyterdir, parent, target) in s
+        assert "Cloning into '{}/{}/{}'".format(jupyterdir, parent, target) in s
         assert os.path.isdir(os.path.join(jupyterdir, parent, target, '.git'))
