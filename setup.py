@@ -11,7 +11,7 @@ __version__ = ns['__version__']
 setup(
     name='nbgitpuller',
     version=__version__,
-    url='https://github.com/data-8/nbgitpuller',
+    url='https://github.com/jupyterhub/nbgitpuller',
     license='3-clause BSD',
     author='Peter Veerman, YuviPanda',
     author_email='peterkangveerman@gmail.com',

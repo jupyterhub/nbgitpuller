@@ -8,6 +8,7 @@ from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
 
+
 def execute_cmd(cmd, **kwargs):
     """
     Call given command, yielding output line by line
@@ -23,6 +24,7 @@ def execute_cmd(cmd, **kwargs):
     # This should behave the same as .readline(), but splits on `\r` OR `\n`,
     # not just `\n`.
     buf = []
+
     def flush():
         line = b''.join(buf).decode('utf8', 'replace')
         buf[:] = []
@@ -42,24 +44,27 @@ def execute_cmd(cmd, **kwargs):
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
 
+
 class GitPuller(Configurable):
-    depth = Integer(None, allow_none=True, config=True,
-                    help="""
-                    Depth (ie, commit count) to which to perform a
-                    shallow git clone.
+    depth = Integer(
+        config=True,
+        help="""
+        Depth (ie, commit count) of clone operations. Set this to 0 to make a
+        full depth clone.
 
-                    If not set, disables shallow clones.
-
-                    Defaults to reading from the NBGITPULLER_DEPTH
-                    environment variable.
-                    """)
+        Defaults to the value of the environment variable NBGITPULLER_DEPTH, or
+        1 if the the environment variable isn't set.
+        """
+    )
 
     @default('depth')
     def _depth_default(self):
-        depth = os.environ.get('NBGITPULLER_DEPTH')
-        if depth:
-            return int(depth)
-        return None
+        """This is a workaround for setting the same default directly in the
+        definition of the traitlet above. Without it, the test fails because a
+        change in the environment variable has no impact. I think this is a
+        consequence of the tests not starting with a totally clean environment
+        where the GitPuller class hadn't been loaded already."""
+        return int(os.environ.get('NBGITPULLER_DEPTH', 1))
 
     def __init__(self, git_url, branch_name, repo_dir, **kwargs):
         assert git_url and branch_name
@@ -92,7 +97,6 @@ class GitPuller(Configurable):
         clone_args.extend([self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
         logging.info('Repo {} initialized'.format(self.repo_dir))
-
 
     def reset_deleted_files(self):
         """
@@ -182,7 +186,6 @@ class GitPuller(Configurable):
                 os.rename(f, new_file_name)
                 yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
 
-
     def update(self):
         """
         Do the pulling if necessary
@@ -228,7 +231,6 @@ class GitPuller(Configurable):
             'merge',
             '-Xours', 'origin/{}'.format(self.branch_name)
         ], cwd=self.repo_dir)
-
 
 
 def main():
