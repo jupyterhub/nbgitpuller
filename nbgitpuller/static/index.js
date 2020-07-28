@@ -92,7 +92,7 @@ require([
         }
         this.visible = visible;
         if (visible) {
-            // See https://github.com/data-8/nbgitpuller/pull/46 on why this is here.
+            // See https://github.com/jupyterhub/nbgitpuller/pull/46 on why this is here.
             if (!this.term.element) {
                 this.term.open($(this.termSelector)[0]);
             }
