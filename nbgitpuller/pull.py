@@ -4,7 +4,7 @@ import logging
 import time
 import argparse
 import datetime
-from traitlets import Integer
+from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
 
@@ -47,7 +47,6 @@ def execute_cmd(cmd, **kwargs):
 
 class GitPuller(Configurable):
     depth = Integer(
-        int(os.environ.get('NBGITPULLER_DEPTH', 1)),
         config=True,
         help="""
         Depth (ie, commit count) to which to perform a
@@ -58,6 +57,15 @@ class GitPuller(Configurable):
         Defaults to reading from the NBGITPULLER_DEPTH
         environment variable."""
     )
+
+    @default('depth')
+    def _depth_default(self):
+        """This is a workaround for setting the same default directly in the
+        definition of the traitlet above. Without it, the test fails because a
+        change in the environment variable has no impact. I think this is a
+        consequence of the tests not starting with a totally clean environment
+        where the GitPuller class hadn't been loaded already."""
+        return int(os.environ.get('NBGITPULLER_DEPTH', 1))
 
     def __init__(self, git_url, branch_name, repo_dir, **kwargs):
         assert git_url and branch_name
