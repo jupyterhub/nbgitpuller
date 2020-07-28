@@ -4,11 +4,11 @@ import subprocess as sp
 import glob
 import time
 import pytest
-from tempfile import NamedTemporaryFile
 
 from traitlets.config.configurable import Configurable
 
 from nbgitpuller import GitPuller
+
 
 class Repository:
     def __init__(self, path='remote'):
@@ -67,8 +67,8 @@ class Puller(Repository):
         self.gp = GitPuller(remotepath, 'master', path, *args, **kwargs)
 
     def pull_all(self):
-        for l in self.gp.pull():
-            print('{}: {}'.format(self.path, l.rstrip()))
+        for line in self.gp.pull():
+            print('{}: {}'.format(self.path, line.rstrip()))
 
     def __enter__(self):
         print()
@@ -236,6 +236,7 @@ def test_reset_file():
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
 
+
 @pytest.fixture(scope='module')
 def long_remote():
     with Remote("long_remote") as remote, Pusher(remote, "lr_pusher") as pusher:
@@ -244,6 +245,7 @@ def long_remote():
             pusher.git('push', 'origin', 'master')
 
         yield remote
+
 
 @pytest.fixture(scope="function")
 def clean_environment():
@@ -267,15 +269,19 @@ def clean_environment():
         elif os.environ.get(var):
             del os.environ[var]
 
+
 def count_loglines(repository):
     return len(repository.git('log', '--oneline').split("\n"))
+
 
 def test_unshallow_clone(long_remote, clean_environment):
     """
     Sanity-test that clones with 10 commits have 10 log entries
     """
+    os.environ['NBGITPULLER_DEPTH'] = "0"
     with Puller(long_remote, 'normal') as puller:
         assert count_loglines(puller) == 10
+
 
 def test_shallow_clone(long_remote, clean_environment):
     """
@@ -283,6 +289,7 @@ def test_shallow_clone(long_remote, clean_environment):
     """
     with Puller(long_remote, 'shallow4', depth=4) as puller:
         assert count_loglines(puller) == 4
+
 
 def test_shallow_clone_config(long_remote, clean_environment):
     """
@@ -293,9 +300,9 @@ def test_shallow_clone_config(long_remote, clean_environment):
             super(TempConfig)
             self.config['GitPuller']['depth'] = 5
 
-
     with Puller(long_remote, 'shallow4', parent=TempConfig()) as puller:
         assert count_loglines(puller) == 5
+
 
 def test_environment_shallow_clone(long_remote, clean_environment):
     """
@@ -306,6 +313,7 @@ def test_environment_shallow_clone(long_remote, clean_environment):
     with Puller(long_remote, 'shallow_env') as puller:
         assert count_loglines(puller) == 2
 
+
 def test_explicit_unshallow(long_remote, clean_environment):
     """
     Test that we can disable environment-specified shallow clones
@@ -313,6 +321,7 @@ def test_explicit_unshallow(long_remote, clean_environment):
     os.environ['NBGITPULLER_DEPTH'] = "2"
     with Puller(long_remote, 'explicitly_full', depth=0) as puller:
         assert count_loglines(puller) == 10
+
 
 def test_pull_on_shallow_clone(long_remote, clean_environment):
     """

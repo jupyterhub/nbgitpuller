@@ -4,9 +4,10 @@ import logging
 import time
 import argparse
 import datetime
-from traitlets import Integer, default
+from traitlets import Integer
 from traitlets.config import Configurable
 from functools import partial
+
 
 def execute_cmd(cmd, **kwargs):
     """
@@ -23,6 +24,7 @@ def execute_cmd(cmd, **kwargs):
     # This should behave the same as .readline(), but splits on `\r` OR `\n`,
     # not just `\n`.
     buf = []
+
     def flush():
         line = b''.join(buf).decode('utf8', 'replace')
         buf[:] = []
@@ -41,6 +43,7 @@ def execute_cmd(cmd, **kwargs):
         ret = proc.wait()
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
+
 
 class GitPuller(Configurable):
     depth = Integer(
@@ -87,7 +90,6 @@ class GitPuller(Configurable):
         clone_args.extend([self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
         logging.info('Repo {} initialized'.format(self.repo_dir))
-
 
     def reset_deleted_files(self):
         """
@@ -177,7 +179,6 @@ class GitPuller(Configurable):
                 os.rename(f, new_file_name)
                 yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
 
-
     def update(self):
         """
         Do the pulling if necessary
@@ -223,7 +224,6 @@ class GitPuller(Configurable):
             'merge',
             '-Xours', 'origin/{}'.format(self.branch_name)
         ], cwd=self.repo_dir)
-
 
 
 def main():
