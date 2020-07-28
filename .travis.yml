@@ -1,6 +1,20 @@
-sudo: false
 language: python
 python:
   - "3.7"
-install: pip install tox-travis
-script: tox
+
+jobs:
+  include:
+    - name: test
+      install: pip install tox-travis
+      script: tox
+    - name: deploy
+      if: tag IS present
+      script: skip
+      skip_cleanup: true
+      deploy:
+        provider: pypi
+        user: __token__
+        # password: see secret PYPI_PASSWORD variable
+        distributions: sdist bdist_wheel
+        on:
+          tags: true
