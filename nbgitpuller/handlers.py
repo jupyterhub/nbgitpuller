@@ -2,7 +2,6 @@ from tornado import gen, web, locks
 import traceback
 import urllib.parse
 
-from notebook.utils import url_path_join
 from notebook.base.handlers import IPythonHandler
 import threading
 import json
@@ -12,6 +11,7 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
+
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -76,6 +76,7 @@ class SyncHandler(IPythonHandler):
             gp = GitPuller(repo, branch, repo_dir, depth=depth, parent=self.settings['nbapp'])
 
             q = Queue()
+
             def pull():
                 try:
                     for line in gp.pull():
@@ -102,8 +103,8 @@ class SyncHandler(IPythonHandler):
                         'phase': 'error',
                         'message': str(progress),
                         'output': '\n'.join([
-                            l.strip()
-                            for l in traceback.format_exception(
+                            line.strip()
+                            for line in traceback.format_exception(
                                 type(progress), progress, progress.__traceback__
                             )
                         ])
@@ -118,14 +119,15 @@ class SyncHandler(IPythonHandler):
                 'phase': 'error',
                 'message': str(e),
                 'output': '\n'.join([
-                    l.strip()
-                    for l in traceback.format_exception(
+                    line.strip()
+                    for line in traceback.format_exception(
                         type(e), e, e.__traceback__
                     )
                 ])
             })
         finally:
             self.git_lock.release()
+
 
 class UIHandler(IPythonHandler):
     def initialize(self):
@@ -186,6 +188,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
             query=self.request.query
         )
         self.redirect(new_url)
+
 
 class LegacyInteractRedirectHandler(IPythonHandler):
     @web.authenticated
