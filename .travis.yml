@@ -5,7 +5,7 @@ python:
 jobs:
   include:
     - name: test
-      install: pip install tox-travis
+      install: pip install tox
       script: tox
     - name: deploy
       if: tag IS present
