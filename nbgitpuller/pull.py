@@ -49,13 +49,12 @@ class GitPuller(Configurable):
     depth = Integer(
         config=True,
         help="""
-        Depth (ie, commit count) to which to perform a
-        shallow git clone.
+        Depth (ie, commit count) of clone operations. Set this to 0 to make a
+        full depth clone.
 
-        If not set, clones to depth 1.
-
-        Defaults to reading from the NBGITPULLER_DEPTH
-        environment variable."""
+        Defaults to the value of the environment variable NBGITPULLER_DEPTH, or
+        1 if the the environment variable isn't set.
+        """
     )
 
     @default('depth')
