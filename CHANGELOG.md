@@ -71,6 +71,8 @@
 0.6.1
 =====
 
+- Install Jupyter notebook extension by default, Add missing nbgitpuller.json file
+
 
 0.6.0
 =====
