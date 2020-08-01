@@ -25,7 +25,7 @@ jobs:
           name: Pushing documentation to gh-pages
           command: |
             pip install --user ghp-import
-            ghp-import -n -p docs/_build/html
+            ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html
 
 workflows:
   version: 2
