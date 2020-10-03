@@ -227,14 +227,17 @@ def test_reset_file():
     """
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
+        pusher.push_file('unicode🙂.txt', '2')
 
         with Puller(remote) as puller:
             os.remove(os.path.join(puller.path, 'README.md'))
+            os.remove(os.path.join(puller.path, 'unicode🙂.txt'))
 
             puller.pull_all()
 
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+            assert puller.read_file('unicode🙂.txt') == pusher.read_file('unicode🙂.txt') == '2'
 
 
 @pytest.fixture(scope='module')
