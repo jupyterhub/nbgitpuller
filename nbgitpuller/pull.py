@@ -107,8 +107,8 @@ class GitPuller(Configurable):
 
         yield from self.ensure_lock()
         deleted_files = subprocess.check_output([
-            'git', 'ls-files', '--deleted'
-        ], cwd=self.repo_dir).decode().strip().split('\n')
+            'git', 'ls-files', '--deleted', '-z'
+        ], cwd=self.repo_dir).decode().strip().split('\0')
 
         for filename in deleted_files:
             if filename:  # Filter out empty lines
