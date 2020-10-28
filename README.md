@@ -1,6 +1,6 @@
 # [nbgitpuller](https://github.com/jupyterhub/nbgitpuller)
 
-[![TravisCI Build status](https://img.shields.io/travis/jupyterhub/nbgitpuller/master.svg?logo=travis)](https://travis-ci.org/jupyterhub/nbgitpuller)
+[![TravisCI Build status](https://img.shields.io/travis/com/jupyterhub/nbgitpuller?logo=travis)](https://travis-ci.com/jupyterhub/nbgitpuller)
 [![CircleCI build status](https://img.shields.io/circleci/build/github/jupyterhub/nbgitpuller?logo=circleci)](https://circleci.com/gh/jupyterhub/nbgitpuller)
 [![](https://img.shields.io/pypi/v/nbgitpuller.svg?logo=pypi)](https://pypi.python.org/pypi/nbgitpuller)
 
