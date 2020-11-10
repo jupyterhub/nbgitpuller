@@ -1,5 +1,5 @@
 import nbgitpuller
-
+from git import Repo
 
  @nbgitpuller.hookimpl
  def sync_file_management_system(repo: str, parent_dir: str, repo_dir: str):
@@ -34,3 +34,12 @@ def is_new_assignment():
 
     If local repo does not exist, return the directory path of the root of the repo
     """
+
+def init_repo(repo_path):
+    """Initializes Git Repository at specified directory path. If not possible, throws error."""
+    try:
+        repository = Repo.init(path=repo_path, bare=False, mkdir=True)
+        return repository
+    except:
+        print('Some error occurred while initializing the repository.')
+        return
