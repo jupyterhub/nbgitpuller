@@ -12,6 +12,11 @@ import jinja2
 from .pull import GitPuller
 from .version import __version__
 
+from nbgitpuller import hookspecs
+import pluggy
+
+
+
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -65,13 +70,54 @@ class SyncHandler(IPythonHandler):
             # so that all repos are always in scope after cloning. Sometimes
             # server_root_dir will include things like `~` and so the path
             # must be expanded.
+
+
             repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
                                            os.getenv('NBGITPULLER_PARENTPATH', ''))
             repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
 
+            """
+            Check type of FMS, if third party, account for repo_dir changes
+            """
+
+            fms = self.hook.check_fms(type=self.get_argument('type'))
+
+            if (fms):
+                print("fms is true")
+                is_new = self.hook.is_new_assignment(repo_parent_dir=repo_parent_dir, repo_dir=repo_dir)
+                if (is_new) :
+                    print("is_new")
+                    repo_dir = is_new
+
+
+
+
+
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
+
+            """
+            Before we initialize gitpuller, we must either create a remote git repository
+            with our third party file managment system's notebook files or update
+            the already existing one with the most recent version in the FMS
+            """
+
+
+
+            if (fms):
+
+                results = self.hook.sync_file_management_system(
+                    repo=repo,
+                    parent_dir=repo_parent_dir,
+                    repo_dir=repo_dir
+                )
+                print(results)
+
+
+
+
+
 
             gp = GitPuller(repo, branch, repo_dir, depth=depth, parent=self.settings['nbapp'])
 
