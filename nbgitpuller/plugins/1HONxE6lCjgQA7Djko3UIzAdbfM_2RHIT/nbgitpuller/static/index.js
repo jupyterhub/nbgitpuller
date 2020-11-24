@@ -5,6 +5,8 @@ require([
   "components/xterm.js-fit/index",
 ], function ($, utils, Terminal, fit) {
   Terminal.applyAddon(fit);
+  console.log("boing");
+
   function GitSync(baseUrl, repo, branch, depth, targetpath, path) {
     // Class that talks to the API backend & emits events as appropriate
     this.baseUrl = baseUrl;
