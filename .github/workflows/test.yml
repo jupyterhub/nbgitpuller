@@ -18,45 +18,19 @@ defaults:
     #   -o pipefail: Don't mask errors from a command piped into another command
     shell: bash
 
-env:
-  LDAP_HOST: 127.0.0.1
-
 jobs:
-  # Run "linter"
-  lint:
-    runs-on: ubuntu-20.04
-    timeout-minutes: 2
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - uses: pre-commit/action@v2.0.0
-
-  # Run tests
   test:
 
     runs-on: ubuntu-20.04
     timeout-minutes: 10
 
-    strategy:
-      # Keep running even if one job fails
-      fail-fast: false
-      matrix:
-        python:
-          - "3.6"
-          - "3.7"
-          - "3.8"
-          - "3.9"
-
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Python ${{ matrix.python }}
+      - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
+          python-version: '3.8'
 
       # preserve pip cache to speed up installation
       - name: Cache pip
@@ -69,18 +43,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install
-        run: |
-          pip install --upgrade pip
-          pip install --upgrade --pre -r dev-requirements.txt .
-          pip freeze
-          # start LDAP server
-          ci/docker-ldap.sh
+        run: pip install tox
 
       - name: Run tests
-        # FIXME: --color=yes explicitly set because:
-        #        https://github.com/actions/runner/issues/241
-        run: pytest -v --color=yes --cov=ldapauthenticator ldapauthenticator/tests
-
-      # https://github.com/marketplace/actions/codecov
-      - name: Submit codecov report
-        uses: codecov/codecov-action@v1
+        run: tox
