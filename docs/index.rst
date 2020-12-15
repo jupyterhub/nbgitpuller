@@ -88,8 +88,8 @@ Full Contents
 .. toctree::
    :maxdepth: 2
  
-   contributing
    install
+   contributing
    topic/automatic-merging
    topic/url-options
    link
