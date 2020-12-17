@@ -117,6 +117,18 @@ function changeTab(div) {
     }
 }
 
+/**
+ * Return name of directory git will clone given repo to.
+ *
+ * nbgitpuller needs to redirect users to *inside* the directory it
+ * just cloned. We copy the logic git itself uses to determine that.
+ * See https://github.com/git/git/blob/1c52ecf4ba0f4f7af72775695fee653f50737c71/builtin/clone.c#L276
+ */
+function generateCloneDirectoryName(gitCloneUrl) {
+    var lastPart = gitCloneUrl.split('/').slice(-1)[0];
+    return lastPart.split(':').slice(-1)[0].replace(/(\.git|\.bundle)?/, '');
+}
+
 function displayLink() {
     var form = document.getElementById('linkgenerator');
 
@@ -134,8 +146,7 @@ function displayLink() {
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
         } else {
-            var repoName = new URL(repoUrl).pathname.split('/').pop().replace(/\.git$/, '');
-            var userName = new URL(repoUrl).pathname.split('/')[1];
+            var repoName = generateCloneDirectoryName(repoUrl);
             var urlPath;
             if (activeTab === "tab-auth-binder") {
                 var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
@@ -154,6 +165,10 @@ function displayLink() {
                 hubUrl, urlPath, repoUrl, branch
             );
         } else if (activeTab === "tab-auth-binder"){
+            // FIXME: userName parsing using new URL(...) assumes a 
+            // HTTP based repoUrl. Does it make sense to create a
+            // BinderHub link for SSH URLs? Then let's fix this parsing.
+            var userName = new URL(repoUrl).pathname.split('/')[1];
             document.getElementById('binder-link').value = generateBinderUrl(
                 hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
             );
