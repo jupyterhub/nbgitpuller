@@ -165,6 +165,9 @@ function displayLink() {
                 hubUrl, urlPath, repoUrl, branch
             );
         } else if (activeTab === "tab-auth-binder"){
+            // FIXME: userName parsing using new URL(...) assumes a 
+            // HTTP based repoUrl. Does it make sense to create a
+            // BinderHub link for SSH URLs? Then let's fix this parsing.
             var userName = new URL(repoUrl).pathname.split('/')[1];
             document.getElementById('binder-link').value = generateBinderUrl(
                 hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
