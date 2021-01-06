@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; nbgitpuller 0.1b documentation</title>
+    <title>Contributing &#8212; nbgitpuller 0.1b documentation</title>
     
   <link rel="stylesheet" href="_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -37,8 +37,10 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/link_gen/link.js"></script>
     <script src="_static/sphinx-book-theme.d31b09fe5c1d09cb49b26a786de4a05d.js"></script>
-    <link rel="index" title="Index" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Automatic Merging Behavior" href="topic/automatic-merging.html" />
+    <link rel="prev" title="Installation" href="install.html" />
 
 
 
@@ -66,14 +68,23 @@
 </a>
 </div>
 <h3><a href="index.html">Table of Contents</a></h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="topic/automatic-merging.html">Automatic Merging Behavior</a></li>
 <li class="toctree-l1"><a class="reference internal" href="topic/url-options.html">Options in an nbgitpuller URL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="link.html">nbgitpuller link generator</a></li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="topic/automatic-merging.html"
+                        title="next chapter">Automatic Merging Behavior</a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -108,6 +119,23 @@
         </button>
         
         
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/contributing.md.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
         <!-- Source interaction buttons -->
 
 <div class="dropdown-buttons-trigger">
@@ -119,7 +147,7 @@
                 data-toggle="tooltip" data-placement="left" title="Source repository"><i
                     class="fab fa-github"></i>repository</button></a>
         <a class="issues-button"
-            href="https://github.com/jupyterhub/nbgitpuller/issues/new?title=Issue%20on%20page%20%2Fgenindex.html&body=Your%20issue%20content%20here."><button
+            href="https://github.com/jupyterhub/nbgitpuller/issues/new?title=Issue%20on%20page%20%2Fcontributing.html&body=Your%20issue%20content%20here."><button
                 type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
                 title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
         
@@ -140,6 +168,20 @@
     <!-- Table of contents -->
     <div class="d-none d-md-block col-md-2 bd-toc show">
         
+        <div class="tocsection onthispage pt-5 pb-3">
+            <i class="fas fa-list"></i> Contents
+        </div>
+        <nav id="bd-toc-nav">
+            <ul class="nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+ </li>
+</ul>
+
+        </nav>
+        
     </div>
 </div>
     <div id="main-content" class="row">
@@ -147,11 +189,48 @@
         
               <div>
                 
-
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- 
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>nbgitpuller is a <a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.html">jupyter
+serverextension</a>,
+and hence can be developed locally without needing a JupyterHub.</p>
+<ol>
+<li><p>Fork the nbgitpuller repository and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> it to your local computer.</p></li>
+<li><p>Inside the nbgitpuller clone on your local machine, setup a virtual
+environment to do development in</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m venv venv
+<span class="nb">source</span> venv/bin/activate
+</pre></div>
+</div>
+</li>
+<li><p>Install nbgitpuller with its dependencies in this virtual environment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
+</pre></div>
+</div>
+</li>
+<li><p>Enable the nbgitpuller jupyter serverextension</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter serverextension <span class="nb">enable</span> --sys-prefix nbgitpuller
+</pre></div>
+</div>
+</li>
+<li><p>Start the notebook server. This will open the classic notebook in your web
+browser, and automatically authenticate you as a side effect.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter notebook
+</pre></div>
+</div>
+</li>
+<li><p>You can now test nbgitpuller locally, by hitting the <code class="docutils literal notranslate"><span class="pre">/git-pull</span></code> url with any
+of the <a class="reference internal" href="topic/url-options.html"><span class="doc std std-doc">URL query parameters</span></a>. For example, to pull the
+<a class="reference external" href="https://github.com/data-8/textbook">data-8/textbook</a> repository’s <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code>
+branch, you can use the following URL:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>http://localhost:8888/git-sync?repo=https://github.com/data-8/textbook&amp;branch=gh-pages
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
 </div>
 
 
@@ -163,6 +242,8 @@
     
     <div class='prev-next-bottom'>
         
+    <a class='left-prev' id="prev-link" href="install.html" title="previous page">Installation</a>
+    <a class='right-next' id="next-link" href="topic/automatic-merging.html" title="next page">Automatic Merging Behavior</a>
 
     </div>
     <footer class="footer mt-5 mt-md-0">
