@@ -139,6 +139,12 @@ Use the following form to create your own ``nbgitpuller`` links.
                  </label>
                </div>
                <div class="form-check">
+                 <input class="form-check-input" type="radio" name="app" id="app-shiny" value="shiny">
+                 <label class="form-check-label text-dark" for="app-shiny">
+                   Shiny
+                 </label>
+               </div>
+               <div class="form-check">
                  <input class="form-check-input" type="radio" name="app" id="app-custom" value="custom">
                  <label class="form-check-label text-dark" for="app-custom">Custom URL</label>
                  <input class="form-control form-control-sm" type="text" id="urlpath" placeholder="Relative URL to redirect user to"
