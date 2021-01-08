@@ -67,6 +67,13 @@ The ``%3Fautodecode`` at the end makes sure you never get `a message
 <https://github.com/jupyterlab/jupyterlab/pull/5950>`_ about needing to
 explicitly name a JupyterLab workspace.
 
+Shiny
+-----
+
+To open a directory containing `shiny <https://shiny.rstudio.com/>`_ files,
+your pattern should be ``/shiny/<full-path-to-directory>/``. The trailing
+slash is important.
+
 RStudio
 -------
 
