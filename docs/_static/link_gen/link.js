@@ -78,6 +78,16 @@ var apps = {
         title: 'JupyterLab',
         generateUrlPath: function (path) { return 'lab/tree/' + path; }
     },
+    shiny: {
+        title: 'Shiny',
+        generateUrlPath: function (path) {
+            // jupyter-shiny-proxy requires everything to end with a trailing slash
+            if (!path.endsWith("/")) {
+                path = path + "/";
+            }
+            return 'shiny/' + path;
+        }
+    },
     rstudio: {
         title: 'RStudio',
         generateUrlPath: function (path) { return 'rstudio/'; }
