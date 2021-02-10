@@ -24,3 +24,18 @@ under 100MB is great, under 1G is ok, but anything more is probably asking for t
 
 Large datasets are the biggest reason for increasing repository sizes. Try distribute
 datasets some other way, use a subset of data, or compress your data if you need to.
+
+## Don't add `.ipynb_checkpoints` (and similar files) to your git repo
+
+Jupyter uses a hidden `.ipynb_checkpoints` directory to temporarily autosave copies of the
+notebook. If you accidentally commit your local computer's copy of this to the git repo,
+it can cause hard to debug issues when students click nbgitpuller links. The students'
+Jupyter Notebook servers in the JupyterHub will also generate `.ipynb_checkpoints` for
+autosaving, and conflicts between these two can cause issues. Similar issues can happen
+with other temporary, hidden files - like `.DS_Store`, `__pycache__`, etc.
+
+Adding `.ipynb_checkpoints` to your repo's `.gitignore` file will eliminate this
+class of issues completely. `git add` and similar commands will no longer
+accidentally include them in your repo. You can download this [python specific
+gitignore](https://github.com/github/gitignore/blob/master/Python.gitignore)
+file and put it in your repo as `.gitignore`, and it should take care of this.
