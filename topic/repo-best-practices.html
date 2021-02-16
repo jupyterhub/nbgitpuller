@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content git repository best practices &#8212; nbgitpuller 0.1b documentation</title>
+    
+  <link rel="stylesheet" href="../_static/css/index.f658d18f9b420779cfdf24aa0a7e2d77.css">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+  <link rel="stylesheet"
+    href="../_static/vendor/open-sans_all/1.44.1/index.css">
+  <link rel="stylesheet"
+    href="../_static/vendor/lato_latin-ext/1.44.1/index.css">
+
+    
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/sphinx-book-theme.40e2e510f6b7d1648584402491bb10fe.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.d3f166471bb80abb5163.js">
+
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/link_gen/link.js"></script>
+    <script src="../_static/sphinx-book-theme.d31b09fe5c1d09cb49b26a786de4a05d.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="nbgitpuller link generator" href="../link.html" />
+    <link rel="prev" title="Options in an nbgitpuller URL" href="url-options.html" />
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+
+
+
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+<a class="navbar-brand text-wrap" href="../index.html">
+  
+  
+  <h1 class="site-logo" id="site-title">nbgitpuller 0.1b documentation</h1>
+  
+</a>
+</div>
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="automatic-merging.html">Automatic Merging Behavior</a></li>
+<li class="toctree-l1"><a class="reference internal" href="url-options.html">Options in an nbgitpuller URL</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Content git repository best practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#never-force-push">Never force push</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prevent-your-repos-from-becoming-huge">Prevent your repos from becoming huge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#don-t-add-ipynb-checkpoints-and-similar-files-to-your-git-repo">Don’t add <code class="docutils literal notranslate"><span class="pre">.ipynb_checkpoints</span></code> (and similar files) to your git repo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../link.html">nbgitpuller link generator</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="url-options.html"
+                        title="previous chapter">Options in an nbgitpuller URL</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../link.html"
+                        title="next chapter">nbgitpuller link generator</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="row topbar fixed-top container-xl">
+    <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show">
+    </div>
+    <div class="col pl-2 topbar-main">
+        
+        <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+            data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+            aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+            title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+            <i class="fas fa-bars"></i>
+            <i class="fas fa-arrow-left"></i>
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        
+        
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../_sources/topic/repo-best-practices.md.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+        <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/jupyterhub/nbgitpuller"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/jupyterhub/nbgitpuller/issues/new?title=Issue%20on%20page%20%2Ftopic/repo-best-practices.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+
+        <!-- Full screen (wrap in <a> to have style consistency -->
+        <a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+                data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+                title="Fullscreen mode"><i
+                    class="fas fa-expand"></i></button></a>
+
+        <!-- Launch buttons -->
+
+    </div>
+
+    <!-- Table of contents -->
+    <div class="d-none d-md-block col-md-2 bd-toc show">
+        
+        <div class="tocsection onthispage pt-5 pb-3">
+            <i class="fas fa-list"></i> Contents
+        </div>
+        <nav id="bd-toc-nav">
+            <ul class="nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#never-force-push">
+   Never force push
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#prevent-your-repos-from-becoming-huge">
+   Prevent your repos from becoming huge
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#don-t-add-ipynb-checkpoints-and-similar-files-to-your-git-repo">
+   Don’t add
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     .ipynb_checkpoints
+    </span>
+   </code>
+   (and similar files) to your git repo
+  </a>
+ </li>
+</ul>
+
+        </nav>
+        
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="section" id="content-git-repository-best-practices">
+<h1>Content git repository best practices<a class="headerlink" href="#content-git-repository-best-practices" title="Permalink to this headline">¶</a></h1>
+<p>Sometimes, git’s flexibility can lead to repositories that cause issues
+when used with nbgitpuller. Here are some recommendations to make your
+nbgitpuller experience smoother.</p>
+<div class="section" id="never-force-push">
+<h2>Never force push<a class="headerlink" href="#never-force-push" title="Permalink to this headline">¶</a></h2>
+<p>Never use <code class="docutils literal notranslate"><span class="pre">--force</span></code> or <code class="docutils literal notranslate"><span class="pre">--force-with-lease</span></code> when pushing to your repositories.
+This is general good git practice, and unless you have <a class="reference external" href="https://xkcd.com/1597/">fairly deep
+understanding</a> of how git works, it might screw up some
+of your users’ local repositories beyond repair.</p>
+<p>If you are using GitHub, you should enable <a class="reference external" href="https://docs.github.com/en/github/administering-a-repository/about-protected-branches">protected branches</a>
+to prevent accidental force pushes.</p>
+</div>
+<div class="section" id="prevent-your-repos-from-becoming-huge">
+<h2>Prevent your repos from becoming huge<a class="headerlink" href="#prevent-your-repos-from-becoming-huge" title="Permalink to this headline">¶</a></h2>
+<p>Larger git repos increase chances of timeouts and other intermittent failures
+that will be difficult to debug. They might leave your git repo in strange states
+too - contents fetched but not checked out, half-fetched, etc. Try and keep it small -
+under 100MB is great, under 1G is ok, but anything more is probably asking for trouble.</p>
+<p>Large datasets are the biggest reason for increasing repository sizes. Try distribute
+datasets some other way, use a subset of data, or compress your data if you need to.</p>
+</div>
+<div class="section" id="don-t-add-ipynb-checkpoints-and-similar-files-to-your-git-repo">
+<h2>Don’t add <code class="docutils literal notranslate"><span class="pre">.ipynb_checkpoints</span></code> (and similar files) to your git repo<a class="headerlink" href="#don-t-add-ipynb-checkpoints-and-similar-files-to-your-git-repo" title="Permalink to this headline">¶</a></h2>
+<p>Jupyter uses a hidden <code class="docutils literal notranslate"><span class="pre">.ipynb_checkpoints</span></code> directory to temporarily autosave copies of the
+notebook. If you accidentally commit your local computer’s copy of this to the git repo,
+it can cause hard to debug issues when students click nbgitpuller links. The students’
+Jupyter Notebook servers in the JupyterHub will also generate <code class="docutils literal notranslate"><span class="pre">.ipynb_checkpoints</span></code> for
+autosaving, and conflicts between these two can cause issues. Similar issues can happen
+with other temporary, hidden files - like <code class="docutils literal notranslate"><span class="pre">.DS_Store</span></code>, <code class="docutils literal notranslate"><span class="pre">__pycache__</span></code>, etc.</p>
+<p>Adding <code class="docutils literal notranslate"><span class="pre">.ipynb_checkpoints</span></code> to your repo’s <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> file will eliminate this
+class of issues completely. <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span></code> and similar commands will no longer
+accidentally include them in your repo. You can download this <a class="reference external" href="https://github.com/github/gitignore/blob/master/Python.gitignore">python specific
+gitignore</a>
+file and put it in your repo as <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code>, and it should take care of this.</p>
+</div>
+</div>
+
+
+              </div>
+              
+        </div>
+    </div>
+    
+    
+    <div class='prev-next-bottom'>
+        
+    <a class='left-prev' id="prev-link" href="url-options.html" title="previous page">Options in an nbgitpuller URL</a>
+    <a class='right-next' id="next-link" href="../link.html" title="next page">nbgitpuller link generator</a>
+
+    </div>
+    <footer class="footer mt-5 mt-md-0">
+    <div class="container">
+      <p>
+        
+          By The nbgitpuller Team<br/>
+        
+            &copy; Copyright 2017, The nbgitpuller Team.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+
+    
+  <script src="../_static/js/index.d3f166471bb80abb5163.js"></script>
+
+
+    
+  </body>
+</html>
