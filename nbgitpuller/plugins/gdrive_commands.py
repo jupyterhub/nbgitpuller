@@ -1,4 +1,3 @@
-from __future__ import print_function
 import pickle
 import os.path
 import os
@@ -71,16 +70,3 @@ def auth():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
     return creds
-
-def main():
-    creds = auth()
-    service = build('drive', 'v3', credentials=creds)
-    file_id = '1_P5zMnPERmwuTENV6VGLYMDBE55kfKWm'
-    Folder_id = '1e1SmgYxIJP_3olgkrS7lkqOPnCvhDKmr'
-    #assert os.path.exists('test.txt')
-    #print(listFiles(service, Folder_id))
-    download_folder(service, Folder_id)
-    os.remove('token.pickle')
-
-if __name__ == '__main__':
-    main()
