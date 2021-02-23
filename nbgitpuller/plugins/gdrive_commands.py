@@ -48,25 +48,26 @@ def download_folder(service, folder_id):
         while done is False:
             status, done = downloader.next_chunk()
             print("Downloading..." + str(fileID['name']))
+        fh.close()
 
 def auth():
     """Authenticates user to access Drive files."""
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
+    # time. This file is removed to ensure security, forcing authentication each
     # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
+    # if os.path.exists('token.pickle'):
+    #     with open('token.pickle', 'rb') as token:
+    #         creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)  # credentials.json download from drive API
+                'drive_creds.json', SCOPES)  # credentials to download from drive API
             creds = flow.run_local_server()
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+        # with open('token.pickle', 'wb') as token:
+        #     pickle.dump(creds, token)
     return creds

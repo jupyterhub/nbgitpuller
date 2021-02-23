@@ -1,0 +1,21 @@
+{
+  "web": {
+    "client_id": "301178095192-r77nutqld0vkaa17k55m7n5vk7nc5evn.apps.googleusercontent.com",
+    "project_id": "nbgitpuller",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret": "CGRAlgyFiZxnazQH2aXkd5mW",
+    "redirect_uris": [
+      "http://localhost:5000/",
+      "http://localhost:8080/",
+      "http://accounts.google.com/",
+      "https://www.google.com/"
+    ],
+    "javascript_origins": [
+      "https://jupyterhub.github.io",
+      "https://localhost",
+      "https://localhost:5000"
+    ]
+  }
+}

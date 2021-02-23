@@ -10,9 +10,9 @@ The structure of the pluggin for third party file management system implementati
  # @hookspec
  # def function_name(arguments):
 
- @hookspec
- def sync_file_management_system(repo: str, parent_dir: str, repo_dir: str):
-     """
+@hookspec
+def sync_file_management_system(repo: str, parent_dir: str, repo_dir: str):
+    """
      Checks if the current remote git repository exists from repo.
 
      Then updates or pulls FMS notebook files into remote repo
@@ -24,7 +24,7 @@ The structure of the pluggin for third party file management system implementati
 
      Else, merges remote repository with local repository according to nbgitpuller
      merge conventions
-     """
+    """
 
 @hookspec
 def check_fms(type: str):
