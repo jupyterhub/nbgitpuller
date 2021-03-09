@@ -7,6 +7,7 @@ from google.auth.transport.requests import Request
 import io
 from googleapiclient.http import MediaIoBaseDownload
 
+
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
@@ -49,6 +50,7 @@ def download_folder(service, folder_id):
             status, done = downloader.next_chunk()
             print("Downloading..." + str(fileID['name']))
         fh.close()
+        # split into separate functions to test each one
 
 def auth():
     """Authenticates user to access Drive files."""
