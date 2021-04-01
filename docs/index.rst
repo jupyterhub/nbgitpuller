@@ -89,6 +89,8 @@ Full Contents
    :maxdepth: 2
  
    install
+   contributing
    topic/automatic-merging
    topic/url-options
+   topic/repo-best-practices
    link
