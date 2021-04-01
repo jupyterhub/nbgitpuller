@@ -1,11 +1,13 @@
 import pickle
 import os.path
 import os
+import io
+import json
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-import io
 from googleapiclient.http import MediaIoBaseDownload
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 # If modifying these scopes, delete the file token.pickle.
@@ -54,6 +56,12 @@ def download_folder(service, folder_id):
 
 def auth():
     """Authenticates user to access Drive files."""
+    # Requires JupyterHub
+    try:
+        json = json.loads(os.environ['DRIVE_CREDS'])
+    except KeyError:
+        raise KeyError('Drive Credentials not found. Please update DataHub staging with API credentials.')
+    drive_creds = ServiceAccountCredentials.from_json_keyfile_dict(json, SCOPES)
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -63,13 +71,7 @@ def auth():
     #     with open('token.pickle', 'rb') as token:
     #         creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'drive_creds.json', SCOPES)  # credentials to download from drive API
-            creds = flow.run_local_server()
-        # with open('token.pickle', 'wb') as token:
-        #     pickle.dump(creds, token)
+    flow = InstalledAppFlow.from_client_secrets_file(
+                drive_creds, SCOPES) 
+    creds = flow.run_local_server()
     return creds
