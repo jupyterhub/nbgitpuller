@@ -7,14 +7,12 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-
+import gdrive_commands as drive
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-
 import git
-
 
 class GooglePuller(Configurable):
 
@@ -34,7 +32,7 @@ class GooglePuller(Configurable):
         self.git_url = git_url
         self.branch_name = branch_name
         self.repo_dir = repo_dir
-
+        self.drive_service = build('drive', 'v3', credentials=drive.auth())
         self.temp_repo = None
 
         #unique identifier of student after authentication
@@ -45,20 +43,12 @@ class GooglePuller(Configurable):
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GooglePuller, self).__init__(**newargs)
 
-
     async def fetch():
         """
-        fetches the file from the file name given and downloads it to directory
+        Fetches the file from the file name given and downloads it to directory
         """
-
         file_id = self.file_id
-        request = drive_service.files().get_media(fileId=file_id)
-        fh = io.BytesIO()
-        downloader = MediaIoBaseDownload(fh, request)
-        done = False
-        while done is False:
-            status, done = downloader.next_chunk()
-            print "Download %d%%." % int(status.progress() * 100)
+        drive.download_file(self.drive_service, file_id)
 
     async def createRepo():
         """
@@ -95,13 +85,9 @@ class GooglePuller(Configurable):
         """
         pushes google drive file to hidden repo
         """
-
         open(self.file_path, 'wb').close()
         r.index.add([self.file_path])
         r.index.commit("hidden commit")
-
-
-
 
     def pull(self):
         """
@@ -132,7 +118,6 @@ class GooglePuller(Configurable):
         deleted. This allows us to delete a file, hit an interact link, then get a
         clean version of the file again.
         """
-
         yield from self.ensure_lock()
         deleted_files = subprocess.check_output([
             'git', 'ls-files', '--deleted', '-z'
