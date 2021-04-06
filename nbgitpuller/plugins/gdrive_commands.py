@@ -54,7 +54,6 @@ def download_folder(service, folder_id):
             status, done = downloader.next_chunk()
             print("Downloading..." + str(fileID['name']))
         fh.close()
-        # split into separate functions to test each one
 
 def auth():
     """Authenticates user to access Drive files."""

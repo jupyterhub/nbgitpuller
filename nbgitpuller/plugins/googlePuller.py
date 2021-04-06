@@ -7,12 +7,14 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-import gdrive_commands as drive
+
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+
 import git
+
 
 class GooglePuller(Configurable):
 
@@ -32,7 +34,7 @@ class GooglePuller(Configurable):
         self.git_url = git_url
         self.branch_name = branch_name
         self.repo_dir = repo_dir
-        self.drive_service = build('drive', 'v3', credentials=drive.auth())
+
         self.temp_repo = None
 
         #unique identifier of student after authentication
@@ -45,10 +47,16 @@ class GooglePuller(Configurable):
 
     async def fetch():
         """
-        Fetches the file from the file name given and downloads it to directory
+        fetches the file from the file name given and downloads it to directory
         """
         file_id = self.file_id
-        drive.download_file(self.drive_service, file_id)
+        request = drive_service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print "Download %d%%." % int(status.progress() * 100)
 
     async def createRepo():
         """
@@ -68,7 +76,6 @@ class GooglePuller(Configurable):
         """
         Checks to see if the hidden repo already exists
         """
-
         repo_dir = os.path.join(self.repo_dir, self.student)
         repo = Repo(repo_dir)
 
@@ -76,7 +83,6 @@ class GooglePuller(Configurable):
             createRepo()
         else:
             pushHidden()
-
         # empty_repo = git.Repo.init(os.path.join(self.repo_dir, self.student))
         # origin = empty_repo.create_remote('origin', repo.remotes.origin.url)
         # assert origin.exists()

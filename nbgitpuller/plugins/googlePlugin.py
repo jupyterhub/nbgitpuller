@@ -15,7 +15,7 @@ import io
 from apiclient import errors
 from apiclient import http
 import logging
-
+import gdrive_commands as drive
 from apiclient import discovery
 
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -43,169 +43,20 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
     if is_new:
         init_repo(repo)
 
-    service = user_auth()
-    check_and_download(parent_dir, repo_dir)
-
-
-
-
-
-def user_auth():
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)  # credentials.json download from drive API
-            creds = flow.run_local_server()
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-
+    # User directed to log into Google
+    creds = drive.auth()
     service = build('drive', 'v3', credentials=creds)
+    check_and_download(service, parent_dir, repo_dir)
 
-    return service
+def get_id_from_repo(repo_dir):
+    """Returns the Google Drive File/Folder ID for specified files."""
+    return repo_dir.split('/')[-1]
 
-
-
-# @nbgitpuller.hookimpl
-# def check_fms(type: str):
-#     """
-#     checks to see if current file management system is git or a third party FMS
-#
-#     Returns True if it is a third party FMS
-#     Else returns False
-#     """
-
-# def find_download(parent_dir, repo_dir):
-#     file_id = '1yrRDlhH2LwWXjezh2_0aqIYHT3XQ-MXN'
-#
-#
-#
-#
-    # page_token = None
-    # while True:
-    #     response = service.files().list(q="mimeType='application/vnd.google-apps.folder'",
-    #                                           spaces='drive',
-    #                                           fields='nextPageToken, files(id, name)',
-    #                                           pageToken=page_token).execute()
-    #     for file in response.get('files', []):
-    #         # Process change
-    #         print('Found file: %s (%s)' % (file.get('name'), file.get('id')))
-    #     page_token = response.get('nextPageToken', None)
-    #     if page_token is None:
-    #         break
-    #
-    #
-    #
-    #
-    #
-    #
-    # request = service.files().get_media(fileId=file_id)
-    # fh = io.BytesIO()
-    # downloader = MediaIoBaseDownload(fh, request)
-    # done = False
-    # while done is False:
-    #     status, done = downloader.next_chunk()
-    #     print("Download %d%%." % int(status.progress() * 100))
-    #
-    # fh.seek(0)
-    #
-    # file_name = "init.py" # get_name(file_id)
-    #
-    # # path = os.path.join('./RandoFile', file_name)
-    # #
-    # # # Create the directory
-    # # # 'GeeksForGeeks' in
-    # # # '/home / User / Documents'
-    # # os.makedirs(path)
-    # print('open is assigned to %r' % open)
-    #
-    # with open(os.path.join('./RandoFile', file_name), 'wb') as f:
-    #     f.write(fh.read())
-    #     f.close()
-
-
-def check_and_download(parent_dir, repo_dir):
-    # Folder_id = get_id_from_repo(repo_dir)
-    Folder_id = "'1HONxE6lCjgQA7Djko3UIzAdbfM_2RHIT'"  # Enter The Downloadable folder ID From Shared Link
-    fid = '1HONxE6lCjgQA7Djko3UIzAdbfM_2RHIT'
-    page_token = None
-    results = service.files().list(pageSize=1000, q=Folder_id+" in parents", fields="nextPageToken, files(id, name, mimeType)").execute()
-
-
-    items = results.get('files', [])
-    if not items:
-        print('No files found.')
-    else:
-        print('Files:')
-        print(items)
-        for item in items:
-            if item['mimeType'] == 'application/vnd.google-apps.folder':
-                if not os.path.isdir(fid):
-                    os.mkdir(fid)
-                bfolderpath = os.getcwd()+ "/" + fid + "/"
-                if not os.path.isdir(bfolderpath + item['name']):
-                    os.mkdir(bfolderpath + item['name'])
-
-                folderpath = bfolderpath + item['name']
-                listfolders(service, item['id'], folderpath)
-            else:
-                if not os.path.isdir(fid):
-                    os.mkdir(fid)
-                bfolderpath = os.getcwd() + "/" + fid + "/"
-                if not os.path.isdir(bfolderpath + item['name']):
-                    os.mkdir(bfolderpath + item['name'])
-
-                filepath = bfolderpath + item['name']
-                downloadfiles(service, item['id'], item['name'], filepath)
-        repo = git.Repo(fid, search_parent_directories=True)
-        commit_repo(repo)
-
-
-        
-
-# To list folders
-def listfolders(service, filid, des):
-    results = service.files().list(
-        pageSize=1000, q="\'" + filid + "\'" + " in parents",
-        fields="nextPageToken, files(id, name, mimeType)").execute()
-    # logging.debug(folder)
-    folder = results.get('files', [])
-    for item in folder:
-        if str(item['mimeType']) == str('application/vnd.google-apps.folder'):
-            if not os.path.isdir(des+"/"+item['name']):
-                os.mkdir(path=des+"/"+item['name'])
-            print(item['name'])
-            listfolders(service, item['id'], des+"/"+item['name'])  # LOOP un-till the files are found
-        else:
-            downloadfiles(service, item['id'], item['name'], des)
-            print(item['name'])
-    return folder
-
-
-# To Download Files
-def downloadfiles(service, dowid, name,dfilespath):
-    request = service.files().get_media(fileId=dowid)
-    fh = io.BytesIO()
-    downloader = MediaIoBaseDownload(fh, request)
-    done = False
-    while done is False:
-        status, done = downloader.next_chunk()
-        print("Download %d%%." % int(status.progress() * 100))
-    with io.open(dfilespath + "/" + name, 'wb') as f:
-        fh.seek(0)
-        f.write(fh.read())
-
-
+def check_and_download(service, parent_dir, repo_dir):
+    Folder_id = get_id_from_repo(repo_dir)
+    drive.download_folder(service, Folder_id)
+    repo = git.Repo(Folder_id, search_parent_directories=True)
+    commit_repo(repo)
 
 @nbgitpuller.hookimpl
 def is_new_assignment(path):
@@ -215,11 +66,8 @@ def is_new_assignment(path):
 
     If local repo does not exist, return the directory path of the root of the repo
     """
-    isFile = os.path.isfile(path)
-    return os.path.isdir(path)
-
-
-
+    isDir = os.path.isdir(path)
+    return isDir
 
 def init_repo(repo_path):
     """Initializes Git Repository at specified directory path. If not possible, throws error."""
