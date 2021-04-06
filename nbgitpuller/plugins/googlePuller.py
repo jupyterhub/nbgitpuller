@@ -45,12 +45,10 @@ class GooglePuller(Configurable):
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GooglePuller, self).__init__(**newargs)
 
-
     async def fetch():
         """
         fetches the file from the file name given and downloads it to directory
         """
-
         file_id = self.file_id
         request = drive_service.files().get_media(fileId=file_id)
         fh = io.BytesIO()
@@ -78,7 +76,6 @@ class GooglePuller(Configurable):
         """
         Checks to see if the hidden repo already exists
         """
-
         repo_dir = os.path.join(self.repo_dir, self.student)
         repo = Repo(repo_dir)
 
@@ -86,7 +83,6 @@ class GooglePuller(Configurable):
             createRepo()
         else:
             pushHidden()
-
         # empty_repo = git.Repo.init(os.path.join(self.repo_dir, self.student))
         # origin = empty_repo.create_remote('origin', repo.remotes.origin.url)
         # assert origin.exists()
@@ -95,13 +91,9 @@ class GooglePuller(Configurable):
         """
         pushes google drive file to hidden repo
         """
-
         open(self.file_path, 'wb').close()
         r.index.add([self.file_path])
         r.index.commit("hidden commit")
-
-
-
 
     def pull(self):
         """
@@ -132,7 +124,6 @@ class GooglePuller(Configurable):
         deleted. This allows us to delete a file, hit an interact link, then get a
         clean version of the file again.
         """
-
         yield from self.ensure_lock()
         deleted_files = subprocess.check_output([
             'git', 'ls-files', '--deleted', '-z'
