@@ -4,6 +4,12 @@ from .pull import GitPuller
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os
+import pluggy
+
+
+"""Marker to be imported and used in plugins (and for own implementations)"""
+
+hookimpl = pluggy.HookimplMarker("eggsample")
 
 
 def _jupyter_server_extension_paths():
