@@ -40,6 +40,7 @@ class FileHandlerMock():
 
 class TestPlugin(unittest.TestCase):
 
+    @mock.patch.dict(os.environ, {"DRIVE_CREDS": "some_credentials"})
     def test_auth(self):
         """Unit test: Checks whether user is redirected to Google auth login."""
         with patch('nbgitpuller.plugins.gdrive_commands.InstalledAppFlow.run_local_server') as mocked:
