@@ -14,6 +14,9 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
         url.searchParams.set('branch', branch);
     }
 
+    if (!url.pathname.endsWith('/')) {
+        url.pathname += '/'
+    }
     url.pathname += 'hub/user-redirect/git-pull';
 
     return url.toString();
