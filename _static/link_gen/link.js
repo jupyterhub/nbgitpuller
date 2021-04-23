@@ -37,7 +37,10 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
 
     var nextUrl = '/hub/user-redirect/git-pull?' + nextUrlParams.toString();
 
-    url.pathname = '/hub/lti/launch'
+    if (!url.pathname.endsWith('/')) {
+        url.pathname += '/'
+    }
+    url.pathname += 'hub/lti/launch'
     url.searchParams.append('next', nextUrl);
 
     return url.toString();
