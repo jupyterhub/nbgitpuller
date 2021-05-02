@@ -1,8 +1,11 @@
 # [nbgitpuller](https://github.com/jupyterhub/nbgitpuller)
 
-[![TravisCI Build status](https://img.shields.io/travis/com/jupyterhub/nbgitpuller?logo=travis)](https://travis-ci.com/jupyterhub/nbgitpuller)
-[![CircleCI build status](https://img.shields.io/circleci/build/github/jupyterhub/nbgitpuller?logo=circleci)](https://circleci.com/gh/jupyterhub/nbgitpuller)
+[![GitHub Workflow Status - Test](https://img.shields.io/github/workflow/status/jupyterhub/nbgitpuller/Tests?logo=github&label=tests)](https://github.com/jupyterhub/nbgitpuller/actions)
+[![CircleCI build status](https://img.shields.io/circleci/build/github/jupyterhub/nbgitpuller?logo=circleci&label=docs)](https://circleci.com/gh/jupyterhub/nbgitpuller)
 [![](https://img.shields.io/pypi/v/nbgitpuller.svg?logo=pypi)](https://pypi.python.org/pypi/nbgitpuller)
+[![GitHub](https://img.shields.io/badge/issue_tracking-github-blue?logo=github)](https://github.com/jupyterhub/nbgitpuller/issues)
+[![Discourse](https://img.shields.io/badge/help_forum-discourse-blue?logo=discourse)](https://discourse.jupyter.org/c/jupyterhub)
+[![Gitter](https://img.shields.io/badge/social_chat-gitter-blue?logo=gitter)](https://gitter.im/jupyterhub/jupyterhub)
 
 `nbgitpuller` lets you distribute content in a git repository to your students
 by having them click a simple link. [Automatic
