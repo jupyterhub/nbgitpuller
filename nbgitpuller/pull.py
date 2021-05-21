@@ -70,10 +70,59 @@ class GitPuller(Configurable):
         assert git_url and branch_name
 
         self.git_url = git_url
-        self.branch_name = branch_name
+
+        if branch_name == "None":
+            self.branch_name = self.resolve_default_branch()
+        elif not self.branch_exists(branch_name):
+            raise ValueError(f"{branch_name}: branch not found in {self.git_url}")
+        else:
+            self.branch_name = branch_name
+
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
+
+    def branch_exists(self, branch):
+        """
+        This checks to make sure the branch we are told to access
+        exists in the repo
+        """
+        p_heads = subprocess.run(
+            ["git", "ls-remote", "--heads", self.git_url],
+            capture_output=True,
+            text=True,
+        )
+        p_tags = subprocess.run(
+            ["git", "ls-remote", "--tags", self.git_url],
+            capture_output=True,
+            text=True,
+        )
+        lines = p_heads.stdout.splitlines() + p_tags.stdout.splitlines()
+        branches = []
+        for line in lines:
+            _, ref = line.split()
+            refs, heads, branch_name = ref.split("/", 2)
+            branches.append(branch_name)
+        return branch in branches
+
+    def resolve_default_branch(self):
+        """
+        This will resolve the default branch of the repo in
+        the case where the branch given does not exist
+        """
+        p = subprocess.run(
+            ["git", "ls-remote", "--symref", self.git_url, "HEAD"],
+            capture_output=True,
+            text=True,
+        )
+
+        for line in p.stdout.splitlines():
+            if line.startswith("ref:"):
+                # line resembles --> ref: refs/heads/main HEAD
+                _, ref, head = line.split()
+                refs, heads, branch_name = ref.split("/", 2)
+                return branch_name
+        raise ValueError(f"default branch not found in {self.git_url}")
 
     def pull(self):
         """

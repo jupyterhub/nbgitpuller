@@ -1,0 +1,3 @@
+traitlets
+pytest
+-e .
