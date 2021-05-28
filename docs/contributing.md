@@ -43,3 +43,7 @@ and hence can be developed locally without needing a JupyterHub.
    ```
    http://localhost:8888/git-sync?repo=https://github.com/data-8/textbook&branch=gh-pages
    ```
+
+7. If you make changes to nbgitpuller's python code, you need to restart the `jupyter notebook`
+   process (started in step 5) to see your changes take effect. This is not needed if
+   you are only working on the javascript or css.
