@@ -1,6 +1,6 @@
-from .version import __version__
+from .version import __version__ # noqa
 from .handlers import SyncHandler, UIHandler, LegacyInteractRedirectHandler, LegacyGitSyncRedirectHandler
-from .pull import GitPuller
+from .pull import GitPuller # noqa
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os
