@@ -87,42 +87,54 @@ class GitPuller(Configurable):
         This checks to make sure the branch we are told to access
         exists in the repo
         """
-        p_heads = subprocess.run(
-            ["git", "ls-remote", "--heads", self.git_url],
-            capture_output=True,
-            text=True,
-        )
-        p_tags = subprocess.run(
-            ["git", "ls-remote", "--tags", self.git_url],
-            capture_output=True,
-            text=True,
-        )
-        lines = p_heads.stdout.splitlines() + p_tags.stdout.splitlines()
-        branches = []
-        for line in lines:
-            _, ref = line.split()
-            refs, heads, branch_name = ref.split("/", 2)
-            branches.append(branch_name)
-        return branch in branches
+        try:
+            heads = subprocess.run(
+                ["git", "ls-remote", "--heads", self.git_url],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            tags = subprocess.run(
+                ["git", "ls-remote", "--tags", self.git_url],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            lines = heads.stdout.splitlines() + tags.stdout.splitlines()
+            branches = []
+            for line in lines:
+                _, ref = line.split()
+                refs, heads, branch_name = ref.split("/", 2)
+                branches.append(branch_name)
+            return branch in branches
+        except subprocess.CalledProcessError:
+            m = f"Problem accessing list of branches and/or tags: {self.git_url}"
+            logging.exception(m)
+            raise ValueError(m)
 
     def resolve_default_branch(self):
         """
         This will resolve the default branch of the repo in
         the case where the branch given does not exist
         """
-        p = subprocess.run(
-            ["git", "ls-remote", "--symref", self.git_url, "HEAD"],
-            capture_output=True,
-            text=True,
-        )
-
-        for line in p.stdout.splitlines():
-            if line.startswith("ref:"):
-                # line resembles --> ref: refs/heads/main HEAD
-                _, ref, head = line.split()
-                refs, heads, branch_name = ref.split("/", 2)
-                return branch_name
-        raise ValueError(f"default branch not found in {self.git_url}")
+        try:
+            head_branch = subprocess.run(
+                ["git", "ls-remote", "--symref", self.git_url, "HEAD"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            for line in head_branch.stdout.splitlines():
+                if line.startswith("ref:"):
+                    # line resembles --> ref: refs/heads/main HEAD
+                    _, ref, head = line.split()
+                    refs, heads, branch_name = ref.split("/", 2)
+                    return branch_name
+            raise ValueError(f"default branch not found in {self.git_url}")
+        except subprocess.CalledProcessError:
+            m = f"Problem accessing HEAD branch: {self.git_url}"
+            logging.exception(m)
+            raise ValueError(m)
 
     def pull(self):
         """

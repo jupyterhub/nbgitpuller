@@ -1,3 +1,0 @@
-traitlets
-pytest
--e .
