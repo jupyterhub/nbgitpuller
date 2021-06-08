@@ -66,17 +66,16 @@ class GitPuller(Configurable):
         where the GitPuller class hadn't been loaded already."""
         return int(os.environ.get('NBGITPULLER_DEPTH', 1))
 
-    def __init__(self, git_url, branch_name, repo_dir, **kwargs):
-        assert git_url and branch_name
+    def __init__(self, git_url, repo_dir, **kwargs):
+        assert git_url
 
         self.git_url = git_url
+        self.branch_name = kwargs.pop("branch")
 
-        if branch_name == "None":
+        if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
-        elif not self.branch_exists(branch_name):
-            raise ValueError(f"{branch_name}: branch not found in {self.git_url}")
-        else:
-            self.branch_name = branch_name
+        elif not self.branch_exists(self.branch_name):
+            raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
@@ -304,13 +303,11 @@ def main():
 
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
     parser.add_argument('git_url', help='Url of the repo to sync')
-    parser.add_argument('branch_name', default='master', help='Branch of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
-        args.branch_name,
         args.repo_dir
     ).pull():
         print(line)
