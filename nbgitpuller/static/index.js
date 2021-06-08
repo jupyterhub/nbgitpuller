@@ -44,11 +44,13 @@ require([
         // Start git pulling handled by SyncHandler, declared in handlers.py
         var syncUrlParams = {
             repo: this.repo,
-            branch: this.branch,
             targetpath: this.targetpath
         }
         if (typeof this.depth !== 'undefined' && this.depth != undefined) {
             syncUrlParams['depth'] = this.depth;
+        }
+        if (typeof this.branch !== 'undefined' && this.branch != undefined) {
+            syncUrlParams['branch'] = this.branch;
         }
         var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
 

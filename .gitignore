@@ -13,6 +13,7 @@ data8assets/
 .autopull_list
 summer/
 test-repo/
+venv/
 
 .ipynb_checkpoints
 docs/_build

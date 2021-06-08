@@ -52,7 +52,7 @@ class SyncHandler(IPythonHandler):
 
         try:
             repo = self.get_argument('repo')
-            branch = self.get_argument('branch')
+            branch = self.get_argument('branch', None)
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -73,7 +73,7 @@ class SyncHandler(IPythonHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, branch, repo_dir, depth=depth, parent=self.settings['nbapp'])
+            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
 
             q = Queue()
 
@@ -149,7 +149,7 @@ class UIHandler(IPythonHandler):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
 
         repo = self.get_argument('repo')
-        branch = self.get_argument('branch', 'master')
+        branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
