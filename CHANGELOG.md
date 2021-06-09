@@ -1,5 +1,6 @@
-0.9.0
-=====
+## 0.9
+
+### 0.9.0 - 2020-09-1
 
 - Allow destination to be configured ([#42](https://github.com/jupyterhub/nbgitpuller/pull/42))
 - Made the checkout from the reset_deleted_files to use the origin. ([#111](https://github.com/jupyterhub/nbgitpuller/pull/111))
@@ -20,32 +21,28 @@
 - CI: fix broken test assertions following --depth 1 by default ([#147](https://github.com/jupyterhub/nbgitpuller/pull/147))
 - CI: ensure tox run's flake8 as well ([#148](https://github.com/jupyterhub/nbgitpuller/pull/148))
 
+## 0.8
 
-0.8.0
-=====
+### 0.8.0 2019-11-23
 
 - Link generator: init application type from query params ([#107](https://github.com/jupyterhub/nbgitpuller/pull/107))
 - Made the checkout from the reset_deleted_files to use the origin. ([#111](https://github.com/jupyterhub/nbgitpuller/pull/111))
 
+## 0.7
 
-0.7.2
-=====
+### 0.7.2 - 2019-10-3
 
 - Bump version number ([#103](https://github.com/jupyterhub/nbgitpuller/pull/103))
 - Set authorship info on each commit, rather than repo-wide ([#104](https://github.com/jupyterhub/nbgitpuller/pull/104))
 - Bump version number ([#105](https://github.com/jupyterhub/nbgitpuller/pull/105))
 
-
-0.7.1
-=====
+### 0.7.1 2019-10-3
 
 - Update version to 0.7.0. ([#100](https://github.com/jupyterhub/nbgitpuller/pull/100))
 - Fix legacy links with empty path ([#102](https://github.com/jupyterhub/nbgitpuller/pull/102))
 - Bump version number ([#103](https://github.com/jupyterhub/nbgitpuller/pull/103))
 
-
-0.7.0
-=====
+### 0.7.0 2019-07-31
 
 - adding a link generator binder ([#49](https://github.com/jupyterhub/nbgitpuller/pull/49))
 - Clean up link_generator notebook / app ([#50](https://github.com/jupyterhub/nbgitpuller/pull/50))
@@ -67,15 +64,13 @@
 - Redo documentation ([#92](https://github.com/jupyterhub/nbgitpuller/pull/92))
 - Allow git@example.com:repo links ([#97](https://github.com/jupyterhub/nbgitpuller/pull/97))
 
+## 0.6
 
-0.6.1
-=====
+### 0.6.1 2018-07-19
 
 - Install Jupyter notebook extension by default, Add missing nbgitpuller.json file
 
-
-0.6.0
-=====
+### 0.6.0 2018-07-18
 
 - Work with (and require) newer notebook version ([#46](https://github.com/jupyterhub/nbgitpuller/pull/46))
 - Update README.md ([#48](https://github.com/jupyterhub/nbgitpuller/pull/48))
