@@ -1,2 +1,2 @@
 """"The nbgitpuller PyPI package SemVer version."""
-__version__ = '0.9.0dev0'
+__version__ = '0.10.0'
