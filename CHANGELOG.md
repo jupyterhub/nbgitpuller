@@ -1,3 +1,8 @@
+0.10.0
+=====
+
+- Handle default or non-existing branch name([#179](https://github.com/jupyterhub/nbgitpuller/pull/179))
+
 0.9.0
 =====
 
