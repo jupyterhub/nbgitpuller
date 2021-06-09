@@ -5,7 +5,7 @@
 #### Enhancements made
 
 - UI: Branch input placeholder no longer suggests master branch [#180](https://github.com/jupyterhub/nbgitpuller/pull/180) ([@sean-morris](https://github.com/sean-morris))
-- Handle default or non-existing branch name [#179](https://github.com/jupyterhub/nbgitpuller/pull/179) ([@sean-morris](https://github.com/sean-morris))
+- Automatically detect default branch name [#179](https://github.com/jupyterhub/nbgitpuller/pull/179) ([@sean-morris](https://github.com/sean-morris))
 - Tell users about `main` vs `master` branches [#170](https://github.com/jupyterhub/nbgitpuller/pull/170) ([@yuvipanda](https://github.com/yuvipanda))
 - Support generating shiny links [#165](https://github.com/jupyterhub/nbgitpuller/pull/165) ([@yuvipanda](https://github.com/yuvipanda))
 
