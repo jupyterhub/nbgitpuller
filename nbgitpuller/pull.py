@@ -313,3 +313,7 @@ def main():
         branch=args.branch_name
     ).pull():
         print(line)
+
+
+if __name__ == '__main__':
+    main()

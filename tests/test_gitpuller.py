@@ -96,6 +96,47 @@ def test_initialize():
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
 
 
+def command_line_test_helper(remote_path, branch):
+    work_dir = "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-1]) + "/nbgitpuller"
+    try:
+        cmd = ['python3', 'pull.py', remote_path]
+        cmd = cmd + [branch] if branch else cmd
+        sp.check_output(
+            cmd,
+            cwd=work_dir
+        ).decode()
+        return True
+    except Exception:
+        return False
+
+
+def test_command_line_non_existing_branch():
+    branch = "wrong"
+    with Remote(branch) as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+        remotepath = "file://%s" % os.path.abspath(remote.path)
+        subprocess_result = command_line_test_helper(remotepath, branch)
+    assert not subprocess_result
+
+
+def test_command_line_existing_branch():
+    branch = "master"
+    with Remote(branch) as remote, Pusher(remote) as pusher:
+        pusher.push_file('README_master.md', '1')
+        remotepath = "file://%s" % os.path.abspath(remote.path)
+        subprocess_result = command_line_test_helper(remotepath, branch)
+    assert subprocess_result
+
+
+def test_command_line_default_branch():
+    branch = ""
+    with Remote("find_default") as remote, Pusher(remote) as pusher:
+        pusher.push_file('README_default.md', '1')
+        remotepath = "file://%s" % os.path.abspath(remote.path)
+        subprocess_result = command_line_test_helper(remotepath, branch)
+    assert subprocess_result
+
+
 def test_branch_exists():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
