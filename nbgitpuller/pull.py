@@ -310,6 +310,10 @@ def main():
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
-        branch=args.branch_name
+        branch=args.branch_name if args.branch_name else None
     ).pull():
         print(line)
+
+
+if __name__ == '__main__':
+    main()
