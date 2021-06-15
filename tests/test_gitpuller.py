@@ -130,7 +130,7 @@ def test_command_line_existing_branch():
 
 def test_command_line_default_branch():
     branch = ""
-    with Remote("find_default") as remote, Pusher(remote) as pusher:
+    with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README_default.md', '1')
         remotepath = "file://%s" % os.path.abspath(remote.path)
         subprocess_result = command_line_test_helper(remotepath, branch)
