@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-import requests
-
 github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
 
 

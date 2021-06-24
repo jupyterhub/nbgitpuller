@@ -42,8 +42,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install
-        run: pip install tox
+      - name: Install dependencies
+        run: |
+          pip install -r dev-requirements.txt
+
+      - name: Run flake8 linter
+        run: flake8
 
       - name: Run tests
-        run: tox
+        run: |
+          # Install nbgitpuller + dependencies
+          pip install -e .
+          # Run tests
+          py.test --cov nbgitpuller
