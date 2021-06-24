@@ -6,17 +6,7 @@ name: Tests
 on:
   pull_request:
   push:
-
-defaults:
-  run:
-    # Declare bash be used by default in this workflow's "run" steps.
-    #
-    # NOTE: bash will by default run with:
-    #   --noprofile: Ignore ~/.profile etc.
-    #   --norc:      Ignore ~/.bashrc etc.
-    #   -e:          Exit directly on errors
-    #   -o pipefail: Don't mask errors from a command piped into another command
-    shell: bash
+  workflow_dispatch:
 
 jobs:
   test:
@@ -32,15 +22,19 @@ jobs:
         with:
           python-version: '3.8'
 
-      # preserve pip cache to speed up installation
-      - name: Cache pip
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          # Look to see if there is a cache hit for the corresponding requirements file
-          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      # DISABLED: Since we don't pin our dependencies in dev-requirements.txt
+      #           and only refresh the cache when it changes, we end up with a
+      #           cache that remains for too long and cause failures. Due to
+      #           this, it has been disabled.
+      #
+      # - name: Cache pip dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/pip
+      #     # Look to see if there is a cache hit for the corresponding requirements file
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
@@ -51,7 +45,5 @@ jobs:
 
       - name: Run tests
         run: |
-          # Install nbgitpuller + dependencies
-          pip install -e .
-          # Run tests
-          py.test --cov nbgitpuller
+          pip install .
+          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller
