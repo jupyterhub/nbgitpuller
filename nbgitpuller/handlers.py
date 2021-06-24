@@ -11,6 +11,11 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
+from .hookspecs import handle_files
+from .plugins.zip_puller import ZipSourceGoogleDriveDownloader
+from .plugins.zip_puller import ZipSourceDropBoxDownloader
+from .plugins.zip_puller import ZipSourceWebDownloader
+import pluggy
 
 
 class SyncHandler(IPythonHandler):
@@ -38,6 +43,17 @@ class SyncHandler(IPythonHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
+    def setup_plugins(self, repo):
+        pm = pluggy.PluginManager("nbgitpuller")
+        pm.add_hookspecs(handle_files)
+        if "drive.google.com" in repo:
+            pm.register(ZipSourceGoogleDriveDownloader())
+        elif "dropbox.com" in repo:
+            pm.register(ZipSourceDropBoxDownloader())
+        else:
+            pm.register(ZipSourceWebDownloader())
+        return pm
+
     @web.authenticated
     @gen.coroutine
     def get(self):
@@ -53,6 +69,7 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
+            compressed = self.get_argument('compressed', "false")
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -72,6 +89,12 @@ class SyncHandler(IPythonHandler):
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
+
+            if compressed == 'true':
+                pm = self.setup_plugins(repo)
+                results = pm.hook.handle_files(repo=repo, repo_parent_dir=repo_parent_dir)[0]
+                repo_dir = repo_parent_dir + results["unzip_dir"]
+                repo = "file://" + results["origin_repo_path"]
 
             gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
 
@@ -151,14 +174,15 @@ class UIHandler(IPythonHandler):
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
+        compressed = self.get_argument('compressed', "false")
         urlPath = self.get_argument('urlpath', None) or \
-                  self.get_argument('urlPath', None)
+            self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
-                  self.get_argument('subPath', '.')
+            self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
         parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
         targetpath = self.get_argument('targetpath', None) or \
-                     self.get_argument('targetPath', repo.split('/')[-1])
+            self.get_argument('targetPath', repo.split('/')[-1])
 
         if urlPath:
             path = urlPath
@@ -174,7 +198,13 @@ class UIHandler(IPythonHandler):
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
+                repo=repo,
+                branch=branch,
+                compressed=compressed,
+                path=path,
+                depth=depth,
+                targetpath=targetpath,
+                version=__version__
             ))
         self.flush()
 

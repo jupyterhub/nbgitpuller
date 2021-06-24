@@ -12,12 +12,13 @@ require([
 
     Terminal.applyAddon(fit);
 
-    function GitSync(baseUrl, repo, branch, depth, targetpath, path) {
+    function GitSync(baseUrl, repo, branch, depth, compressed, targetpath, path) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
         this.branch = branch;
         this.depth = depth;
+        this.compressed = compressed;
         this.targetpath = targetpath;
         this.redirectUrl = baseUrl + path;
 
@@ -51,6 +52,9 @@ require([
         }
         if (typeof this.branch !== 'undefined' && this.branch != undefined) {
             syncUrlParams['branch'] = this.branch;
+        }
+        if (typeof this.compressed !== 'undefined' && this.compressed != undefined) {
+            syncUrlParams['compressed'] = this.compressed;
         }
         var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
 
@@ -133,6 +137,7 @@ require([
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
         utils.get_body_data('depth'),
+        utils.get_body_data('compressed'),
         utils.get_body_data('targetpath'),
         utils.get_body_data('path')
     );

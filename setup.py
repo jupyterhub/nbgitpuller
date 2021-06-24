@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=['notebook>=5.5.0', 'tornado'],
+    install_requires=['notebook>=5.5.0', 'tornado', 'requests', 'requests-file'],
     data_files=[
         ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/nbgitpuller.json'])
     ],

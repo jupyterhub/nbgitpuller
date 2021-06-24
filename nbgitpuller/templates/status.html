@@ -7,6 +7,7 @@ data-repo="{{ repo | urlencode }}"
 data-path="{{ path | urlencode }}"
 {% if branch %}data-branch="{{ branch | urlencode }}"{% endif %}
 {% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
+{% if compressed %}data-compressed="{{ compressed | urlencode }}"{% endif %}
 data-targetpath="{{ targetpath | urlencode }}"
 {% endblock %}
 
