@@ -1,5 +1,25 @@
 ## 0.10
 
+### 0.10.1 - 2021-06-24
+
+#### Bugs fixed
+
+- Added branch name back to command-line usage [#185](https://github.com/jupyterhub/nbgitpuller/pull/185) ([@sean-morris](https://github.com/sean-morris))
+
+#### Documentation improvements
+
+- Provide cleaner feedback for lint vs test failures [#181](https://github.com/jupyterhub/nbgitpuller/pull/181) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Continuous integration
+
+- Fix CI failures by disabling pip cache [#188](https://github.com/jupyterhub/nbgitpuller/pull/188) ([@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2021-06-09&to=2021-06-24&type=c))
+
+[@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2021-06-09..2021-06-24&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2021-06-09..2021-06-24&type=Issues) | [@sean-morris](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Asean-morris+updated%3A2021-06-09..2021-06-24&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2021-06-09..2021-06-24&type=Issues)
+
 ### 0.10.0 - 2021-06-09
 
 #### Enhancements made
