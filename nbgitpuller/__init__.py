@@ -28,3 +28,5 @@ def load_jupyter_server_extension(nbapp):
     ]
     web_app.settings['nbapp'] = nbapp
     web_app.add_handlers('.*', handlers)
+
+_load_jupyter_server_extension = load_jupyter_server_extension

@@ -23,7 +23,8 @@ setup(
     platforms='any',
     install_requires=['notebook>=5.5.0', 'tornado'],
     data_files=[
-        ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/nbgitpuller.json'])
+        ('etc/jupyter/jupyter_server_config.d', ['nbgitpuller/etc/jupyter_server_config.d/nbgitpuller.json']),
+        ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/jupyter_notebook_config.d/nbgitpuller.json'])
     ],
     zip_safe=False,
     entry_points={
