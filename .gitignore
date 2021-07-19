@@ -17,3 +17,8 @@ venv/
 
 .ipynb_checkpoints
 docs/_build
+
+node_modules/
+package-lock.json
+
+nbgitpuller/static/dist

@@ -1,5 +1,6 @@
 from setuptools import find_packages, setup
 from distutils.util import convert_path
+import subprocess
 
 # Imports __version__, reference: https://stackoverflow.com/a/24517154/2220152
 ns = {}
@@ -7,6 +8,9 @@ ver_path = convert_path('nbgitpuller/version.py')
 with open(ver_path) as ver_file:
     exec(ver_file.read(), ns)
 __version__ = ns['__version__']
+
+subprocess.check_call(['npm', 'install'])
+subprocess.check_call(['npm', 'run', 'webpack'])
 
 setup(
     name='nbgitpuller',
