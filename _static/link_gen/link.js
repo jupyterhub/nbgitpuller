@@ -1,19 +1,25 @@
 // Pure function that generates an nbgitpuller URL
-function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
+function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
 
     url.searchParams.set('repo', repoUrl);
-
+    
+    if(compressed) {
+      url.searchParams.set('provider', source);
+    }
+    
     if (urlPath) {
         url.searchParams.set('urlpath', urlPath);
     }
 
     if (branch) {
         url.searchParams.set('branch', branch);
+    } else if(source == "git"){
+        url.searchParams.set('branch', "main");
     }
-
+    
     if (!url.pathname.endsWith('/')) {
         url.pathname += '/'
     }
@@ -22,20 +28,26 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
     return url.toString();
 }
 
-function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
+function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source) {
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
 
     var nextUrlParams = new URLSearchParams();
 
     nextUrlParams.append('repo', repoUrl);
-
+    
+    if(compressed) {
+      nextUrlParams.append('provider', source);
+    }
+    
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
     }
 
     if (branch) {
         nextUrlParams.append('branch', branch);
+    } else if(source == "git"){
+        nextUrlParams.append('branch', "main");
     }
 
     var nextUrl = '/hub/user-redirect/git-pull?' + nextUrlParams.toString();
@@ -50,7 +62,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
 }
 
 function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
-    contentRepoUrl, contentRepoBranch) {
+    contentRepoUrl, contentRepoBranch, compressed, source) {
 
     var url = new URL(hubUrl);
 
@@ -58,12 +70,18 @@ function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
 
     nextUrlParams.append('repo', contentRepoUrl);
 
+    if(compressed) {
+      nextUrlParams.append('provider', source);
+    }
+    
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
     }
 
     if (contentRepoBranch) {
         nextUrlParams.append('branch', contentRepoBranch);
+    } else if(source == "git"){
+        nextUrlParams.append('branch', "main");
     }
 
     var nextUrl = 'git-pull?' + nextUrlParams.toString();
@@ -100,37 +118,46 @@ var apps = {
     }
 }
 
+function clearLinks(){
+    document.getElementById('default-link').value = "";
+    document.getElementById('binder-link').value = "";
+    document.getElementById('canvas-link').value = "";
+}
+
+
 function changeTab(div) {
     var hub = document.getElementById("hub");
     var hub_help_text = document.getElementById("hub-help-text");
-    var env_repo = document.getElementById("repo");
-    var env_repo_branch = document.getElementById("branch");
-    var env_repo_help_text = document.getElementById("env-repo-help-text");
-    var content_repo = document.getElementById("content-repo-group");
-    var content_branch = document.getElementById("content-branch-group");
+    var env_repo_group = document.getElementById("env-repo-group");
+    var env_repo = document.getElementById("env-repo");
+<<<<<<< HEAD
+=======
+    // var env_repo_branch = document.getElementById("env-branch");
+    // var env_repo_help_text = document.getElementById("env-repo-help-text");
+>>>>>>> b5b1e8e... JupyterHub link gen working
     var id = div.id;
-
+    var form = document.getElementById('linkgenerator');
+    
+    clearLinks();
     if (id.includes("binder")) {
         hub.placeholder = "https://mybinder.org";
         hub.value = "https://mybinder.org";
         hub_help_text.hidden = true;
         hub.labels[0].innerHTML = "BinderHub URL";
-        env_repo.labels[0].innerHTML = "Git Environment Repository URL";
-        env_repo_help_text.hidden = false;
-        env_repo_branch.required = true;
-        env_repo_branch.pattern = ".+";
-        content_repo.hidden = false;
-        content_branch.hidden = false;
+        
+        env_repo_group.style.display = '';
+        env_repo.disabled = false;
+
     } else {
         hub.placeholder = "https://hub.example.com";
+        hub.value = "";
         hub_help_text.hidden = false;
         hub.labels[0].innerHTML = "JupyterHub URL";
-        env_repo.labels[0].innerHTML = "Git Repository URL";
-        env_repo_help_text.hidden = true;
-        env_repo_branch.required = false;
-        content_repo.hidden = true;
-        content_branch.hidden = true;
+        
+        env_repo_group.style.display = 'none';
+        env_repo.disabled = true;
     }
+    displaySource();
 }
 
 /**
@@ -141,28 +168,60 @@ function changeTab(div) {
  * See https://github.com/git/git/blob/1c52ecf4ba0f4f7af72775695fee653f50737c71/builtin/clone.c#L276
  */
 function generateCloneDirectoryName(gitCloneUrl) {
+    if(gitCloneUrl.slice(-1) == "/")
+      gitCloneUrl = gitCloneUrl.slice(0,-1);
     var lastPart = gitCloneUrl.split('/').slice(-1)[0];
     return lastPart.split(':').slice(-1)[0].replace(/(\.git|\.bundle)?/, '');
 }
 
+function handleSource(args){
+  source = args["source"];
+  branch = "";
+  compressed = true;
+  sourceUrl ="";
+  if(source == "git"){
+      sourceUrl = args["contentRepoUrl"];
+      branch = args["contentRepoBranch"];
+      compressed = false;
+  } else if(source == "googledrive"){
+      sourceUrl = args["driveUrl"];
+  } else if(source == "dropbox"){
+      sourceUrl =  args["dropUrl"];
+  } else if(source == "standard"){
+      sourceUrl =  args["webUrl"];
+  }
+  return {
+    "branch": branch,
+    "sourceUrl": sourceUrl,
+    "compressed": compressed
+  }
+}
+
 function displayLink() {
     var form = document.getElementById('linkgenerator');
-
+    
     form.classList.add('was-validated');
     if (form.checkValidity()) {
         var hubUrl = document.getElementById('hub').value;
-        var repoUrl = document.getElementById('repo').value;
-        var branch = document.getElementById('branch').value;
+        var driveUrl = document.getElementById('drive-url').value;
+        var dropUrl = document.getElementById('drop-url').value;
+        var webUrl = document.getElementById('standard-url').value;
+        var envRepoUrl = document.getElementById('env-repo').value;
+        var envGitBranch = document.getElementById('env-branch').value;
         var contentRepoUrl = document.getElementById('content-repo').value;
         var contentRepoBranch = document.getElementById('content-branch').value;
         var filePath = document.getElementById('filepath').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
         var activeTab = document.querySelector(".nav-link.active").id;
-
+        var source = form.querySelector('input[name="source"]:checked').value;
+        
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
         } else {
-            var repoName = generateCloneDirectoryName(repoUrl);
+            var repoName = generateCloneDirectoryName(contentRepoUrl);
+            if(source !== "git"){
+              repoName = ""
+            }
             var urlPath;
             if (activeTab === "tab-auth-binder") {
                 var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
@@ -171,26 +230,37 @@ function displayLink() {
                 urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
             }
         }
-
+        args = {
+          "source": source,
+          "contentRepoUrl": contentRepoUrl,
+          "contentRepoBranch": contentRepoBranch,
+          "driveUrl": driveUrl,
+          "dropUrl": dropUrl,
+          "webUrl": webUrl
+        }
+        config = handleSource(args)
         if (activeTab === "tab-auth-default") {
             document.getElementById('default-link').value = generateRegularUrl(
-                hubUrl, urlPath, repoUrl, branch
+                hubUrl, urlPath, config["sourceUrl"], config["branch"], config["compressed"], source
             );
         } else if (activeTab === "tab-auth-canvas"){
             document.getElementById('canvas-link').value = generateCanvasUrl(
-                hubUrl, urlPath, repoUrl, branch
+                hubUrl, urlPath, config["sourceUrl"], config["branch"], config["compressed"], source
             );
         } else if (activeTab === "tab-auth-binder"){
             // FIXME: userName parsing using new URL(...) assumes a 
             // HTTP based repoUrl. Does it make sense to create a
             // BinderHub link for SSH URLs? Then let's fix this parsing.
-            var userName = new URL(repoUrl).pathname.split('/')[1];
+            var userName = new URL(envRepoUrl).pathname.split('/')[1];
             document.getElementById('binder-link').value = generateBinderUrl(
-                hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
+                hubUrl, userName, repoName, envGitBranch, urlPath, config["sourceUrl"], config["branch"], config["compressed"], source
             );
         }
+    } else {
+        clearLinks();
     }
 }
+
 function populateFromQueryString() {
     // preseed values if specified in the url
     var params = new URLSearchParams(window.location.search);
@@ -213,6 +283,33 @@ function populateFromQueryString() {
     }
 }
 
+function hideShowByClassName(cls, hideShow){
+  [].forEach.call(document.querySelectorAll(cls), function (el) {
+    el.style.display = hideShow;
+    setDisabled = (hideShow == 'none')
+    $(el).find("input").each(function(){
+        $(this).prop("disabled", setDisabled);
+    });
+  });
+}
+
+
+function displaySource(){
+    var form = document.getElementById('linkgenerator');
+    var source = form.querySelector('input[name="source"]:checked').value;
+    hideShowByClassName(".source", 'none');
+
+    if(source == 'git'){
+        hideShowByClassName(".source-git", '');
+    } else if(source == 'googledrive'){
+        hideShowByClassName(".source-googledrive", '');
+    } else if(source == 'dropbox'){
+        hideShowByClassName(".source-dropbox", '');
+    } else if(source =="standard"){
+        hideShowByClassName(".source-standard", '');
+    }
+}
+
 /**
  * Main loop of the program.
  *
@@ -225,6 +322,7 @@ function render() {
     var form = document.getElementById('linkgenerator');
     var appName = form.querySelector('input[name="app"]:checked').value;
 
+    
     if (appName == 'custom') {
         document.getElementById('urlpath').disabled = false;
         document.getElementById('filepath').disabled = true;
@@ -238,6 +336,7 @@ function render() {
             document.getElementById('filepath').disabled = false;
         }
     }
+
     displayLink();
 }
 
@@ -246,11 +345,21 @@ function render() {
  */
 function main() {
     // Hook up any changes in form elements to call render()
-    document.querySelectorAll('#linkgenerator input[type="radio"]').forEach(
+    document.querySelectorAll('#linkgenerator input[name="app"]').forEach(
         function (element) {
             element.addEventListener('change', render);
         }
     )
+    document.querySelectorAll('#linkgenerator input[name="source"]').forEach(
+        function (element) {
+            element.addEventListener('change', function(){
+                displaySource();
+                render();
+              }
+            );
+        }
+    )
+    
     document.querySelectorAll('#linkgenerator input[type="text"], #linkgenerator input[type="url"]').forEach(
         function (element) {
             element.addEventListener('input', render);
@@ -269,7 +378,9 @@ function main() {
       }
     }
 
+    
     // Do an initial render, to make sure our disabled / enabled properties are correctly set
+    displaySource();
     render();
 }
 
