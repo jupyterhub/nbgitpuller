@@ -49,7 +49,7 @@ class TestNbGitPullerApi:
         "backend_type",
         [
             ("jupyter-server"),
-            # ("jupyter-notebook"),
+            ("jupyter-notebook"),
         ],
     )
     def test_clone_default(self, tmpdir, backend_type):
