@@ -2,3 +2,4 @@ six
 pytest
 pytest-cov
 flake8
+nbclassic
