@@ -51,4 +51,4 @@ jobs:
       - name: Run tests
         run: |
           pip install .
-          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller
+          pytest --verbose -s --maxfail=2 --color=yes --cov nbgitpuller
