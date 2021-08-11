@@ -1,7 +1,6 @@
 from tornado import gen, web, locks
 import traceback
 import urllib.parse
-
 from notebook.base.handlers import IPythonHandler
 import threading
 import json
@@ -11,11 +10,9 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
-from .hookspecs import handle_files
-from .plugins.zip_puller import ZipSourceGoogleDriveDownloader
-from .plugins.zip_puller import ZipSourceDropBoxDownloader
-from .plugins.zip_puller import ZipSourceWebDownloader
+from . import hookspecs
 import pluggy
+import nbgitpuller
 
 
 class SyncHandler(IPythonHandler):
@@ -43,16 +40,37 @@ class SyncHandler(IPythonHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
-    def setup_plugins(self, repo):
+    def setup_plugins(self, provider):
         pm = pluggy.PluginManager("nbgitpuller")
-        pm.add_hookspecs(handle_files)
-        if "drive.google.com" in repo:
-            pm.register(ZipSourceGoogleDriveDownloader())
-        elif "dropbox.com" in repo:
-            pm.register(ZipSourceDropBoxDownloader())
-        else:
-            pm.register(ZipSourceWebDownloader())
+        pm.add_hookspecs(hookspecs)
+        pm.load_setuptools_entrypoints("nbgitpuller", name=provider)
         return pm
+
+    @gen.coroutine
+    def progress_loop(self, queue):
+        while True:
+            try:
+                progress = queue.get_nowait()
+            except Empty:
+                yield gen.sleep(0.1)
+                continue
+            if progress is None:
+                yield gen.sleep(5)
+                return
+            if isinstance(progress, Exception):
+                self.emit({
+                    'phase': 'error',
+                    'message': str(progress),
+                    'output': '\n'.join([
+                        line.strip()
+                        for line in traceback.format_exception(
+                            type(progress), progress, progress.__traceback__
+                        )
+                    ])
+                })
+                return
+
+            self.emit({'output': progress, 'phase': 'syncing'})
 
     @web.authenticated
     @gen.coroutine
@@ -69,7 +87,7 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
-            compressed = self.get_argument('compressed', "false")
+            provider = self.get_argument('provider', None)
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -82,22 +100,31 @@ class SyncHandler(IPythonHandler):
             # so that all repos are always in scope after cloning. Sometimes
             # server_root_dir will include things like `~` and so the path
             # must be expanded.
-            repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
-                                           os.getenv('NBGITPULLER_PARENTPATH', ''))
-            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
+            repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']), os.getenv('NBGITPULLER_PARENTPATH', ''))
+            nbgitpuller.REPO_PARENT_DIR = repo_parent_dir
+
+            repo_dir = os.path.join(
+                        repo_parent_dir,
+                        self.get_argument('targetpath', repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            if compressed == 'true':
-                pm = self.setup_plugins(repo)
-                results = pm.hook.handle_files(repo=repo, repo_parent_dir=repo_parent_dir)[0]
+            # if provider is specified then we are dealing with compressed
+            # archive and not a git repo
+            if provider is not None:
+                pm = self.setup_plugins(provider)
+                req_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
+                download_q = Queue()
+                req_args["progress_func"] = lambda: self.progress_loop(download_q)
+                req_args["download_q"] = download_q
+                hf_args = {"query_line_args": req_args}
+                results = pm.hook.handle_files(**hf_args)
                 repo_dir = repo_parent_dir + results["unzip_dir"]
                 repo = "file://" + results["origin_repo_path"]
 
             gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
-
             q = Queue()
 
             def pull():
@@ -110,33 +137,11 @@ class SyncHandler(IPythonHandler):
                     q.put_nowait(e)
                     raise e
             self.gp_thread = threading.Thread(target=pull)
-
             self.gp_thread.start()
-
-            while True:
-                try:
-                    progress = q.get_nowait()
-                except Empty:
-                    yield gen.sleep(0.5)
-                    continue
-                if progress is None:
-                    break
-                if isinstance(progress, Exception):
-                    self.emit({
-                        'phase': 'error',
-                        'message': str(progress),
-                        'output': '\n'.join([
-                            line.strip()
-                            for line in traceback.format_exception(
-                                type(progress), progress, progress.__traceback__
-                            )
-                        ])
-                    })
-                    return
-
-                self.emit({'output': progress, 'phase': 'syncing'})
-
+            self.progress_loop(q)
+            yield gen.sleep(3)
             self.emit({'phase': 'finished'})
+
         except Exception as e:
             self.emit({
                 'phase': 'error',
@@ -170,11 +175,10 @@ class UIHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
-
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
-        compressed = self.get_argument('compressed', "false")
+        provider = self.get_argument('provider', None)
         urlPath = self.get_argument('urlpath', None) or \
             self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
@@ -195,14 +199,17 @@ class UIHandler(IPythonHandler):
             else:
                 path = 'tree/' + path
 
+        if provider is not None:
+            path = "tree/"
+
         self.write(
             self.render_template(
                 'status.html',
                 repo=repo,
                 branch=branch,
-                compressed=compressed,
                 path=path,
                 depth=depth,
+                provider=provider,
                 targetpath=targetpath,
                 version=__version__
             ))
@@ -239,3 +246,10 @@ class LegacyInteractRedirectHandler(IPythonHandler):
         )
 
         self.redirect(new_url)
+
+
+class ThreadWithResult(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None):
+        def function():
+            self.result = target(*args, **kwargs)
+        super().__init__(group=group, target=function, name=name, daemon=daemon)

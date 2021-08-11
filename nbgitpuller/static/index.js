@@ -12,16 +12,15 @@ require([
 
     Terminal.applyAddon(fit);
 
-    function GitSync(baseUrl, repo, branch, depth, compressed, targetpath, path) {
+    function GitSync(baseUrl, repo, branch, depth, targetpath, path, provider) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
         this.branch = branch;
         this.depth = depth;
-        this.compressed = compressed;
         this.targetpath = targetpath;
+        this.provider = provider;
         this.redirectUrl = baseUrl + path;
-
         this.callbacks = {};
     }
 
@@ -53,8 +52,8 @@ require([
         if (typeof this.branch !== 'undefined' && this.branch != undefined) {
             syncUrlParams['branch'] = this.branch;
         }
-        if (typeof this.compressed !== 'undefined' && this.compressed != undefined) {
-            syncUrlParams['compressed'] = this.compressed;
+        if (typeof this.provider !== 'undefined' && this.provider != undefined) {
+            syncUrlParams['provider'] = this.provider;
         }
         var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
 
@@ -137,9 +136,9 @@ require([
         utils.get_body_data('repo'),
         utils.get_body_data('branch'),
         utils.get_body_data('depth'),
-        utils.get_body_data('compressed'),
         utils.get_body_data('targetpath'),
-        utils.get_body_data('path')
+        utils.get_body_data('path'),
+        utils.get_body_data('provider')
     );
 
     var gsv = new GitSyncView(
@@ -149,6 +148,7 @@ require([
     );
 
     gs.addHandler('syncing', function(data) {
+        gsv.setTerminalVisibility(true);
         gsv.term.write(data.output);
     });
     gs.addHandler('finished', function(data) {
