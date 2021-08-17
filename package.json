@@ -1,0 +1,26 @@
+{
+  "name": "nbgitpuller",
+  "version": "0.10.1",
+  "description": "`nbgitpuller`",
+  "devDependencies": {
+    "jquery": "^3.6.0",
+    "webpack": "^5.45.1",
+    "webpack-cli": "^4.7.2",
+    "xterm": "^4.13.0",
+    "xterm-addon-fit": "^0.5.0"
+  },
+  "scripts": {
+    "webpack": "webpack",
+    "webpack:watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jupyterhub/nbgitpuller.git"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/jupyterhub/nbgitpuller/issues"
+  },
+  "homepage": "https://github.com/jupyterhub/nbgitpuller#readme"
+}

@@ -1,5 +1,6 @@
 from setuptools import find_packages, setup
 from distutils.util import convert_path
+import subprocess
 
 # Imports __version__, reference: https://stackoverflow.com/a/24517154/2220152
 ns = {}
@@ -7,6 +8,9 @@ ver_path = convert_path('nbgitpuller/version.py')
 with open(ver_path) as ver_file:
     exec(ver_file.read(), ns)
 __version__ = ns['__version__']
+
+subprocess.check_call(['npm', 'install'])
+subprocess.check_call(['npm', 'run', 'webpack'])
 
 setup(
     name='nbgitpuller',
@@ -21,9 +25,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=['notebook>=5.5.0', 'tornado'],
+    install_requires=['notebook>=5.5.0', 'jupyter_server>=1.10.1', 'tornado'],
     data_files=[
-        ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/nbgitpuller.json'])
+        ('etc/jupyter/jupyter_server_config.d', ['nbgitpuller/etc/jupyter_server_config.d/nbgitpuller.json']),
+        ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/jupyter_notebook_config.d/nbgitpuller.json'])
     ],
     zip_safe=False,
     entry_points={

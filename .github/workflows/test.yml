@@ -17,6 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Run webpack to build static assets
+        run: |
+            npm install
+            npm run webpack
+
       - name: Install Python
         uses: actions/setup-python@v2
         with:
