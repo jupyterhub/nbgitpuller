@@ -23,7 +23,7 @@
 
     
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.5f77b4aec8189eecf79907ce328c390d.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
   <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -202,9 +202,10 @@
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
-<p>nbgitpuller is a <a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.html">jupyter
-serverextension</a>,
-and hence can be developed locally without needing a JupyterHub.</p>
+<p>nbgitpuller is a jupyter extension that works with both the
+<a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.html">classic Notebook Server</a>,
+and the newer <a class="reference external" href="https://jupyter-server.readthedocs.io/en/latest/operators/configuring-extensions.html">Jupyter Server</a>.
+Hence, nbgitpuller can be developed locally without needing a JupyterHub.</p>
 <ol>
 <li><p>Fork the nbgitpuller repository and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> it to your local computer.</p></li>
 <li><p>Inside the nbgitpuller clone on your local machine, setup a virtual
@@ -224,16 +225,55 @@ environment to do development in</p>
 </pre></div>
 </div>
 </li>
-<li><p>Enable the nbgitpuller jupyter serverextension</p>
+<li><p>Install the NodeJS dependencies from package.json.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm install
+</pre></div>
+</div>
+</li>
+<li><p>Create the JS and CSS bundles.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm run webpack
+</pre></div>
+</div>
+</li>
+<li><p>Enable the nbgitpuller extension:</p>
+<ul>
+<li><p>as a jupyter serverextension (classic Notebook Server extension)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter serverextension <span class="nb">enable</span> --sys-prefix nbgitpuller
 </pre></div>
 </div>
 </li>
-<li><p>Start the notebook server. This will open the classic notebook in your web
+<li><p>as a jupyter server extension</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server extension <span class="nb">enable</span> --sys-prefix nbgitpuller
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Start the notebook server:</p>
+<ul>
+<li><p>You can either start the classical Notebook server.
+This will open the classic notebook in your web
 browser, and automatically authenticate you as a side effect.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter notebook
 </pre></div>
 </div>
+</li>
+<li><p>Or you can start the new Jupyter Server.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server
+</pre></div>
+</div>
+<p>This won’t open any notebook interface, unless you don’t enable one
+(<a class="reference external" href="https://github.com/jupyterlab/nbclassic"><code class="docutils literal notranslate"><span class="pre">nbclassic</span></code></a> or <a class="reference external" href="https://github.com/jupyterlab/jupyterlab"><code class="docutils literal notranslate"><span class="pre">jupyterlab</span></code></a>)
+as a jupyter server extension.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server extension <span class="nb">enable</span> --sys-prefix nbclassic
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server extension <span class="nb">enable</span> --sys-prefix jupyterlab
+</pre></div>
+</div>
+</li>
+</ul>
 </li>
 <li><p>You can now test nbgitpuller locally, by hitting the <code class="docutils literal notranslate"><span class="pre">/git-pull</span></code> url with any
 of the <a class="reference internal" href="topic/url-options.html"><span class="doc std std-doc">URL query parameters</span></a>. For example, to pull the
