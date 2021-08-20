@@ -1,8 +1,6 @@
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-    
-const terminal = new Terminal();
-terminal.loadAddon(new FitAddon());
+import css from '../../../node_modules/xterm/css/xterm.css';
 
 function GitSync(baseUrl, repo, branch, depth, targetpath, path) {
     // Class that talks to the API backend & emits events as appropriate
@@ -66,6 +64,9 @@ function GitSyncView(termSelector, progressSelector, termToggleSelector) {
     this.term = new Terminal({
         convertEol: true
     });
+    this.fit = new FitAddon();
+    this.term.loadAddon(this.fit);
+
     this.visible = false;
     this.$progress = $(progressSelector);
 
@@ -90,7 +91,7 @@ GitSyncView.prototype.setTerminalVisibility = function(visible) {
         if (!this.term.element) {
             this.term.open($(this.termSelector)[0]);
         }
-        this.term.fit();
+        this.fit.fit();
     }
 
 }
