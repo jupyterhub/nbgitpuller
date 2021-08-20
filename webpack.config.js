@@ -8,6 +8,14 @@ module.exports = {
         filename: "bundle.js",
         publicPath: '/static/dist/'
     },
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader']
+            },
+        ]
+    },
     devtool: 'source-map',
     plugins: [
         new webpack.ProvidePlugin({
