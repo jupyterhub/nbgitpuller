@@ -1,5 +1,9 @@
 ## 0.10
 
+### 0.10.2 - 2021-08-25
+
+This is a critical security release, please upgrade to this and see [GHSA-mq5p-2mcr-m52j](https://github.com/jupyterhub/nbgitpuller/security/advisories/GHSA-mq5p-2mcr-m52j) more information.
+
 ### 0.10.1 - 2021-06-24
 
 #### Bugs fixed
