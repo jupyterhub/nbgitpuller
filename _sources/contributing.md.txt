@@ -83,7 +83,7 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
    branch, you can use the following URL:
 
    ```
-   http://localhost:8888/git-sync?repo=https://github.com/data-8/textbook&branch=gh-pages
+   http://localhost:8888/git-pull?repo=https://github.com/data-8/textbook&branch=gh-pages
    ```
 
 10. If you make changes to nbgitpuller's python code, you need to restart the `jupyter notebook`
