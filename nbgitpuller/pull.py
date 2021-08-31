@@ -77,8 +77,8 @@ class GitPuller(Configurable):
         elif not self.branch_exists(self.branch_name):
             raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
-        self.skip_rename = kwargs.pop("skip_rename")
-        self.retry_merge = kwargs.pop("retry_merge")
+        self.skip_rename = kwargs.get("skip_rename")
+        self.retry_merge = kwargs.get("retry_merge")
 
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
@@ -150,10 +150,10 @@ class GitPuller(Configurable):
                     yield from self.initialize_repo()
                 else:
                     yield from self.update()
-            except:
+            except Exception as e:
                 retries = retries + 1
                 if not self.retry_merge:
-                    break
+                    raise e
                 yield "Retrying..."
             else:
                 break
