@@ -144,7 +144,7 @@ class GitPuller(Configurable):
         while preserving user changes
         """
         retries = 0
-        while retries < 5:
+        while True:
             try:
                 if not os.path.exists(self.repo_dir):
                     yield from self.initialize_repo()
@@ -152,7 +152,8 @@ class GitPuller(Configurable):
                     yield from self.update()
             except Exception as e:
                 retries = retries + 1
-                if not self.retry_merge:
+                if not self.retry_merge or retries > 4:
+                    yield "Not retrying error..."
                     raise e
                 yield "Retrying..."
             else:
