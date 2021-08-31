@@ -77,6 +77,9 @@ class GitPuller(Configurable):
         elif not self.branch_exists(self.branch_name):
             raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
+        self.skip_rename = kwargs.pop("skip_rename")
+        self.retry_merge = kwargs.pop("retry_merge")
+
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
@@ -140,10 +143,20 @@ class GitPuller(Configurable):
         Pull selected repo from a remote git repository,
         while preserving user changes
         """
-        if not os.path.exists(self.repo_dir):
-            yield from self.initialize_repo()
-        else:
-            yield from self.update()
+        retries = 0
+        while retries < 5:
+            try:
+                if not os.path.exists(self.repo_dir):
+                    yield from self.initialize_repo()
+                else:
+                    yield from self.update()
+            except:
+                retries = retries + 1
+                if not self.retry_merge:
+                    break
+                yield "Retrying..."
+            else:
+                break
 
     def initialize_repo(self):
         """
@@ -172,7 +185,11 @@ class GitPuller(Configurable):
 
         for filename in deleted_files:
             if filename:  # Filter out empty lines
-                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
+                try:
+                    yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
+                except subprocess.CalledProcessError:
+                    m = f"Error checking out {filename}; ignoring..."
+                    logging.warning(m)
 
     def repo_is_dirty(self):
         """
@@ -243,8 +260,11 @@ class GitPuller(Configurable):
                 path_head, path_tail = os.path.split(f)
                 path_tail = ts.join(os.path.splitext(path_tail))
                 new_file_name = os.path.join(path_head, path_tail)
-                os.rename(f, new_file_name)
-                yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
+                if self.skip_rename:
+                    yield 'Skipping rename of {} to {}; may conflict with upstream'.format(f, new_file_name)
+                else:
+                    os.rename(f, new_file_name)
+                    yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
 
     def update(self):
         """
@@ -305,11 +325,15 @@ def main():
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
+    parser.add_argument('--skip_rename', default=False, help='Whether to rename untracked files', action='store_true')
+    parser.add_argument('--retry_merge', default=False, help='Whether to retry merging', action='store_true')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
+        skip_rename=args.skip_rename,
+        retry_merge=args.retry_merge,
         branch=args.branch_name if args.branch_name else None
     ).pull():
         print(line)
