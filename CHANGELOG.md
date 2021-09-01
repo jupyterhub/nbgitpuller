@@ -1,3 +1,32 @@
+## 1.0
+
+### 1.0.0
+
+This is not a breaking release, we have just decided to let this be 1.0.0 to
+better communicate changes via the version number in future releases.
+
+#### Enhancements made
+
+- Support use with jupyter_server by decoupling notebook dependencies [#193](https://github.com/jupyterhub/nbgitpuller/pull/193) ([@GeorgianaElena](https://github.com/GeorgianaElena))
+
+#### Bugs fixed
+
+- Use addon instead of term when calling fit and import xterm css [#197](https://github.com/jupyterhub/nbgitpuller/pull/197) ([@GeorgianaElena](https://github.com/GeorgianaElena))
+
+#### Maintenance and upkeep improvements
+
+- Rename nbgitpuller repo's master branch to main [#189](https://github.com/jupyterhub/nbgitpuller/pull/189) ([@consideRatio](https://github.com/consideRatio))
+
+#### Documentation improvements
+
+- Update contributing guide to use `git-pull` [#202](https://github.com/jupyterhub/nbgitpuller/pull/202) ([@fperez](https://github.com/fperez))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2021-06-24&to=2021-08-31&type=c))
+
+[@choldgraf](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Acholdgraf+updated%3A2021-06-24..2021-08-31&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2021-06-24..2021-08-31&type=Issues) | [@fmaussion](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afmaussion+updated%3A2021-06-24..2021-08-31&type=Issues) | [@fperez](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afperez+updated%3A2021-06-24..2021-08-31&type=Issues) | [@GeorgianaElena](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AGeorgianaElena+updated%3A2021-06-24..2021-08-31&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2021-06-24..2021-08-31&type=Issues) | [@nibheis](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Anibheis+updated%3A2021-06-24..2021-08-31&type=Issues) | [@TimoRoth](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3ATimoRoth+updated%3A2021-06-24..2021-08-31&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Awelcome+updated%3A2021-06-24..2021-08-31&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2021-06-24..2021-08-31&type=Issues)
+
 ## 0.10
 
 ### 0.10.2 - 2021-08-25
