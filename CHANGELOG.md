@@ -5,10 +5,13 @@
 This is not a breaking release, we have just decided to let this be 1.0.0 to
 better communicate changes via the version number in future releases.
 
+#### Enhancements made
+
+- Support use with jupyter_server by decoupling notebook dependencies [#193](https://github.com/jupyterhub/nbgitpuller/pull/193) ([@GeorgianaElena](https://github.com/GeorgianaElena))
+
 #### Bugs fixed
 
 - Use addon instead of term when calling fit and import xterm css [#197](https://github.com/jupyterhub/nbgitpuller/pull/197) ([@GeorgianaElena](https://github.com/GeorgianaElena))
-- Migrate nbgitpuller to use jupyter_server [#193](https://github.com/jupyterhub/nbgitpuller/pull/193) ([@GeorgianaElena](https://github.com/GeorgianaElena))
 
 #### Maintenance and upkeep improvements
 
