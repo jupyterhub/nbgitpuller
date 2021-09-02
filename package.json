@@ -1,7 +1,5 @@
 {
-  "name": "nbgitpuller",
-  "version": "0.10.1",
-  "description": "`nbgitpuller`",
+  "description": "Dependencies to build nbgitpuller/static/dist/bundle.js from nbgitpuller/static/js/index.js with webpack.",
   "devDependencies": {
     "jquery": "^3.6.0",
     "webpack": "^5.45.1",
@@ -14,15 +12,5 @@
   "scripts": {
     "webpack": "webpack",
     "webpack:watch": "webpack --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jupyterhub/nbgitpuller.git"
-  },
-  "author": "",
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/jupyterhub/nbgitpuller/issues"
-  },
-  "homepage": "https://github.com/jupyterhub/nbgitpuller#readme"
+  }
 }
