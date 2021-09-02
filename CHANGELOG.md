@@ -1,5 +1,14 @@
 ## 1.0
 
+### 1.0.2 - 2021-09-03
+
+A release to fix an issue that stopped us from publishing nbgitpuller on
+conda-forge.
+
+#### Maintenance and upkeep improvements
+
+- Fix jupyter-packaging reference, use - instead of _ [#219](https://github.com/jupyterhub/nbgitpuller/pull/219) ([@consideRatio](https://github.com/consideRatio))
+
 ### 1.0.1 - 2021-09-02
 
 This release fixes a failure to install from a source distribution of the
