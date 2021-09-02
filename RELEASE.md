@@ -24,7 +24,7 @@ The PyPI release is done automatically by TravisCI when a tag is pushed.
    [`nbgitpuller/version.py`](nbgitpuller/version.py)
    and make a commit.
 
-   ```
+   ```shell
    git add nbgitpuller/version.py
    VERSION=...  # e.g. 1.2.3
    git commit -m "release $VERSION"
@@ -33,7 +33,8 @@ The PyPI release is done automatically by TravisCI when a tag is pushed.
 1. Reset the `__version__` variable in
    [`nbgitpuller/version.py`](nbgitpuller/version.py)
    to an incremented patch version with a `dev` element, then make a commit.
-   ```
+
+   ```shell
    git add nbgitpuller/version.py
    git commit -m "back to dev"
    ```
