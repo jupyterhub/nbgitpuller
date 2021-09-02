@@ -3,3 +3,4 @@ pytest
 pytest-cov
 flake8
 nbclassic
+notebook>=5.5.0
