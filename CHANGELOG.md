@@ -1,6 +1,23 @@
 ## 1.0
 
-### 1.0.0
+### 1.0.1 - 2021-09-02
+
+This release fixes a failure to install from a source distribution of the
+package without having `node` and `npm` installed.
+
+#### Maintenance and upkeep improvements
+
+- Remove six from dev-requirements.txt [#213](https://github.com/jupyterhub/nbgitpuller/pull/213) ([@consideRatio](https://github.com/consideRatio))
+- Slim package.json to avoid fields relevant to npm publication [#212](https://github.com/jupyterhub/nbgitpuller/pull/212) ([@consideRatio](https://github.com/consideRatio))
+- Use jupyter-packaging for npm build [#211](https://github.com/jupyterhub/nbgitpuller/pull/211) ([@manics](https://github.com/manics))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2021-09-01&to=2021-09-02&type=c))
+
+[@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2021-09-01..2021-09-02&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2021-09-01..2021-09-02&type=Issues)
+
+### 1.0.0 - 2021-09-01
 
 This is not a breaking release, we have just decided to let this be 1.0.0 to
 better communicate changes via the version number in future releases.
