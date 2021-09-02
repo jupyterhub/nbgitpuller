@@ -1,5 +1,4 @@
 jupyter_packaging>=0.10
-six
 pytest
 pytest-cov
 flake8
