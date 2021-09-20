@@ -23,7 +23,7 @@
 
     
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/sphinx-book-theme.acff12b8f9c144ce68a297486a2fa670.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinx-book-theme.e8f53015daec13862f6db5e763c41738.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     
   <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
@@ -62,6 +62,9 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-flake8-linter">Running the flake8 linter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-tests">Running tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-documentation">Building documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="topic/automatic-merging.html">Automatic Merging Behavior</a></li>
@@ -162,11 +165,26 @@
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
             </div>
-            <nav id="bd-toc-nav">
+            <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#setup">
    Setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-the-flake8-linter">
+   Running the flake8 linter
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-tests">
+   Running tests
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#building-documentation">
+   Building documentation
   </a>
  </li>
 </ul>
@@ -180,13 +198,14 @@
         
               <div>
                 
-  <div class="section" id="contributing">
+  <div class="tex2jax_ignore mathjax_ignore section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
-<p>nbgitpuller is a <a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.html">jupyter
-serverextension</a>,
-and hence can be developed locally without needing a JupyterHub.</p>
+<p>nbgitpuller is a jupyter extension that works with both the
+<a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.html">classic Notebook Server</a>,
+and the newer <a class="reference external" href="https://jupyter-server.readthedocs.io/en/latest/operators/configuring-extensions.html">Jupyter Server</a>.
+Hence, nbgitpuller can be developed locally without needing a JupyterHub.</p>
 <ol>
 <li><p>Fork the nbgitpuller repository and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> it to your local computer.</p></li>
 <li><p>Inside the nbgitpuller clone on your local machine, setup a virtual
@@ -196,30 +215,117 @@ environment to do development in</p>
 </pre></div>
 </div>
 </li>
+<li><p>Install development time dependencies in this virtual environment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r dev-requirements.txt
+</pre></div>
+</div>
+</li>
 <li><p>Install nbgitpuller with its dependencies in this virtual environment</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
 </pre></div>
 </div>
 </li>
-<li><p>Enable the nbgitpuller jupyter serverextension</p>
+<li><p>Install the NodeJS dependencies from package.json.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm install
+</pre></div>
+</div>
+</li>
+<li><p>Create the JS and CSS bundles.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm run webpack
+</pre></div>
+</div>
+</li>
+<li><p>Enable the nbgitpuller extension:</p>
+<ul>
+<li><p>as a jupyter serverextension (classic Notebook Server extension)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter serverextension <span class="nb">enable</span> --sys-prefix nbgitpuller
 </pre></div>
 </div>
 </li>
-<li><p>Start the notebook server. This will open the classic notebook in your web
+<li><p>as a jupyter server extension</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server extension <span class="nb">enable</span> --sys-prefix nbgitpuller
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p>Start the notebook server:</p>
+<ul>
+<li><p>You can either start the classical Notebook server.
+This will open the classic notebook in your web
 browser, and automatically authenticate you as a side effect.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter notebook
 </pre></div>
 </div>
 </li>
+<li><p>Or you can start the new Jupyter Server.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server
+</pre></div>
+</div>
+<p>This won’t open any notebook interface, unless you don’t enable one
+(<a class="reference external" href="https://github.com/jupyterlab/nbclassic"><code class="docutils literal notranslate"><span class="pre">nbclassic</span></code></a> or <a class="reference external" href="https://github.com/jupyterlab/jupyterlab"><code class="docutils literal notranslate"><span class="pre">jupyterlab</span></code></a>)
+as a jupyter server extension.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server extension <span class="nb">enable</span> --sys-prefix nbclassic
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter server extension <span class="nb">enable</span> --sys-prefix jupyterlab
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
 <li><p>You can now test nbgitpuller locally, by hitting the <code class="docutils literal notranslate"><span class="pre">/git-pull</span></code> url with any
 of the <a class="reference internal" href="topic/url-options.html"><span class="doc std std-doc">URL query parameters</span></a>. For example, to pull the
 <a class="reference external" href="https://github.com/data-8/textbook">data-8/textbook</a> repository’s <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code>
 branch, you can use the following URL:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>http://localhost:8888/git-sync?repo=https://github.com/data-8/textbook&amp;branch=gh-pages
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>http://localhost:8888/git-pull?repo=https://github.com/data-8/textbook&amp;branch=gh-pages
 </pre></div>
 </div>
 </li>
+<li><p>If you make changes to nbgitpuller’s python code, you need to restart the <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">notebook</span></code>
+process (started in step 5) to see your changes take effect. This is not needed if
+you are only working on the javascript or css.</p></li>
+</ol>
+</div>
+<div class="section" id="running-the-flake8-linter">
+<h2>Running the flake8 linter<a class="headerlink" href="#running-the-flake8-linter" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> is used to validate python coding style. The
+flake8 config is in <code class="docutils literal notranslate"><span class="pre">.flake8</span></code>, and is not super strict. You should be able to run
+<code class="docutils literal notranslate"><span class="pre">flake8</span></code> in the root directory of the repository to get a list of issues to be fixed.</p>
+</div>
+<div class="section" id="running-tests">
+<h2>Running tests<a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://docs.pytest.org/">pytest</a> is used to run unit and integration tests,
+under the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory. If you add new functionality, you should also add
+tests to cover it.  You can run the tests locally with <code class="docutils literal notranslate"><span class="pre">py.test</span> <span class="pre">tests/</span></code></p>
+</div>
+<div class="section" id="building-documentation">
+<h2>Building documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.sphinx-doc.org/">sphinx</a> is used to write and maintain documentation, under
+the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory. If you add any new functionality, you should write documentaiton
+for it as well. A mix of <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">reStructuredText</a>
+and <a class="reference external" href="https://myst-parser.readthedocs.io">MyST Markdown</a> is used to write our documentation,
+although we would like to migrate purely to MyST markdown in the future.</p>
+<ol>
+<li><p>Install the packages needed to build the documentation</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r docs/doc-requirements.txt
+</pre></div>
+</div>
+</li>
+<li><p>Build the documentation by using <code class="docutils literal notranslate"><span class="pre">make</span></code> inside the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder. This will
+internally call <code class="docutils literal notranslate"><span class="pre">sphinx</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
+make html
+</pre></div>
+</div>
+</li>
+<li><p>Preview the documentation by opening <code class="docutils literal notranslate"><span class="pre">_build/html/index.html</span></code> file in
+your browser. From inside the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder, you can run either
+<code class="docutils literal notranslate"><span class="pre">open</span> <span class="pre">_build/html/index.html</span></code> (on MacOS) or <code class="docutils literal notranslate"><span class="pre">xdg-open</span> <span class="pre">_build/html/index.html</span></code>
+to quickly open the file in the browser.</p></li>
+<li><p>You can run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> again after making further changes to see their
+effects.</p></li>
 </ol>
 </div>
 </div>
@@ -228,12 +334,32 @@ branch, you can use the following URL:</p>
               </div>
               
         
-        <div class='prev-next-bottom'>
             
-    <a class='left-prev' id="prev-link" href="install.html" title="previous page">Installation</a>
-    <a class='right-next' id="next-link" href="topic/automatic-merging.html" title="next page">Automatic Merging Behavior</a>
 
-        </div>
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="install.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Installation</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="topic/automatic-merging.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Automatic Merging Behavior</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
         
         </div>
     </div>

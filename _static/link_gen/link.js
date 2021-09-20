@@ -130,11 +130,6 @@ function changeTab(div) {
     var hub_help_text = document.getElementById("hub-help-text");
     var env_repo_group = document.getElementById("env-repo-group");
     var env_repo = document.getElementById("env-repo");
-<<<<<<< HEAD
-=======
-    // var env_repo_branch = document.getElementById("env-branch");
-    // var env_repo_help_text = document.getElementById("env-repo-help-text");
->>>>>>> b5b1e8e... JupyterHub link gen working
     var id = div.id;
     var form = document.getElementById('linkgenerator');
     
