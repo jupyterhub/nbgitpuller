@@ -11,10 +11,11 @@ jstargets = [
 ]
 
 # https://github.com/jupyter/jupyter-packaging/blob/0.10.4/README.md#as-a-build-requirement
-jsdeps = npm_builder(build_cmd="webpack")
+# https://github.com/jupyter/jupyter-packaging/blob/0.10.4/jupyter_packaging/setupbase.py#L160-L164
+jsdeps = npm_builder(build_cmd="webpack", build_dir="nbgitpuller/static/dist", source_dir="nbgitpuller/static/js")
 cmdclass = wrap_installers(
     pre_develop=jsdeps, pre_dist=jsdeps,
-    ensured_targets=jstargets, skip_if_exists=jstargets)
+    ensured_targets=jstargets)
 
 # Imports __version__, reference: https://stackoverflow.com/a/24517154/2220152
 ns = {}
