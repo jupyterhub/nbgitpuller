@@ -7,10 +7,11 @@ import subprocess
 import shutil
 from urllib.parse import urlparse
 from functools import partial
-from nbgitpuller import \
-    TEMP_DOWNLOAD_REPO_DIR, \
-    CACHED_ORIGIN_NON_GIT_REPO, \
-    REPO_PARENT_DIR
+from nbgitpuller import (
+    TEMP_DOWNLOAD_REPO_DIR,
+    CACHED_ORIGIN_NON_GIT_REPO,
+    REPO_PARENT_DIR,
+)
 
 
 async def execute_cmd(cmd, **kwargs):
