@@ -16,7 +16,7 @@ def handle_files(query_line_args):
 
     The parameter, query_line_args, is any argument you put on the URL
 
-    Once the files are saved to the directly, git puller can handle all the
+    Once the files are saved to the directory, git puller can handle all the
     standard functions needed to make sure source files are updated or created
     as needed.
     """
