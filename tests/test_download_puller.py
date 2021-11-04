@@ -39,7 +39,7 @@ async def test_configuration():
 
 
 def test_extract_file_extension():
-    url = "https://fake.com/master/materials-sp20-external.tgz"
+    url = "https://example.org/master/materials-sp20-external.tgz"
     ext = ph.extract_file_extension(url)
     assert "tgz" in ext
 
