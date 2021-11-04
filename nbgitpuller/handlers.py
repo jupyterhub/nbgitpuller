@@ -48,6 +48,13 @@ class SyncHandler(IPythonHandler):
 
     @gen.coroutine
     def progress_loop(self, queue):
+        """
+        The loop below constantly checks the queue paremeter for messages
+        that are being sent to the UI so the user is kept aware of progress related to
+        the downloading of archives and the merging of files into the user's home folder
+
+        :param queue: This is either the download_queue or the original pull queue
+        """
         while True:
             try:
                 progress = queue.get_nowait()
