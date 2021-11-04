@@ -39,7 +39,7 @@ async def test_configuration():
 
 
 def test_extract_file_extension():
-    url = "https://github.com/sean-morris/APCS-Source-Code/raw/master/materials-sp20-external.tgz"
+    url = "https://fake.com/master/materials-sp20-external.tgz"
     ext = ph.extract_file_extension(url)
     assert "tgz" in ext
 
@@ -71,7 +71,7 @@ async def test_execute_unarchive(test_configuration):
     yield_str = ""
     async for line in ph.execute_unarchive("zip", archive_base + ".zip", temp_download_repo):
         yield_str += line
-    assert os.path.isfile("/tmp/download/hw/hw01/hw01.ipynb")
+    assert os.path.isfile("/tmp/download/test.txt")
 
 
 @pytest.mark.asyncio
@@ -106,7 +106,7 @@ async def test_download_archive(test_configuration):
 
 
 def test_google_get_id():
-    google_repo = "https://drive.google.com/file/d/1p3m0h5UGWdLkVVP0SSJH6j1HpG2yeDlU/view?usp=sharing"
+    google_repo = "https://drive.google.com/fake/d/1111122223333444444/view?usp=sharing"
     gnb = getattr(google_nb, "get_id")
     file_id = gnb(google_repo)
-    assert file_id == "1p3m0h5UGWdLkVVP0SSJH6j1HpG2yeDlU"
+    assert file_id == "1111122223333444444"
