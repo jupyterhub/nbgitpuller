@@ -94,7 +94,7 @@ async def test_push_to_local_origin(test_configuration):
 @pytest.mark.asyncio
 async def test_download_archive(test_configuration):
     args = {}
-    args["repo"] = "http://fake.com"
+    args["repo"] = "http://example.org/mocked-download-url"
     with aioresponses() as mocked:
         mocked.get(args["repo"], status=200, body=b'Pretend you are zip file being downloaded')
         args["client"] = aiohttp.ClientSession()
