@@ -5,8 +5,8 @@ github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
 
 
 def setup(app):
-    app.add_stylesheet("custom.css")
-    app.add_javascript("link_gen/link.js")
+    app.add_css_file("custom.css")
+    app.add_js_file("link_gen/link.js")
 
 
 # -- General configuration ------------------------------------------------
