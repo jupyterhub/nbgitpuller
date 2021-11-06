@@ -15,6 +15,15 @@ import pluggy
 import nbgitpuller
 
 
+class ProviderException(Exception):
+    """
+    Custom Exception thrown when the provider key specifying
+    the downloader plugin is not installed or can not be found by the
+    name given
+    """
+    def __init__(self, response=None):
+        self.response = response
+
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,7 +52,9 @@ class SyncHandler(IPythonHandler):
     def setup_plugins(self, provider):
         pm = pluggy.PluginManager("nbgitpuller")
         pm.add_hookspecs(hookspecs)
-        pm.load_setuptools_entrypoints("nbgitpuller", name=provider)
+        num_loaded =pm.load_setuptools_entrypoints("nbgitpuller", name=provider)
+        if num_loaded == 0:
+            raise ProviderException(f"The provider key you supplied in the URL could not be found: {provider}")
         return pm
 
     @gen.coroutine
@@ -149,6 +160,17 @@ class SyncHandler(IPythonHandler):
             yield gen.sleep(3)
             self.emit({'phase': 'finished'})
 
+        except ProviderException as pe:
+            self.emit({
+                'phase': 'error',
+                'message': str(pe),
+                'output': '\n'.join([
+                    line.strip()
+                    for line in traceback.format_exception(
+                        type(pe), pe, pe.__traceback__
+                    )
+                ])
+        })
         except Exception as e:
             self.emit({
                 'phase': 'error',

@@ -14,6 +14,9 @@ data8assets/
 summer/
 test-repo/
 venv/
+.idea/
 
 .ipynb_checkpoints
 docs/_build
+jupyterhub.sqlite
+jupyterhub_cookie_secret
