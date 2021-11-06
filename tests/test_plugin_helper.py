@@ -5,7 +5,6 @@ import nbgitpuller.plugin_helper as ph
 import importlib
 import aiohttp
 from aioresponses import aioresponses
-google_nb = importlib.import_module("nbgitpuller.plugins.nbgitpuller-googledrive.googledrive_puller")
 
 test_files_dir = os.getcwd() + "/tests/test_files"
 archive_base = "/tmp/test_files"
@@ -103,10 +102,3 @@ async def test_download_archive(test_configuration):
             yield_str += line
     assert 'Downloading archive' in yield_str
     assert os.path.isfile(temp_archive_download + "downloaded.zip")
-
-
-def test_google_get_id():
-    google_repo = "https://drive.google.com/fake/d/1111122223333444444/view?usp=sharing"
-    gnb = getattr(google_nb, "get_id")
-    file_id = gnb(google_repo)
-    assert file_id == "1111122223333444444"
