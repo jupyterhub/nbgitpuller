@@ -80,6 +80,10 @@ var apps = {
         title: 'Classic Notebook',
         generateUrlPath: function (path) { return 'tree/' + path; },
     },
+    retrolab: {
+        title: 'RetroLab',
+        generateUrlPath: function (path) { return 'retro/tree/' + path; },
+    },
     jupyterlab: {
         title: 'JupyterLab',
         generateUrlPath: function (path) { return 'lab/tree/' + path; }
