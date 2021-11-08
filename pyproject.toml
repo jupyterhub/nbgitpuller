@@ -1,0 +1,7 @@
+[build-system]
+requires = [
+  "build",
+  "jupyter-packaging>=0.10",
+  "setuptools",
+]
+build-backend = "setuptools.build_meta"

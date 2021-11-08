@@ -132,6 +132,12 @@ Use the following form to create your own ``nbgitpuller`` links.
                  </label>
                </div>
                <div class="form-check">
+                 <input class="form-check-input" type="radio" name="app" id="app-retrolab" value="retrolab">
+                 <label class="form-check-label text-dark" for="app-retrolab">
+                   RetroLab
+                 </label>
+               </div>
+               <div class="form-check">
                  <input class="form-check-input" type="radio" name="app" id="app-jupyterlab" value="jupyterlab">
                  <label class="form-check-label text-dark" for="app-jupyterlab">
                    JupyterLab
