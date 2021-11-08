@@ -88,13 +88,13 @@ class GitPuller(Configurable):
         """
         try:
             heads = subprocess.run(
-                ["git", "ls-remote", "--heads", self.git_url],
+                ["git", "ls-remote", "--heads", "--", self.git_url],
                 capture_output=True,
                 text=True,
                 check=True
             )
             tags = subprocess.run(
-                ["git", "ls-remote", "--tags", self.git_url],
+                ["git", "ls-remote", "--tags", "--", self.git_url],
                 capture_output=True,
                 text=True,
                 check=True
@@ -118,7 +118,7 @@ class GitPuller(Configurable):
         """
         try:
             head_branch = subprocess.run(
-                ["git", "ls-remote", "--symref", self.git_url, "HEAD"],
+                ["git", "ls-remote", "--symref", "--", self.git_url, "HEAD"],
                 capture_output=True,
                 text=True,
                 check=True
@@ -154,7 +154,7 @@ class GitPuller(Configurable):
         if self.depth and self.depth > 0:
             clone_args.extend(['--depth', str(self.depth)])
         clone_args.extend(['--branch', self.branch_name])
-        clone_args.extend([self.git_url, self.repo_dir])
+        clone_args.extend(["--", self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
@@ -304,13 +304,14 @@ def main():
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
-    parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
+    parser.add_argument('--target-dir', default='.', help='Path to clone repo under')
+
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
-        args.repo_dir,
-        branch=args.branch_name if args.branch_name else None
+        args.target_dir,
+        branch=args.branch_name
     ).pull():
         print(line)
 

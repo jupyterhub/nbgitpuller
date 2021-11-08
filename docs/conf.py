@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-import requests
-
 github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
 
 
 def setup(app):
-    app.add_stylesheet("custom.css")
-    app.add_javascript("link_gen/link.js")
+    app.add_css_file("custom.css")
+    app.add_js_file("link_gen/link.js")
 
 
 # -- General configuration ------------------------------------------------
@@ -35,8 +32,8 @@ templates_path = ["_templates"]
 source_suffix = [".rst", ".md"]
 
 
-# The master toctree document.
-master_doc = "index"
+# The root toctree document.
+root_doc = master_doc = "index"
 
 # General information about the project.
 project = "nbgitpuller"
@@ -88,7 +85,7 @@ html_theme = "sphinx_book_theme"
 html_context = {
     "github_user": "jupyterhub",
     "github_repo": "nbgitpuller",
-    "github_version": "master",
+    "github_version": "main",
     "doc_path": "doc",
     "source_suffix": source_suffix,
 }
@@ -133,7 +130,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (
-        master_doc,
+        root_doc,
         "nbgitpuller.tex",
         "nbgitpuller Documentation",
         "The nbgitpuller Team",
@@ -146,7 +143,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "nbgitpuller", "nbgitpuller Documentation", [author], 1)]
+man_pages = [(root_doc, "nbgitpuller", "nbgitpuller Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -156,7 +153,7 @@ man_pages = [(master_doc, "nbgitpuller", "nbgitpuller Documentation", [author], 
 #  dir menu entry, description, category)
 texinfo_documents = [
     (
-        master_doc,
+        root_doc,
         "nbgitpuller",
         "nbgitpuller Documentation",
         author,

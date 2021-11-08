@@ -99,7 +99,11 @@ def test_initialize():
 def command_line_test_helper(remote_path, branch, pusher_path):
     work_dir = "/".join(os.path.dirname(os.path.abspath(__file__)).split("/")[:-1]) + "/nbgitpuller"
     try:
-        cmd = ['python3', 'pull.py', remote_path, branch, pusher_path]
+        cmd = ['python3', 'pull.py', remote_path]
+        if branch is not None:
+            cmd += [branch]
+        if pusher_path is not None:
+            cmd += ['--target-dir', pusher_path]
         sp.check_output(
             cmd,
             cwd=work_dir
@@ -119,8 +123,9 @@ def test_command_line_existing_branch():
     assert subprocess_result
 
 
-def test_command_line_default_branch():
-    branch = ""
+def test_command_line_no_branch_passed():
+    # so it should use the default branch
+    branch = None
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
         remotepath = "file://%s" % os.path.abspath(remote.path)

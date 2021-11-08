@@ -9,13 +9,13 @@ The PyPI release is done automatically by TravisCI when a tag is pushed.
 
 ## Steps to make a release
 
-1. Checkout master and make sure it is up to date.
+1. Checkout main and make sure it is up to date.
 
    ```shell
    ORIGIN=${ORIGIN:-origin} # set to the canonical remote, e.g. 'upstream' if 'origin' is not the official repo
-   git checkout master
-   git fetch $ORIGIN master
-   git reset --hard $ORIGIN/master
+   git checkout main
+   git fetch $ORIGIN main
+   git reset --hard $ORIGIN/main
    # WARNING! This next command deletes any untracked files in the repo
    git clean -xfd
    ```
@@ -24,7 +24,7 @@ The PyPI release is done automatically by TravisCI when a tag is pushed.
    [`nbgitpuller/version.py`](nbgitpuller/version.py)
    and make a commit.
 
-   ```
+   ```shell
    git add nbgitpuller/version.py
    VERSION=...  # e.g. 1.2.3
    git commit -m "release $VERSION"
@@ -33,20 +33,21 @@ The PyPI release is done automatically by TravisCI when a tag is pushed.
 1. Reset the `__version__` variable in
    [`nbgitpuller/version.py`](nbgitpuller/version.py)
    to an incremented patch version with a `dev` element, then make a commit.
-   ```
+
+   ```shell
    git add nbgitpuller/version.py
    git commit -m "back to dev"
    ```
 
-1. Push your two commits to master.
+1. Push your two commits to main.
 
    ```shell
    # first push commits without a tags to ensure the
    # commits comes through, because a tag can otherwise
    # be pushed all alone without company of rejected
    # commits, and we want have our tagged release coupled
-   # with a specific commit in master
-   git push $ORIGIN master
+   # with a specific commit in main
+   git push $ORIGIN main
    ```
 
 1. Create a git tag for the pushed release commit and push it.

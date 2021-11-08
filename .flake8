@@ -1,0 +1,12 @@
+[flake8]
+# Ignore style and complexity
+# E: style errors
+# W: style warnings
+# C: complexity
+# E402: module level import not at top of file
+# I100: Import statements are in the wrong order
+# I101: Imported names are in the wrong order. Should be
+ignore = E, C, W, E402, I100, I101, D400
+exclude =
+    .cache,
+    .github

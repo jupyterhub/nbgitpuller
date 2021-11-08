@@ -1,5 +1,6 @@
 include *.md
 include LICENSE
+include package.json
 include setup.cfg
 recursive-include nbgitpuller/static *
 recursive-include nbgitpuller/templates *
