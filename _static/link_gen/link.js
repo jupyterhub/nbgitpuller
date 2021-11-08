@@ -182,7 +182,7 @@ function handleSource(args){
       sourceUrl = args["driveUrl"];
   } else if(source == "dropbox"){
       sourceUrl =  args["dropUrl"];
-  } else if(source == "standard"){
+  } else if(source == "generic_web"){
       sourceUrl =  args["webUrl"];
   }
   return {
@@ -200,7 +200,7 @@ function displayLink() {
         var hubUrl = document.getElementById('hub').value;
         var driveUrl = document.getElementById('drive-url').value;
         var dropUrl = document.getElementById('drop-url').value;
-        var webUrl = document.getElementById('standard-url').value;
+        var webUrl = document.getElementById('generic-web-url').value;
         var envRepoUrl = document.getElementById('env-repo').value;
         var envGitBranch = document.getElementById('env-branch').value;
         var contentRepoUrl = document.getElementById('content-repo').value;
@@ -300,8 +300,8 @@ function displaySource(){
         hideShowByClassName(".source-googledrive", '');
     } else if(source == 'dropbox'){
         hideShowByClassName(".source-dropbox", '');
-    } else if(source =="standard"){
-        hideShowByClassName(".source-standard", '');
+    } else if(source =="generic_web"){
+        hideShowByClassName(".source-generic-web", '');
     }
 }
 
