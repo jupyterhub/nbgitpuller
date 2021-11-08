@@ -2,7 +2,6 @@ import os
 import pytest
 import shutil
 import nbgitpuller.plugin_helper as ph
-import importlib
 import aiohttp
 from aioresponses import aioresponses
 
