@@ -67,9 +67,9 @@ the handle_files_helper function:
    for messages; messages in the download_q are written to the UI so users can see the progress and 
    steps being taken to download their archives. You will notice the progress function is passed into 
    handle_files_helper and accessed like this:
-   ```
-    query_line_args["progress_func"]
-    query_line_args["download_q"]
+   ```python
+   query_line_args["progress_func"]
+   query_line_args["download_q"]
    ```
 3) The first line of the handle_files function for the dropbox downloader is specific to DropBox. The URL to a file
    in DropBox contains one URL query parameter(dl=0). This parameter indicates to Dropbox whether to download the
