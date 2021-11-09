@@ -36,17 +36,18 @@ to study the handle_files_helper function in nbgitpuller to get a sense of how t
 is implemented.
 
 For the rest of the steps, I refer you to the [nbgitpuller-downloader-dropbox](https://github.com/jupyterhub/nbgitpuller-downloader-dropbox) plugin.  
-   ```
-   @hookimpl  
-   def handle_files(query_line_args):
-      query_line_args["repo"] = query_line_args["repo"].replace("dl=0", "dl=1")  # dropbox: dl set to 1  
-      ext = determine_file_extension(query_line_args["repo"])`  
-      query_line_args["extension"] = ext
-      loop = asyncio.get_event_loop()
-      tasks = handle_files_helper(query_line_args), query_line_args["progress_func"]()
-      result_handle, _ = loop.run_until_complete(asyncio.gather(*tasks))
-      return result_handle
-   ```
+
+```python
+@hookimpl  
+def handle_files(query_line_args):
+    query_line_args["repo"] = query_line_args["repo"].replace("dl=0", "dl=1")  # dropbox: dl set to 1  
+    ext = determine_file_extension(query_line_args["repo"])`  
+    query_line_args["extension"] = ext
+    loop = asyncio.get_event_loop()
+    tasks = handle_files_helper(query_line_args), query_line_args["progress_func"]()
+    result_handle, _ = loop.run_until_complete(asyncio.gather(*tasks))
+    return result_handle
+```
 
 The following pieces describe what happens in handle_files before, at least, in this case, we call
 the handle_files_helper function:  
