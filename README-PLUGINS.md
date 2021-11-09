@@ -59,7 +59,7 @@ the handle_files_helper function:
    http://[your hub]/hub/user-redirect/git-pull?repo=[link to your archive]&keyword1=value1&keyword2=value2&provider=dropbox&urlpath=tree%2F%2F
    In your handle_files function, you could make this call to get your custom arguments:
 
-   ```
+   ```python
    query_line_args["keyword1"]
    query_line_args["keyword2"]
    ```
