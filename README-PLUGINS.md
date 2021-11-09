@@ -11,9 +11,11 @@ available right now:
 There are several pieces to be aware of for the plugin to work correctly:
 1. The setup.cfg(or setup.py) file must have the entry_points definition.
 For example:  
-> [options.entry_points]  
-nbgitpuller =  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dropbox=nbgitpuller_downloader_dropbox.dropbox_downloader
+
+   ```toml
+   [options.entry_points]  
+   nbgitpuller = dropbox=nbgitpuller_downloader_dropbox.dropbox_downloader
+   ```
 
 2. The file referenced for use by nbgitpuller in the plug-in (the above example is looking for the 
 file, dropbox_downloader) must implement the function handle_files(query_line_args) and be decorated with `@hookimpl`.
