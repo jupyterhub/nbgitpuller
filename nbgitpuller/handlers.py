@@ -12,7 +12,6 @@ from .pull import GitPuller
 from .version import __version__
 from . import hookspecs
 import pluggy
-import nbgitpuller
 
 
 class ProviderException(Exception):
@@ -73,7 +72,6 @@ class SyncHandler(IPythonHandler):
                 yield gen.sleep(0.1)
                 continue
             if progress is None:
-                yield gen.sleep(5)
                 return
             if isinstance(progress, Exception):
                 self.emit({
@@ -119,7 +117,6 @@ class SyncHandler(IPythonHandler):
             # server_root_dir will include things like `~` and so the path
             # must be expanded.
             repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']), os.getenv('NBGITPULLER_PARENTPATH', ''))
-            nbgitpuller.REPO_PARENT_DIR = repo_parent_dir
 
             repo_dir = os.path.join(
                         repo_parent_dir,
@@ -137,6 +134,7 @@ class SyncHandler(IPythonHandler):
                 download_q = Queue()
                 req_args["progress_func"] = lambda: self.progress_loop(download_q)
                 req_args["download_q"] = download_q
+                req_args["repo_parent_dir"] = repo_parent_dir
                 hf_args = {"query_line_args": req_args}
                 results = pm.hook.handle_files(**hf_args)
                 repo_dir = repo_parent_dir + results["unzip_dir"]

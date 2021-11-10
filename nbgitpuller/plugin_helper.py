@@ -7,12 +7,14 @@ import subprocess
 import shutil
 from urllib.parse import urlparse
 from functools import partial
-from nbgitpuller import (
-    TEMP_DOWNLOAD_REPO_DIR,
-    CACHED_ORIGIN_NON_GIT_REPO,
-    REPO_PARENT_DIR,
-)
 
+# this is a temporary folder used to download the archive into before
+# it is decompressed and brought into the users drive
+TEMP_DOWNLOAD_REPO_DIR = "/tmp/temp_download_repo"
+
+# this is the path to the local origin repository that nbgitpuller uses to mimic
+# a remote repo in GitPuller
+CACHED_ORIGIN_NON_GIT_REPO = ".nbgitpuller/targets/"
 
 async def execute_cmd(cmd, **kwargs):
     """
@@ -178,8 +180,8 @@ dir_names = None
 
 async def handle_files_helper(args):
     """
-    :param map args: key-value pairs including the repo, provider, extenstion,
-    download function and download parameters in the case
+    :param map args: key-value pairs including the repo, provider, extension, repo_parent_dir,
+    the download function and download parameters in the case
     that the source needs to handle the download in a specific way(e.g. google
     requires a confirmation of the download)
     :return json object with the directory name of the download and
@@ -192,7 +194,8 @@ async def handle_files_helper(args):
     """
     url = args["repo"].translate(str.maketrans('', '', string.punctuation))
     provider = args["provider"]
-    origin_repo = f"{REPO_PARENT_DIR}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
+    repo_parent_dir = args["repo_parent_dir"]
+    origin_repo = f"{repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
     temp_download_repo = TEMP_DOWNLOAD_REPO_DIR
     temp_download_file = f"{TEMP_DOWNLOAD_REPO_DIR}/download.{args['extension']}"
 
