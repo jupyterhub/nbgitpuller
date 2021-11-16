@@ -3,6 +3,14 @@ nbgitpuller link generator
 
 Use the following form to create your own ``nbgitpuller`` links.
 
+.. note::
+
+   Consider using the `nbgitpuller link generator browser extension <https://github.com/yuvipanda/nbgitpuller-link-generator-webextension>`_
+   instead! Available for `Firefox <https://addons.mozilla.org/en-US/firefox/addon/nbgitpuller-link-generator/>`_ and
+   `Chrome <https://github.com/yuvipanda/nbgitpuller-link-generator-webextension#on-google-chrome--chromium>`_.
+
+
+
 .. raw:: html
 
    <div class="container full-width">
@@ -129,6 +137,12 @@ Use the following form to create your own ``nbgitpuller`` links.
                  <input class="form-check-input" type="radio" name="app" id="app-classic" value="classic" checked>
                  <label class="form-check-label text-dark" for="app-classic">
                    Classic Jupyter Notebook
+                 </label>
+               </div>
+               <div class="form-check">
+                 <input class="form-check-input" type="radio" name="app" id="app-retrolab" value="retrolab">
+                 <label class="form-check-label text-dark" for="app-retrolab">
+                   RetroLab
                  </label>
                </div>
                <div class="form-check">
