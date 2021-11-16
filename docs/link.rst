@@ -3,6 +3,14 @@ nbgitpuller link generator
 
 Use the following form to create your own ``nbgitpuller`` links.
 
+.. note::
+
+   Consider using the `nbgitpuller link generator browser extension <https://github.com/yuvipanda/nbgitpuller-link-generator-webextension>`_
+   instead! Available for `Firefox <https://addons.mozilla.org/en-US/firefox/addon/nbgitpuller-link-generator/>`_ and
+   `Chrome <https://github.com/yuvipanda/nbgitpuller-link-generator-webextension#on-google-chrome--chromium>`_.
+
+
+
 .. raw:: html
 
    <div class="container full-width">
