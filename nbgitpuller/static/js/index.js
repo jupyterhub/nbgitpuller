@@ -2,14 +2,14 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import css from '../../../node_modules/xterm/css/xterm.css';
 
-function GitSync(baseUrl, repo, branch, depth, targetpath, path, provider) {
+function GitSync(baseUrl, repo, branch, depth, targetpath, path, content_provider) {
     // Class that talks to the API backend & emits events as appropriate
     this.baseUrl = baseUrl;
     this.repo = repo;
     this.branch = branch;
     this.depth = depth;
     this.targetpath = targetpath;
-    this.provider = provider;
+    this.content_provider = content_provider;
     this.redirectUrl = baseUrl + path;
     this.callbacks = {};
 }
@@ -42,8 +42,8 @@ GitSync.prototype.start = function() {
     if (typeof this.branch !== 'undefined' && this.branch != undefined) {
         syncUrlParams['branch'] = this.branch;
     }
-    if (typeof this.provider !== 'undefined' && this.provider != undefined) {
-        syncUrlParams['provider'] = this.provider;
+    if (typeof this.content_provider !== 'undefined' && this.content_provider != undefined) {
+        syncUrlParams['content_provider'] = this.content_provider;
     }
     var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
 
@@ -143,7 +143,7 @@ var gs = new GitSync(
     get_body_data('depth'),
     get_body_data('targetpath'),
     get_body_data('path'),
-    get_body_data('provider')
+    get_body_data('content_provider')
 );
 
 var gsv = new GitSyncView(

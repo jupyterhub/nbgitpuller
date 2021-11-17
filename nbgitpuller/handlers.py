@@ -5,7 +5,7 @@ from notebook.base.handlers import IPythonHandler
 import threading
 import json
 import os
-from queue import Queue, Empty
+from queue import Queue
 import jinja2
 
 from .pull import GitPuller
@@ -14,9 +14,9 @@ from . import hookspecs
 import pluggy
 
 
-class ProviderException(Exception):
+class ContentProviderException(Exception):
     """
-    Custom Exception thrown when the provider key specifying
+    Custom Exception thrown when the content_provider key specifying
     the downloader plugin is not installed or can not be found by the
     name given
     """
@@ -48,18 +48,27 @@ class SyncHandler(IPythonHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
-    def setup_plugins(self, provider):
+    def setup_plugins(self, content_provider):
+        """
+        This automatically searches for and loads packages whose entrypoint is nbgitpuller. If found,
+        the plugin manager object is returned and used to execute the hook implemented by
+        the plugin.
+        :param content_provider: this is the name of the content_provider; each plugin is named to identify the
+        content_provider of the archive to be loaded(e.g. googledrive, dropbox, etc)
+        :return: returns the PluginManager object used to call the implemented hooks of the plugin
+        :raises: ContentProviderException -- this occurs when the content_provider parameter is not found
+        """
         pm = pluggy.PluginManager("nbgitpuller")
         pm.add_hookspecs(hookspecs)
-        num_loaded =pm.load_setuptools_entrypoints("nbgitpuller", name=provider)
+        num_loaded =pm.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
         if num_loaded == 0:
-            raise ProviderException(f"The provider key you supplied in the URL could not be found: {provider}")
+            raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
         return pm
 
     @gen.coroutine
-    def progress_loop(self, queue):
+    def _wait_for_sync_progress_queue(self, queue):
         """
-        The loop below constantly checks the queue paremeter for messages
+        The loop below constantly checks the queue parameter for messages
         that are being sent to the UI so the user is kept aware of progress related to
         the downloading of archives and the merging of files into the user's home folder
 
@@ -102,7 +111,7 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
-            provider = self.get_argument('provider', None)
+            content_provider = self.get_argument('provider', None)
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -123,13 +132,13 @@ class SyncHandler(IPythonHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            # if provider is specified then we are dealing with compressed
+            # if content_provider is specified then we are dealing with compressed
             # archive and not a git repo
-            if provider is not None:
-                pm = self.setup_plugins(provider)
+            if content_provider is not None:
+                pm = self.setup_plugins(content_provider)
                 req_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
                 download_q = Queue()
-                req_args["progress_func"] = lambda: self.progress_loop(download_q)
+                req_args["progress_func"] = lambda: self._wait_for_sync_progress_queue(download_q)
                 req_args["download_q"] = download_q
                 req_args["repo_parent_dir"] = repo_parent_dir
                 hf_args = {"query_line_args": req_args}
@@ -151,11 +160,10 @@ class SyncHandler(IPythonHandler):
                     raise e
             self.gp_thread = threading.Thread(target=pull)
             self.gp_thread.start()
-            self.progress_loop(q)
-            yield gen.sleep(3)
+            yield self._wait_for_sync_progress_queue(q)
             self.emit({'phase': 'finished'})
 
-        except ProviderException as pe:
+        except ContentProviderException as pe:
             self.emit({
                 'phase': 'error',
                 'message': str(pe),
@@ -203,7 +211,7 @@ class UIHandler(IPythonHandler):
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
-        provider = self.get_argument('provider', None)
+        content_provider = self.get_argument('content_provider', None)
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
@@ -224,7 +232,7 @@ class UIHandler(IPythonHandler):
             else:
                 path = 'tree/' + path
 
-        if provider is not None:
+        if content_provider is not None:
             path = "tree/"
 
         self.write(
@@ -234,7 +242,7 @@ class UIHandler(IPythonHandler):
                 branch=branch,
                 path=path,
                 depth=depth,
-                provider=provider,
+                provider=content_provider,
                 targetpath=targetpath,
                 version=__version__
             ))
@@ -271,10 +279,3 @@ class LegacyInteractRedirectHandler(IPythonHandler):
         )
 
         self.redirect(new_url)
-
-
-class ThreadWithResult(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None):
-        def function():
-            self.result = target(*args, **kwargs)
-        super().__init__(group=group, target=function, name=name, daemon=daemon)
