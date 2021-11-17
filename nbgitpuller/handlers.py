@@ -202,18 +202,19 @@ class UIHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
+
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
         provider = self.get_argument('provider', None)
         urlPath = self.get_argument('urlpath', None) or \
-            self.get_argument('urlPath', None)
+                  self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
-            self.get_argument('subPath', '.')
+                  self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
         parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
         targetpath = self.get_argument('targetpath', None) or \
-            self.get_argument('targetPath', repo.split('/')[-1])
+                     self.get_argument('targetPath', repo.split('/')[-1])
 
         if urlPath:
             path = urlPath
