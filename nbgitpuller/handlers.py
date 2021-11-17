@@ -66,11 +66,10 @@ class SyncHandler(IPythonHandler):
         :param queue: This is either the download_queue or the original pull queue
         """
         while True:
-            try:
-                progress = queue.get_nowait()
-            except Empty:
-                yield gen.sleep(0.1)
+            if queue.empty():
+                yield gen.sleep(0.5)
                 continue
+            progress = queue.get_nowait()
             if progress is None:
                 return
             if isinstance(progress, Exception):
@@ -116,11 +115,9 @@ class SyncHandler(IPythonHandler):
             # so that all repos are always in scope after cloning. Sometimes
             # server_root_dir will include things like `~` and so the path
             # must be expanded.
-            repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']), os.getenv('NBGITPULLER_PARENTPATH', ''))
-
-            repo_dir = os.path.join(
-                        repo_parent_dir,
-                        self.get_argument('targetpath', repo.split('/')[-1]))
+            repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
+                                           os.getenv('NBGITPULLER_PARENTPATH', ''))
+            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
