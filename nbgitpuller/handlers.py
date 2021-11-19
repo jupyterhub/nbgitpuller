@@ -135,10 +135,10 @@ class SyncHandler(IPythonHandler):
             # if content_provider is specified then we are dealing with compressed
             # archive and not a git repo
             if content_provider is not None:
-                pm = self.setup_plugins(content_provider)
+                plugin_manager = self.setup_plugins(content_provider)
                 req_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
                 download_q = Queue()
-                req_args["progress_func"] = lambda: self._wait_for_sync_progress_queue(download_q)
+                req_args["progress_func"] = partial(self._wait_for_sync_progress_queue, download_q)
                 req_args["download_q"] = download_q
                 req_args["repo_parent_dir"] = repo_parent_dir
                 hf_args = {"query_line_args": req_args}
