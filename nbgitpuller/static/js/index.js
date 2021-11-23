@@ -153,7 +153,6 @@ var gsv = new GitSyncView(
 );
 
 gs.addHandler('syncing', function(data) {
-    gsv.setTerminalVisibility(true);
     gsv.term.write(data.output);
 });
 gs.addHandler('finished', function(data) {
