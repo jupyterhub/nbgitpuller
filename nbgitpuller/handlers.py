@@ -10,7 +10,7 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
-from . import hookspecs
+from . import plugin_hook_specs
 import pluggy
 
 
@@ -59,7 +59,7 @@ class SyncHandler(IPythonHandler):
         :raises: ContentProviderException -- this occurs when the content_provider parameter is not found
         """
         pm = pluggy.PluginManager("nbgitpuller")
-        pm.add_hookspecs(hookspecs)
+        pm.add_hookspecs(plugin_hook_specs)
         num_loaded =pm.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
         if num_loaded == 0:
             raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
@@ -136,13 +136,13 @@ class SyncHandler(IPythonHandler):
             # archive and not a git repo
             if content_provider is not None:
                 pm = self.setup_plugins(content_provider)
-                req_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
+                query_line_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
                 download_q = Queue()
-                req_args["progress_func"] = lambda: self._wait_for_sync_progress_queue(download_q)
-                req_args["download_q"] = download_q
-                req_args["repo_parent_dir"] = repo_parent_dir
-                hf_args = {"query_line_args": req_args}
-                results = pm.hook.handle_files(**hf_args)
+                helper_args = dict()
+                helper_args["wait_for_sync_progress_queue"] = lambda: self._wait_for_sync_progress_queue(download_q)
+                helper_args["download_q"] = download_q
+                helper_args["repo_parent_dir"] = repo_parent_dir
+                results = pm.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args)
                 repo_dir = repo_parent_dir + results["unzip_dir"]
                 repo = "file://" + results["origin_repo_path"]
 
