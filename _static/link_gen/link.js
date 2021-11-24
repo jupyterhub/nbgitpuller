@@ -7,7 +7,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
     url.searchParams.set('repo', repoUrl);
     
     if(compressed) {
-      url.searchParams.set('provider', source);
+      url.searchParams.set('content_provider', source);
     }
     
     if (urlPath) {
@@ -37,7 +37,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source)
     nextUrlParams.append('repo', repoUrl);
     
     if(compressed) {
-      nextUrlParams.append('provider', source);
+      nextUrlParams.append('content_provider', source);
     }
     
     if (urlPath) {
@@ -71,7 +71,7 @@ function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
     nextUrlParams.append('repo', contentRepoUrl);
 
     if(compressed) {
-      nextUrlParams.append('provider', source);
+      nextUrlParams.append('content_provider', source);
     }
     
     if (urlPath) {
