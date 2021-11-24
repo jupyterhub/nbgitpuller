@@ -143,7 +143,7 @@ var gs = new GitSync(
     get_body_data('depth'),
     get_body_data('targetpath'),
     get_body_data('path'),
-    get_body_data('content_provider')
+    get_body_data('provider')
 );
 
 var gsv = new GitSyncView(

@@ -111,7 +111,7 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
-            content_provider = self.get_argument('provider', None)
+            content_provider = self.get_argument('content_provider', None)
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -143,7 +143,7 @@ class SyncHandler(IPythonHandler):
                 helper_args["download_q"] = download_q
                 helper_args["repo_parent_dir"] = repo_parent_dir
                 results = pm.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args)
-                repo_dir = repo_parent_dir + results["unzip_dir"]
+                repo_dir = repo_parent_dir + results["output_dir"]
                 repo = "file://" + results["origin_repo_path"]
 
             gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])

@@ -25,7 +25,7 @@ def handle_files(helper_args, query_line_args):
             This is a Queue that accepts messages to be displayed in the UI. You might tell the user what percent of
             the download is complete or any other progress that might inform the user.
     :param json query_line_args: this includes any argument you put on the nbgitpuller URL
-    :return two parameter json unzip_dir and origin_repo_path
+    :return two parameter json output_dir and origin_repo_path
     :rtype json object
 
     This function must be implemented by content-provider plugins in order to handle the downloading and decompression
@@ -46,7 +46,8 @@ def handle_files(helper_args, query_line_args):
     source files.
 
     This function needs to return two pieces of information as a json object:
-        - unzip_dir -- the is the name of the folder you unzipped the archive into
+        - output_dir -- the is the name of the directory that will hold all the files you want GitPuller to expose
+            for comparison, when git is the source, this is name of git repository you are pulling
         - origin_repo_path -- this is path to the local git repo that "acts" like the remote origin you would use
             if the content-provider is git.
 
