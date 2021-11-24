@@ -122,9 +122,9 @@ async def execute_unarchive(ext, temp_download_file, temp_download_repo):
         yield e
 
 
-async def download_archive(args, temp_download_file):
+async def download_archive(repo_path, temp_download_file):
     """
-    :param map args: key-value pairs including the aiohttp session object and repo path
+    :param str repo_path: the git repo path
     :param str temp_download_file: the path to save the requested file to
 
     This requests the file from the repo(url) given and saves it to the disk
@@ -132,8 +132,8 @@ async def download_archive(args, temp_download_file):
     yield "Downloading archive ...\n"
     try:
         CHUNK_SIZE = 1024
-        async with args["client"] as session:
-            async with session.get(args["repo"]) as response:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(repo_path) as response:
                 with open(temp_download_file, 'ab') as fd:
                     count_chunks = 1
                     while True:
@@ -178,26 +178,40 @@ async def push_to_local_origin(temp_download_repo):
 dir_names = None
 
 
-async def handle_files_helper(args):
+async def handle_files_helper(helper_args, query_line_args):
     """
-    :param map args: key-value pairs including the repo, provider, extension, repo_parent_dir,
-    the download function and download parameters in the case
-    that the source needs to handle the download in a specific way(e.g. google
-    requires a confirmation of the download)
+    :param dict helper_args: key-value pairs including the:
+        - download function
+        - download parameters in the case
+            that the source needs to handle the download in a specific way(e.g. google
+            requires a confirmation of the download)
+        - extension (e.g. zip, tar) ] [OPTIONAL] this may or may not be included. If the repo name contains
+            name of archive (e.g. example.zip) then this function can determine the extension for you; if not it
+            needs to be provided.
+    :param dict query_line_args:
+        - repo,
+        - provider,
+        - repo_parent_dir
     :return json object with the directory name of the download and
     the origin_repo_path
     :rtype json object
 
-    This does all the heavy lifting in order needed to set up your local
-    repos, origin, download the file, unarchiving and push the files
+    This does all the heavy lifting in the order needed to set up your local
+    repos, origin, download the file, unarchive and push the files
     back to the origin
     """
-    url = args["repo"].translate(str.maketrans('', '', string.punctuation))
-    provider = args["provider"]
-    repo_parent_dir = args["repo_parent_dir"]
+    url = query_line_args["repo"].translate(str.maketrans('', '', string.punctuation))
+    provider = query_line_args["content_provider"]
+    repo_parent_dir = helper_args["repo_parent_dir"]
     origin_repo = f"{repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
     temp_download_repo = TEMP_DOWNLOAD_REPO_DIR
-    temp_download_file = f"{TEMP_DOWNLOAD_REPO_DIR}/download.{args['extension']}"
+    # you can optionally pass the extension of your archive(e.g zip) if it is not identifiable from the URL file name
+    # otherwise the extract_file_extension function will pull it off the repo name
+    if "extension" not in helper_args:
+        ext = extract_file_extension(query_line_args["repo"])
+    else:
+        ext = helper_args['extension']
+    temp_download_file = f"{TEMP_DOWNLOAD_REPO_DIR}/download.{ext}"
 
     async def gener():
         global dir_names
@@ -209,17 +223,16 @@ async def handle_files_helper(args):
             async for c in clone_local_origin_repo(origin_repo, temp_download_repo):
                 yield c
 
-            args["client"] = aiohttp.ClientSession()
             download_func = download_archive
-            download_args = args, temp_download_file
-            if "dowload_func" in args:
-                download_func = args["dowload_func"]
-                download_args = args["dowload_func_params"]
+            download_args = query_line_args["repo"], temp_download_file
+            if "dowload_func" in helper_args:
+                download_func = helper_args["dowload_func"]
+                download_args = helper_args["dowload_func_params"]
 
             async for d in download_func(*download_args):
                 yield d
 
-            async for e in execute_unarchive(args["extension"], temp_download_file, temp_download_repo):
+            async for e in execute_unarchive(ext, temp_download_file, temp_download_repo):
                 yield e
 
             os.remove(temp_download_file)
@@ -229,6 +242,7 @@ async def handle_files_helper(args):
             unzipped_dirs = os.listdir(temp_download_repo)
             # name of the extracted directory
             dir_names = list(filter(lambda dir: ".git" not in dir and "__MACOSX" not in dir, unzipped_dirs))
+
             yield "\n\n"
             yield "Process Complete: Archive is finished importing into hub\n"
             yield f"The directory of your download is: {dir_names[0]}\n"
@@ -239,10 +253,10 @@ async def handle_files_helper(args):
 
     try:
         async for line in gener():
-            args["download_q"].put_nowait(line)
+            helper_args["download_q"].put_nowait(line)
             await asyncio.sleep(0.1)
     except Exception as e:
-        args["download_q"].put_nowait(e)
+        helper_args["download_q"].put_nowait(e)
         raise e
-    args["download_q"].put_nowait(None)
-    return {"unzip_dir": dir_names[0], "origin_repo_path": origin_repo}
+    helper_args["download_q"].put_nowait(None)
+    return {"output_dir": dir_names[0], "origin_repo_path": origin_repo}
