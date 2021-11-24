@@ -2,7 +2,6 @@ import os
 import pytest
 import shutil
 import nbgitpuller.plugin_helper as ph
-import aiohttp
 from aioresponses import aioresponses
 
 test_files_dir = os.getcwd() + "/tests/test_files"
@@ -95,9 +94,8 @@ async def test_download_archive(test_configuration):
     args["repo"] = "http://example.org/mocked-download-url"
     with aioresponses() as mocked:
         mocked.get(args["repo"], status=200, body=b'Pretend you are zip file being downloaded')
-        args["client"] = aiohttp.ClientSession()
         yield_str = ""
-        async for line in ph.download_archive(args, temp_archive_download + "downloaded.zip"):
+        async for line in ph.download_archive(args["repo"], temp_archive_download + "downloaded.zip"):
             yield_str += line
     assert 'Downloading archive' in yield_str
     assert os.path.isfile(temp_archive_download + "downloaded.zip")

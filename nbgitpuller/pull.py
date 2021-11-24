@@ -305,13 +305,12 @@ def main():
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
-
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
-        args.target_dir,
-        branch=args.branch_name
+        args.repo_dir,
+        branch=args.branch_name if args.branch_name else None
     ).pull():
         print(line)
 
