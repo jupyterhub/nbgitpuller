@@ -5,11 +5,9 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
     var url = new URL(hubUrl);
 
     url.searchParams.set('repo', repoUrl);
-    
     if(compressed) {
       url.searchParams.set('content_provider', source);
     }
-    
     if (urlPath) {
         url.searchParams.set('urlpath', urlPath);
     }
@@ -19,7 +17,6 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
     } else if(source == "git"){
         url.searchParams.set('branch', "main");
     }
-    
     if (!url.pathname.endsWith('/')) {
         url.pathname += '/'
     }
@@ -35,11 +32,9 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source)
     var nextUrlParams = new URLSearchParams();
 
     nextUrlParams.append('repo', repoUrl);
-    
     if(compressed) {
-      nextUrlParams.append('content_provider', source);
+        nextUrlParams.append('content_provider', source);
     }
-    
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
     }
@@ -71,9 +66,8 @@ function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
     nextUrlParams.append('repo', contentRepoUrl);
 
     if(compressed) {
-      nextUrlParams.append('content_provider', source);
+        nextUrlParams.append('content_provider', source);
     }
-    
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
     }
@@ -132,17 +126,14 @@ function changeTab(div) {
     var env_repo = document.getElementById("env-repo");
     var id = div.id;
     var form = document.getElementById('linkgenerator');
-    
     clearLinks();
     if (id.includes("binder")) {
         hub.placeholder = "https://mybinder.org";
         hub.value = "https://mybinder.org";
         hub_help_text.hidden = true;
         hub.labels[0].innerHTML = "BinderHub URL";
-        
         env_repo_group.style.display = '';
         env_repo.disabled = false;
-
     } else {
         hub.placeholder = "https://hub.example.com";
         hub.value = "";
@@ -164,37 +155,36 @@ function changeTab(div) {
  */
 function generateCloneDirectoryName(gitCloneUrl) {
     if(gitCloneUrl.slice(-1) == "/")
-      gitCloneUrl = gitCloneUrl.slice(0,-1);
+        gitCloneUrl = gitCloneUrl.slice(0,-1);
     var lastPart = gitCloneUrl.split('/').slice(-1)[0];
     return lastPart.split(':').slice(-1)[0].replace(/(\.git|\.bundle)?/, '');
 }
 
 function handleSource(args){
-  source = args["source"];
-  branch = "";
-  compressed = true;
-  sourceUrl ="";
-  if(source == "git"){
-      sourceUrl = args["contentRepoUrl"];
-      branch = args["contentRepoBranch"];
-      compressed = false;
-  } else if(source == "googledrive"){
-      sourceUrl = args["driveUrl"];
-  } else if(source == "dropbox"){
-      sourceUrl =  args["dropUrl"];
-  } else if(source == "generic_web"){
-      sourceUrl =  args["webUrl"];
-  }
-  return {
-    "branch": branch,
-    "sourceUrl": sourceUrl,
-    "compressed": compressed
-  }
+    source = args["source"];
+    branch = "";
+    compressed = true;
+    sourceUrl ="";
+    if(source == "git"){
+        sourceUrl = args["contentRepoUrl"];
+        branch = args["contentRepoBranch"];
+        compressed = false;
+    } else if(source == "googledrive"){
+        sourceUrl = args["driveUrl"];
+    } else if(source == "dropbox"){
+        sourceUrl =  args["dropUrl"];
+    } else if(source == "generic_web"){
+        sourceUrl =  args["webUrl"];
+    }
+    return {
+        "branch": branch,
+        "sourceUrl": sourceUrl,
+        "compressed": compressed
+    }
 }
 
 function displayLink() {
     var form = document.getElementById('linkgenerator');
-    
     form.classList.add('was-validated');
     if (form.checkValidity()) {
         var hubUrl = document.getElementById('hub').value;
@@ -209,13 +199,12 @@ function displayLink() {
         var appName = form.querySelector('input[name="app"]:checked').value;
         var activeTab = document.querySelector(".nav-link.active").id;
         var source = form.querySelector('input[name="source"]:checked').value;
-        
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
         } else {
             var repoName = generateCloneDirectoryName(contentRepoUrl);
             if(source !== "git"){
-              repoName = ""
+                repoName = ""
             }
             var urlPath;
             if (activeTab === "tab-auth-binder") {
@@ -226,12 +215,12 @@ function displayLink() {
             }
         }
         args = {
-          "source": source,
-          "contentRepoUrl": contentRepoUrl,
-          "contentRepoBranch": contentRepoBranch,
-          "driveUrl": driveUrl,
-          "dropUrl": dropUrl,
-          "webUrl": webUrl
+            "source": source,
+            "contentRepoUrl": contentRepoUrl,
+            "contentRepoBranch": contentRepoBranch,
+            "driveUrl": driveUrl,
+            "dropUrl": dropUrl,
+            "webUrl": webUrl
         }
         config = handleSource(args)
         if (activeTab === "tab-auth-default") {
@@ -279,13 +268,13 @@ function populateFromQueryString() {
 }
 
 function hideShowByClassName(cls, hideShow){
-  [].forEach.call(document.querySelectorAll(cls), function (el) {
-    el.style.display = hideShow;
-    setDisabled = (hideShow == 'none')
-    $(el).find("input").each(function(){
-        $(this).prop("disabled", setDisabled);
+    [].forEach.call(document.querySelectorAll(cls), function (el) {
+        el.style.display = hideShow;
+        setDisabled = (hideShow == 'none')
+        $(el).find("input").each(function(){
+            $(this).prop("disabled", setDisabled);
+        });
     });
-  });
 }
 
 
@@ -317,7 +306,6 @@ function render() {
     var form = document.getElementById('linkgenerator');
     var appName = form.querySelector('input[name="app"]:checked').value;
 
-    
     if (appName == 'custom') {
         document.getElementById('urlpath').disabled = false;
         document.getElementById('filepath').disabled = true;
@@ -354,7 +342,6 @@ function main() {
             );
         }
     )
-    
     document.querySelectorAll('#linkgenerator input[type="text"], #linkgenerator input[type="url"]').forEach(
         function (element) {
             element.addEventListener('input', render);
@@ -373,7 +360,6 @@ function main() {
       }
     }
 
-    
     // Do an initial render, to make sure our disabled / enabled properties are correctly set
     displaySource();
     render();
