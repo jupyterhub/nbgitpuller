@@ -6,7 +6,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
 
     url.searchParams.set('repo', repoUrl);
     if(compressed) {
-      url.searchParams.set('content_provider', source);
+        url.searchParams.set('content_provider', source);
     }
     if (urlPath) {
         url.searchParams.set('urlpath', urlPath);
@@ -17,6 +17,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
     } else if(source == "git"){
         url.searchParams.set('branch', "main");
     }
+
     if (!url.pathname.endsWith('/')) {
         url.pathname += '/'
     }
@@ -117,7 +118,6 @@ function clearLinks(){
     document.getElementById('binder-link').value = "";
     document.getElementById('canvas-link').value = "";
 }
-
 
 function changeTab(div) {
     var hub = document.getElementById("hub");
@@ -319,7 +319,6 @@ function render() {
             document.getElementById('filepath').disabled = false;
         }
     }
-
     displayLink();
 }
 
@@ -338,8 +337,7 @@ function main() {
             element.addEventListener('change', function(){
                 displaySource();
                 render();
-              }
-            );
+            });
         }
     )
     document.querySelectorAll('#linkgenerator input[type="text"], #linkgenerator input[type="url"]').forEach(
