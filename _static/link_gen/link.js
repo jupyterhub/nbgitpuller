@@ -1,5 +1,5 @@
 // Pure function that generates an nbgitpuller URL
-function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source) {
+function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, contentProvider) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
@@ -7,7 +7,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
     url.searchParams.set('repo', repoUrl);
     
     if(compressed) {
-      url.searchParams.set('content_provider', source);
+      url.searchParams.set('content_provider', contentProvider);
     }
     
     if (urlPath) {
@@ -16,7 +16,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
 
     if (branch) {
         url.searchParams.set('branch', branch);
-    } else if(source == "git"){
+    } else if(contentProvider == "git"){
         url.searchParams.set('branch', "main");
     }
     
@@ -28,7 +28,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, source
     return url.toString();
 }
 
-function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source) {
+function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, contentProvider) {
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
 
@@ -37,7 +37,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source)
     nextUrlParams.append('repo', repoUrl);
     
     if(compressed) {
-      nextUrlParams.append('content_provider', source);
+      nextUrlParams.append('content_provider', contentProvider);
     }
     
     if (urlPath) {
@@ -46,7 +46,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source)
 
     if (branch) {
         nextUrlParams.append('branch', branch);
-    } else if(source == "git"){
+    } else if(contentProvider == "git"){
         nextUrlParams.append('branch', "main");
     }
 
@@ -61,33 +61,36 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, source)
     return url.toString();
 }
 
-function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
-    contentRepoUrl, contentRepoBranch, compressed, source) {
+function generateBinderUrl(hubUrl, userName, envRepoName, envGitBranch, urlPath,
+    contentGitRepoUrl, contentGitRepoBranch, compressed, contentProvider) {
 
     var url = new URL(hubUrl);
 
     var nextUrlParams = new URLSearchParams();
 
-    nextUrlParams.append('repo', contentRepoUrl);
+    nextUrlParams.append('repo', contentGitRepoUrl);
 
     if(compressed) {
-      nextUrlParams.append('content_provider', source);
+      nextUrlParams.append('content_provider', contentProvider);
     }
     
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
     }
 
-    if (contentRepoBranch) {
-        nextUrlParams.append('branch', contentRepoBranch);
-    } else if(source == "git"){
+    if (contentGitRepoBranch) {
+        nextUrlParams.append('branch', contentGitRepoBranch);
+    } else if(contentProvider == "git"){
         nextUrlParams.append('branch', "main");
     }
 
+    if(envGitBranch == ""){
+        envGitBranch = "main"
+    }
     var nextUrl = 'git-pull?' + nextUrlParams.toString();
 
     var path = '/v2/gh/';
-    url.pathname = path.concat(userName, "/", repoName, "/", branch);
+    url.pathname = path.concat(userName, "/", envRepoName, "/", envGitBranch);
     url.searchParams.append('urlpath', nextUrl);
 
     return url.toString();
@@ -152,7 +155,7 @@ function changeTab(div) {
         env_repo_group.style.display = 'none';
         env_repo.disabled = true;
     }
-    displaySource();
+    displayContentProvider();
 }
 
 /**
@@ -161,6 +164,12 @@ function changeTab(div) {
  * nbgitpuller needs to redirect users to *inside* the directory it
  * just cloned. We copy the logic git itself uses to determine that.
  * See https://github.com/git/git/blob/1c52ecf4ba0f4f7af72775695fee653f50737c71/builtin/clone.c#L276
+ *
+ * The condition on the first line of this function ensures the user has not included a forward slash at the end of
+ * the URL. If they do, it is removed so that the rest of the function can split by forward slash and parse the name
+ * of directory from the URL.
+ *
+ * @param {string} gitCloneUrl This is the url to the git repo
  */
 function generateCloneDirectoryName(gitCloneUrl) {
     if(gitCloneUrl.slice(-1) == "/")
@@ -169,25 +178,38 @@ function generateCloneDirectoryName(gitCloneUrl) {
     return lastPart.split(':').slice(-1)[0].replace(/(\.git|\.bundle)?/, '');
 }
 
-function handleSource(args){
-  source = args["source"];
+/**
+ * This takes the values from the UI for content providers and sets three values in a
+ * json object(contentProviderUrl, branch, and compressed) based on what contentProvider is selected in the UI.
+ *
+ * The args contains the contentProvider selected in the UI as well as whatever text(if any)
+ * is in each of the content provider URL(e.g. driveURL, dropURL) text boxes, as well as the contentGitBranch.
+ *
+ * The return value is a a json object containing the branch, which may be an empty string if git is not the content
+ * provider, the contentProviderURL, and a boolean key, compressed, that indicates if you our notebooks are in a
+ * compressed archive.
+ *
+ * @param {json} args - contains UI element values for content providers(url, git branch,
+ */
+function configureContentProviderAttrs(args){
+  contentProvider = args["contentProvider"];
   branch = "";
   compressed = true;
-  sourceUrl ="";
-  if(source == "git"){
-      sourceUrl = args["contentRepoUrl"];
-      branch = args["contentRepoBranch"];
+  contentProviderURL ="";
+  if(contentProvider == "git"){
+      contentProviderURL = args["contentGitRepoUrl"];
+      branch = args["contentGitRepoBranch"];
       compressed = false;
-  } else if(source == "googledrive"){
-      sourceUrl = args["driveUrl"];
-  } else if(source == "dropbox"){
-      sourceUrl =  args["dropUrl"];
-  } else if(source == "generic_web"){
-      sourceUrl =  args["webUrl"];
+  } else if(contentProvider == "googledrive"){
+      contentProviderURL = args["driveUrl"];
+  } else if(contentProvider == "dropbox"){
+      contentProviderURL =  args["dropUrl"];
+  } else if(contentProvider == "generic_web"){
+      contentProviderURL =  args["webUrl"];
   }
   return {
     "branch": branch,
-    "sourceUrl": sourceUrl,
+    "contentProviderURL": contentProviderURL,
     "compressed": compressed
   }
 }
@@ -201,54 +223,51 @@ function displayLink() {
         var driveUrl = document.getElementById('drive-url').value;
         var dropUrl = document.getElementById('drop-url').value;
         var webUrl = document.getElementById('generic-web-url').value;
-        var envRepoUrl = document.getElementById('env-repo').value;
+        var envGitRepoUrl = document.getElementById('env-repo').value;
         var envGitBranch = document.getElementById('env-branch').value;
-        var contentRepoUrl = document.getElementById('content-repo').value;
-        var contentRepoBranch = document.getElementById('content-branch').value;
+        var contentGitRepoUrl = document.getElementById('content-repo').value;
+        var contentGitRepoBranch = document.getElementById('content-branch').value;
         var filePath = document.getElementById('filepath').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
         var activeTab = document.querySelector(".nav-link.active").id;
-        var source = form.querySelector('input[name="source"]:checked').value;
+        var contentProvider = form.querySelector('input[name="content-provider"]:checked').value;
         
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
         } else {
-            var repoName = generateCloneDirectoryName(contentRepoUrl);
-            if(source !== "git"){
-              repoName = ""
+            var envGitRepoName = generateCloneDirectoryName(envGitRepoUrl);
+            var contentGitRepoName = generateCloneDirectoryName(contentGitRepoUrl);
+            var partialUrlPath = contentGitRepoName + '/' + filePath;
+            if(contentProvider !== "git"){
+                contentGitRepoName = "";
+                partialUrlPath = filePath;
             }
-            var urlPath;
-            if (activeTab === "tab-auth-binder") {
-                var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
-                urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
-            } else {
-                urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
-            }
+            var urlPath = apps[appName].generateUrlPath(partialUrlPath);
         }
         args = {
-          "source": source,
-          "contentRepoUrl": contentRepoUrl,
-          "contentRepoBranch": contentRepoBranch,
+          "contentProvider": contentProvider,
+          "contentGitRepoUrl": contentGitRepoUrl,
+          "contentGitRepoBranch": contentGitRepoBranch,
           "driveUrl": driveUrl,
           "dropUrl": dropUrl,
           "webUrl": webUrl
         }
-        config = handleSource(args)
+        config = configureContentProviderAttrs(args)
         if (activeTab === "tab-auth-default") {
             document.getElementById('default-link').value = generateRegularUrl(
-                hubUrl, urlPath, config["sourceUrl"], config["branch"], config["compressed"], source
+                hubUrl, urlPath, config["contentProviderURL"], config["branch"], config["compressed"], contentProvider
             );
         } else if (activeTab === "tab-auth-canvas"){
             document.getElementById('canvas-link').value = generateCanvasUrl(
-                hubUrl, urlPath, config["sourceUrl"], config["branch"], config["compressed"], source
+                hubUrl, urlPath, config["contentProviderURL"], config["branch"], config["compressed"], contentProvider
             );
         } else if (activeTab === "tab-auth-binder"){
             // FIXME: userName parsing using new URL(...) assumes a 
             // HTTP based repoUrl. Does it make sense to create a
             // BinderHub link for SSH URLs? Then let's fix this parsing.
-            var userName = new URL(envRepoUrl).pathname.split('/')[1];
+            var userName = new URL(envGitRepoUrl).pathname.split('/')[1];
             document.getElementById('binder-link').value = generateBinderUrl(
-                hubUrl, userName, repoName, envGitBranch, urlPath, config["sourceUrl"], config["branch"], config["compressed"], source
+                hubUrl, userName, envGitRepoName, envGitBranch, urlPath, config["contentProviderURL"], config["branch"], config["compressed"], contentProvider
             );
         }
     } else {
@@ -287,21 +306,23 @@ function hideShowByClassName(cls, hideShow){
     });
   });
 }
-
-
-function displaySource(){
+/**
+ * Depending on the content provider selected this hides and shows the appropriate divs
+ *
+ */
+function displayContentProvider(){
     var form = document.getElementById('linkgenerator');
-    var source = form.querySelector('input[name="source"]:checked').value;
-    hideShowByClassName(".source", 'none');
+    var contentProvider = form.querySelector('input[name="content-provider"]:checked').value;
+    hideShowByClassName(".content-provider", 'none');
 
-    if(source == 'git'){
-        hideShowByClassName(".source-git", '');
-    } else if(source == 'googledrive'){
-        hideShowByClassName(".source-googledrive", '');
-    } else if(source == 'dropbox'){
-        hideShowByClassName(".source-dropbox", '');
-    } else if(source =="generic_web"){
-        hideShowByClassName(".source-generic-web", '');
+    if(contentProvider == 'git'){
+        hideShowByClassName(".content-provider-git", '');
+    } else if(contentProvider == 'googledrive'){
+        hideShowByClassName(".content-provider-googledrive", '');
+    } else if(contentProvider == 'dropbox'){
+        hideShowByClassName(".content-provider-dropbox", '');
+    } else if(contentProvider =="generic_web"){
+        hideShowByClassName(".content-provider-generic-web", '');
     }
 }
 
@@ -345,10 +366,10 @@ function main() {
             element.addEventListener('change', render);
         }
     )
-    document.querySelectorAll('#linkgenerator input[name="source"]').forEach(
+    document.querySelectorAll('#linkgenerator input[name="content-provider"]').forEach(
         function (element) {
             element.addEventListener('change', function(){
-                displaySource();
+                displayContentProvider();
                 render();
               }
             );
@@ -375,7 +396,7 @@ function main() {
 
     
     // Do an initial render, to make sure our disabled / enabled properties are correctly set
-    displaySource();
+    displayContentProvider();
     render();
 }
 

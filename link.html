@@ -222,7 +222,7 @@
           </div>
         </div>
         
-        <div class="form-group row source-env" id="env-repo-group" style="display:none">
+        <div class="form-group row content-provider-env" id="env-repo-group" style="display:none">
           <label for="env-repo" class="col-sm-2 col-form-label">Git Environment Repository URL</label>
           <div class="col-sm-6">
             <input class="form-control" type="text" id="env-repo" disabled placeholder="https://github.com/example/test"
@@ -253,34 +253,34 @@
           </div>
         </div>
         
-        <div class="form-group row" id="app-source">
+        <div class="form-group row" id="app-content-provider">
           <div class="col-sm-2 col-form-label">
-            <label for="app" class=>Notebook Source</label>
+            <label for="app-content-provider" class=>Notebook Content Provider</label>
             <small class="form-text text-muted">
             </small>
           </div>
           <div class="col-sm-10">
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="source" id="source-git" value="git" checked>
-              <label class="form-check-label text-dark" for="source-git">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-git" value="git" checked>
+              <label class="form-check-label text-dark" for="content-provider-git">
                 Git Repository(eg. github)
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="source" id="source-googledrive" value="googledrive">
-              <label class="form-check-label text-dark" for="source-googledrive">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-googledrive" value="googledrive">
+              <label class="form-check-label text-dark" for="content-provider-googledrive">
                 Google Drive
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="source" id="source-dropbox" value="dropbox">
-              <label class="form-check-label text-dark" for="source-dropbox">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-dropbox" value="dropbox">
+              <label class="form-check-label text-dark" for="content-provider-dropbox">
                 Dropbox
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="source" id="source-generic-web" value="generic_web">
-              <label class="form-check-label text-dark" for="source-generic-web">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-generic-web" value="generic_web">
+              <label class="form-check-label text-dark" for="content-provider-generic-web">
                 Web(Public URL to archive)
               </label>
             </div>
@@ -289,7 +289,7 @@
         
         
         
-        <div class="form-group row source source-git" id="content-repo-group">
+        <div class="form-group row content-provider content-provider-git" id="content-repo-group">
           <label for="content-repo" class="col-sm-2 col-form-label">Git Content Repository URL</label>
           <div class="col-sm-6">
             <input class="form-control" type="text" id="content-repo" placeholder="https://github.com/example/test"
@@ -313,29 +313,29 @@
           </div>
          </div>
 
-        <div class="form-group row source source-googledrive">
+        <div class="form-group row content-provider content-provider-googledrive">
           <label for="drive-url" class="col-sm-2 col-form-label">Google Drive Shared Link</label>
           <div class="col-sm-10">
             <input class="form-control" type="text" id="drive-url" placeholder="https://drive.google.com/file/d/1p3m0h5UGWdLkVVP0S1HpG2yeDlU/view?usp=sharing"
-              oninput="displayLink()" required pattern="https?:\/\/drive.google.com.+">
+              oninput="displayLink()" required pattern="https?:\/\/drive.google.com\/file\/.+">
             <div class="invalid-feedback">
               Must be a valid Google Drive URL
             </div>
           </div>
         </div>
         
-        <div class="form-group row source source-dropbox">
+        <div class="form-group row content-provider content-provider-dropbox">
           <label for="drop-url" class="col-sm-2 col-form-label">Dropbox Shared Link</label>
           <div class="col-sm-10">
             <input class="form-control"  type="text" id="drop-url" placeholder="https://www.dropbox.com/s/w0q4eirtuht/example.tgz?dl=0"
-              oninput="displayLink()" required pattern="https?:\/\/.+dropbox.com.+">
+              oninput="displayLink()" required pattern="https?:\/\/.+dropbox.com\/.+">
             <div class="invalid-feedback">
               Must be a valid Dropbox URL (Note: all the common compression formats work(e.g. zip, tar, tgz, etc))
             </div>
           </div>
         </div>
         
-        <div class="form-group row source source-generic-web">
+        <div class="form-group row content-provider content-provider-generic-web">
           <label for="generic-web-url" class="col-sm-2 col-form-label">Public URL to archive</label>
           <div class="col-sm-10">
             <input class="form-control" type="text" id="generic-web-url" placeholder="https://example.com/materials-sp20-external.zip"
@@ -359,7 +359,7 @@
         
         <div class="form-group row" id="app-container">
           <div class="col-sm-2 col-form-label">
-            <label for="app" class=>Application to Open</label>
+            <label for="app-container" class=>Application to Open</label>
             <small class="form-text text-muted">
             </small>
           </div>
