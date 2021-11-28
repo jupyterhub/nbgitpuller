@@ -6,7 +6,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, conten
 
     url.searchParams.set('repo', repoUrl);
     if(compressed) {
-      url.searchParams.set('content_provider', contentProvider);
+        url.searchParams.set('content_provider', contentProvider);
     }
     if (urlPath) {
         url.searchParams.set('urlpath', urlPath);
@@ -34,7 +34,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, content
 
     nextUrlParams.append('repo', repoUrl);
     if(compressed) {
-      nextUrlParams.append('content_provider', contentProvider);
+        nextUrlParams.append('content_provider', contentProvider);
     }
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
@@ -67,7 +67,7 @@ function generateBinderUrl(hubUrl, userName, envRepoName, envGitBranch, urlPath,
     nextUrlParams.append('repo', contentGitRepoUrl);
 
     if(compressed) {
-      nextUrlParams.append('content_provider', contentProvider);
+        nextUrlParams.append('content_provider', contentProvider);
     }
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
@@ -199,9 +199,9 @@ function configureContentProviderAttrs(args){
       contentProviderURL =  args["webUrl"];
   }
   return {
-    "branch": branch,
-    "contentProviderURL": contentProviderURL,
-    "compressed": compressed
+      "branch": branch,
+      "contentProviderURL": contentProviderURL,
+      "compressed": compressed
   }
 }
 
@@ -235,12 +235,12 @@ function displayLink() {
             var urlPath = apps[appName].generateUrlPath(partialUrlPath);
         }
         args = {
-          "contentProvider": contentProvider,
-          "contentGitRepoUrl": contentGitRepoUrl,
-          "contentGitRepoBranch": contentGitRepoBranch,
-          "driveUrl": driveUrl,
-          "dropUrl": dropUrl,
-          "webUrl": webUrl
+            "contentProvider": contentProvider,
+            "contentGitRepoUrl": contentGitRepoUrl,
+            "contentGitRepoBranch": contentGitRepoBranch,
+            "driveUrl": driveUrl,
+            "dropUrl": dropUrl,
+            "webUrl": webUrl
         }
         config = configureContentProviderAttrs(args)
         if (activeTab === "tab-auth-default") {
