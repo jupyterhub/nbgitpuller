@@ -258,5 +258,6 @@ async def handle_files_helper(helper_args, query_line_args):
     except Exception as e:
         helper_args["download_q"].put_nowait(e)
         raise e
+    # mark the end of the queue with a None value
     helper_args["download_q"].put_nowait(None)
     return {"output_dir": dir_names[0], "origin_repo_path": origin_repo}

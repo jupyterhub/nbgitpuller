@@ -58,12 +58,12 @@ class SyncHandler(IPythonHandler):
         :return: returns the PluginManager object used to call the implemented hooks of the plugin
         :raises: ContentProviderException -- this occurs when the content_provider parameter is not found
         """
-        pm = pluggy.PluginManager("nbgitpuller")
-        pm.add_hookspecs(plugin_hook_specs)
-        num_loaded =pm.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
+        plugin_manager = pluggy.PluginManager("nbgitpuller")
+        plugin_manager.add_hookspecs(plugin_hook_specs)
+        num_loaded = plugin_manager.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
         if num_loaded == 0:
             raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
-        return pm
+        return plugin_manager
 
     @gen.coroutine
     def _wait_for_sync_progress_queue(self, queue):
@@ -135,14 +135,14 @@ class SyncHandler(IPythonHandler):
             # if content_provider is specified then we are dealing with compressed
             # archive and not a git repo
             if content_provider is not None:
-                pm = self.setup_plugins(content_provider)
+                plugin_manager = self.setup_plugins(content_provider)
                 query_line_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
                 download_q = Queue()
                 helper_args = dict()
                 helper_args["wait_for_sync_progress_queue"] = lambda: self._wait_for_sync_progress_queue(download_q)
                 helper_args["download_q"] = download_q
                 helper_args["repo_parent_dir"] = repo_parent_dir
-                results = pm.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args)
+                results = plugin_manager.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args)
                 repo_dir = repo_parent_dir + results["output_dir"]
                 repo = "file://" + results["origin_repo_path"]
 
