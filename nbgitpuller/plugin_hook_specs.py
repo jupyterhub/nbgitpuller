@@ -16,18 +16,6 @@ hookimpl = pluggy.HookimplMarker("nbgitpuller")
 @hookspec(firstresult=True)
 def handle_files(helper_args, query_line_args):
     """
-    :param json helper_args: these keyword args are passed from the main thread of nbgitpuller and include:
-        - repo_parent_dir: save your downloaded archive here
-        - wait_for_sync_progress_queue:
-            A partial function with an infinite loop continuously checking the download_q for messages to show the
-            user in the UI.
-        - download_q:
-            This is a Queue that accepts messages to be displayed in the UI. You might tell the user what percent of
-            the download is complete or any other progress that might inform the user.
-    :param json query_line_args: this includes any argument you put on the nbgitpuller URL
-    :return two parameter json output_dir and origin_repo_path
-    :rtype json object
-
     This function must be implemented by content-provider plugins in order to handle the downloading and decompression
     of a non-git sourced compressed archive.
 
@@ -59,4 +47,16 @@ def handle_files(helper_args, query_line_args):
     nbgitpuller. Finally, you can always implement the entire download process yourself and not use the
     handle_files_helper function but please to sure understand what is being passed into and back to the nbgitpuller
     handlers.
+
+    :param json helper_args: these keyword args are passed from the main thread of nbgitpuller and include:
+        - repo_parent_dir: save your downloaded archive here
+        - wait_for_sync_progress_queue:
+            A partial function with an infinite loop continuously checking the download_q for messages to show the
+            user in the UI.
+        - download_q:
+            This is a Queue that accepts messages to be displayed in the UI. You might tell the user what percent of
+            the download is complete or any other progress that might inform the user.
+    :param json query_line_args: this includes any argument you put on the nbgitpuller URL
+    :return two parameter json output_dir and origin_repo_path
+    :rtype json object
     """
