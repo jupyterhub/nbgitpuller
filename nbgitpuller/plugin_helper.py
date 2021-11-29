@@ -18,10 +18,10 @@ CACHED_ORIGIN_NON_GIT_REPO = ".nbgitpuller/targets/"
 
 async def execute_cmd(cmd, **kwargs):
     """
+    Call given command, yielding output line by line
+
     :param array cmd: the commands to be executed
     :param json kwargs: potential keyword args included with command
-
-    Call given command, yielding output line by line
     """
     yield '$ {}\n'.format(' '.join(cmd))
     kwargs['stdout'] = subprocess.PIPE
@@ -57,10 +57,10 @@ async def execute_cmd(cmd, **kwargs):
 
 async def initialize_local_repo(local_repo_path):
     """
-    :param str local_repo_path: the locla path where the git repo is initialized
-
     Sets up the a local repo that acts like a remote; yields the
     output from the git init
+
+    :param str local_repo_path: the locla path where the git repo is initialized
     """
     yield "Initializing repo ...\n"
     logging.info(f"Creating local_repo_path: {local_repo_path}")
@@ -71,15 +71,15 @@ async def initialize_local_repo(local_repo_path):
 
 async def clone_local_origin_repo(origin_repo_path, temp_download_repo):
     """
-    :param str origin_repo_path: the local path we used to git init into
-    :param str temp_download_repo: folder where the compressed archive
-    is downloaded to
-
     Cloned the origin(which is local) to the folder, temp_download_repo.
     The folder, temp_download_repo, acts like the space where someone makes changes
     to master notebooks and then pushes the changes to origin. In other words,
     the folder, temp_download_repo, is where the compressed archive is downloaded,
     unarchived, and then pushed to the origin.
+
+    :param str origin_repo_path: the local path we used to git init into
+    :param str temp_download_repo: folder where the compressed archive
+    is downloaded to
     """
     yield "Cloning repo ...\n"
     if os.path.exists(temp_download_repo):
@@ -94,10 +94,11 @@ async def clone_local_origin_repo(origin_repo_path, temp_download_repo):
 
 def extract_file_extension(url):
     """
+    The file extension(eg. zip, tgz, etc) is extracted from the url to facilitate de-compressing the file
+    using the correct application -- (zip, tar).
+
     :param str url: the url contains the extension we need to determine
     what kind of compression is used on the file being downloaded
-
-    this is needed to unarchive various formats(eg. zip, tgz, etc)
     """
     u = urlparse(url)
     url_arr = u.path.split(".")
@@ -108,11 +109,11 @@ def extract_file_extension(url):
 
 async def execute_unarchive(ext, temp_download_file, temp_download_repo):
     """
+    un-archives file using unzip or tar to the temp_download_repo
+
     :param str ext: extension used to determine type of compression
     :param str temp_download_file: the file path to be unarchived
     :param str temp_download_repo: where the file is unarchived to
-
-    un-archives file using unzip or tar to the temp_download_repo
     """
     if ext == 'zip':
         cmd_arr = ['unzip', "-qo", temp_download_file, "-d", temp_download_repo]
@@ -124,10 +125,10 @@ async def execute_unarchive(ext, temp_download_file, temp_download_repo):
 
 async def download_archive(repo_path, temp_download_file):
     """
+    This requests the file from the repo(url) given and saves it to the disk
+
     :param str repo_path: the git repo path
     :param str temp_download_file: the path to save the requested file to
-
-    This requests the file from the repo(url) given and saves it to the disk
     """
     yield "Downloading archive ...\n"
     try:
@@ -153,10 +154,10 @@ async def download_archive(repo_path, temp_download_file):
 
 async def push_to_local_origin(temp_download_repo):
     """
+    The unarchived files are pushed back to the origin
+
     :param str temp_download_repo: the current working directly of folder
     where the archive had been downloaded and unarchived
-
-    The unarchived files are pushed back to the origin
     """
     async for e in execute_cmd(["git", "add", "."], cwd=temp_download_repo):
         yield e
@@ -172,14 +173,18 @@ async def push_to_local_origin(temp_download_repo):
         yield e
 
 
-# this is needed becuase in handle_files_helper  I can not return
+# this is needed because in handle_files_helper  I can not return
 # from the async generator so it needs a global variable to hold the
-# director name of the files downloaded
+# directory names of the files downloaded
 dir_names = None
 
 
 async def handle_files_helper(helper_args, query_line_args):
     """
+    This does all the heavy lifting in the order needed to set up your local
+    repos, origin, download the file, unarchive and push the files
+    back to the origin
+
     :param dict helper_args: key-value pairs including the:
         - download function
         - download parameters in the case
@@ -195,10 +200,6 @@ async def handle_files_helper(helper_args, query_line_args):
     :return json object with the directory name of the download and
     the origin_repo_path
     :rtype json object
-
-    This does all the heavy lifting in the order needed to set up your local
-    repos, origin, download the file, unarchive and push the files
-    back to the origin
     """
     url = query_line_args["repo"].translate(str.maketrans('', '', string.punctuation))
     provider = query_line_args["content_provider"]

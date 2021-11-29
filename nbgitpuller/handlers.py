@@ -72,7 +72,7 @@ class SyncHandler(IPythonHandler):
         that are being sent to the UI so the user is kept aware of progress related to
         the downloading of archives and the merging of files into the user's home folder
 
-        :param queue: This is either the download_queue or the original pull queue
+        :param queue: download_queue or the original pull queue
         """
         while True:
             if queue.empty():
