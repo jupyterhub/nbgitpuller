@@ -7,14 +7,12 @@ import subprocess
 import shutil
 from urllib.parse import urlparse
 from functools import partial
-
-# this is a temporary folder used to download the archive into before
-# it is decompressed and brought into the users drive
-TEMP_DOWNLOAD_REPO_DIR = "/tmp/temp_download_repo"
+import tempfile
 
 # this is the path to the local origin repository that nbgitpuller uses to mimic
 # a remote repo in GitPuller
 CACHED_ORIGIN_NON_GIT_REPO = ".nbgitpuller/targets/"
+
 
 async def execute_cmd(cmd, **kwargs):
     """
@@ -205,14 +203,14 @@ async def handle_files_helper(helper_args, query_line_args):
     provider = query_line_args["content_provider"]
     repo_parent_dir = helper_args["repo_parent_dir"]
     origin_repo = f"{repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
-    temp_download_repo = TEMP_DOWNLOAD_REPO_DIR
+    temp_download_dir = tempfile.TemporaryDirectory(dir="/tmp")
     # you can optionally pass the extension of your archive(e.g zip) if it is not identifiable from the URL file name
     # otherwise the extract_file_extension function will pull it off the repo name
     if "extension" not in helper_args:
         ext = extract_file_extension(query_line_args["repo"])
     else:
         ext = helper_args['extension']
-    temp_download_file = f"{TEMP_DOWNLOAD_REPO_DIR}/download.{ext}"
+    temp_download_file = f"{temp_download_dir.name}/download.{ext}"
 
     async def gener():
         global dir_names
@@ -221,7 +219,7 @@ async def handle_files_helper(helper_args, query_line_args):
                 async for i in initialize_local_repo(origin_repo):
                     yield i
 
-            async for c in clone_local_origin_repo(origin_repo, temp_download_repo):
+            async for c in clone_local_origin_repo(origin_repo, temp_download_dir.name):
                 yield c
 
             download_func = download_archive
@@ -233,21 +231,21 @@ async def handle_files_helper(helper_args, query_line_args):
             async for d in download_func(*download_args):
                 yield d
 
-            async for e in execute_unarchive(ext, temp_download_file, temp_download_repo):
+            async for e in execute_unarchive(ext, temp_download_file, temp_download_dir.name):
                 yield e
 
             os.remove(temp_download_file)
-            async for p in push_to_local_origin(temp_download_repo):
+            async for p in push_to_local_origin(temp_download_dir.name):
                 yield p
 
-            unzipped_dirs = os.listdir(temp_download_repo)
+            unzipped_dirs = os.listdir(temp_download_dir.name)
             # name of the extracted directory
             dir_names = list(filter(lambda dir: ".git" not in dir and "__MACOSX" not in dir, unzipped_dirs))
 
             yield "\n\n"
             yield "Process Complete: Archive is finished importing into hub\n"
             yield f"The directory of your download is: {dir_names[0]}\n"
-            shutil.rmtree(temp_download_repo)  # remove temporary download space
+            temp_download_dir.cleanup() # remove temporary download space
         except Exception as e:
             logging.exception(e)
             raise ValueError(e)
