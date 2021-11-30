@@ -121,18 +121,18 @@ async def execute_unarchive(ext, temp_download_file, temp_download_repo):
         yield e
 
 
-async def download_archive(repo_path, temp_download_file):
+async def download_archive(repo=None, temp_download_file=None):
     """
     This requests the file from the repo(url) given and saves it to the disk
 
-    :param str repo_path: the git repo path
+    :param str repo: the git repo path
     :param str temp_download_file: the path to save the requested file to
     """
     yield "Downloading archive ...\n"
     try:
         CHUNK_SIZE = 1024
         async with aiohttp.ClientSession() as session:
-            async with session.get(repo_path) as response:
+            async with session.get(repo) as response:
                 with open(temp_download_file, 'ab') as fd:
                     count_chunks = 1
                     while True:
@@ -184,8 +184,8 @@ async def handle_files_helper(helper_args, query_line_args):
     back to the origin
 
     :param dict helper_args: key-value pairs including the:
-        - download function
-        - download parameters in the case
+        - download_func download function
+        - download_func_params download parameters in the case
             that the source needs to handle the download in a specific way(e.g. google
             requires a confirmation of the download)
         - extension (e.g. zip, tar) ] [OPTIONAL] this may or may not be included. If the repo name contains
@@ -203,7 +203,7 @@ async def handle_files_helper(helper_args, query_line_args):
     provider = query_line_args["contentProvider"]
     repo_parent_dir = helper_args["repo_parent_dir"]
     origin_repo = f"{repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
-    temp_download_dir = tempfile.TemporaryDirectory(dir="/tmp")
+    temp_download_dir = tempfile.TemporaryDirectory()
     # you can optionally pass the extension of your archive(e.g zip) if it is not identifiable from the URL file name
     # otherwise the extract_file_extension function will pull it off the repo name
     if "extension" not in helper_args:
@@ -223,12 +223,20 @@ async def handle_files_helper(helper_args, query_line_args):
                 yield c
 
             download_func = download_archive
-            download_args = query_line_args["repo"], temp_download_file
-            if "dowload_func" in helper_args:
-                download_func = helper_args["dowload_func"]
-                download_args = helper_args["dowload_func_params"]
+            download_args = {
+                "repo": query_line_args["repo"],
+                "temp_download_file": temp_download_file
+            }
+            # you can pass your own download function as well as download function parameters
+            # if they are different from the standard download function and parameters. Notice I add
+            # the temp_download_file to the parameters
+            if "download_func" in helper_args:
+                download_func = helper_args["download_func"]
+            if "download_func_params" in helper_args:
+                helper_args["download_func_params"]["temp_download_file"] = temp_download_file
+                download_args = helper_args["download_func_params"]
 
-            async for d in download_func(*download_args):
+            async for d in download_func(**download_args):
                 yield d
 
             async for e in execute_unarchive(ext, temp_download_file, temp_download_dir.name):
@@ -245,11 +253,12 @@ async def handle_files_helper(helper_args, query_line_args):
             yield "\n\n"
             yield "Process Complete: Archive is finished importing into hub\n"
             yield f"The directory of your download is: {dir_names[0]}\n"
-            temp_download_dir.cleanup() # remove temporary download space
+
         except Exception as e:
             logging.exception(e)
             raise ValueError(e)
-
+        finally:
+            temp_download_dir.cleanup() # remove temporary download space
     try:
         async for line in gener():
             helper_args["download_q"].put_nowait(line)
