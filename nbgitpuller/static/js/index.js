@@ -43,7 +43,7 @@ GitSync.prototype.start = function() {
         syncUrlParams['branch'] = this.branch;
     }
     if (typeof this.contentProvider !== 'undefined' && this.contentProvider != undefined) {
-        syncUrlParams['content_provider'] = this.contentProvider;
+        syncUrlParams['contentProvider'] = this.contentProvider;
     }
     var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
 
@@ -143,7 +143,7 @@ var gs = new GitSync(
     get_body_data('depth'),
     get_body_data('targetpath'),
     get_body_data('path'),
-    get_body_data('provider')
+    get_body_data('contentProvider')
 );
 
 var gsv = new GitSyncView(

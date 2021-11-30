@@ -200,7 +200,7 @@ async def handle_files_helper(helper_args, query_line_args):
     :rtype json object
     """
     url = query_line_args["repo"].translate(str.maketrans('', '', string.punctuation))
-    provider = query_line_args["content_provider"]
+    provider = query_line_args["contentProvider"]
     repo_parent_dir = helper_args["repo_parent_dir"]
     origin_repo = f"{repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
     temp_download_dir = tempfile.TemporaryDirectory(dir="/tmp")

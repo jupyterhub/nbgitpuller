@@ -111,7 +111,7 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
-            content_provider = self.get_argument('content_provider', None)
+            content_provider = self.get_argument('contentProvider', None)
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -211,7 +211,7 @@ class UIHandler(IPythonHandler):
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
-        content_provider = self.get_argument('content_provider', None)
+        content_provider = self.get_argument('contentProvider', None)
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
@@ -242,7 +242,7 @@ class UIHandler(IPythonHandler):
                 branch=branch,
                 path=path,
                 depth=depth,
-                provider=content_provider,
+                contentProvider=content_provider,
                 targetpath=targetpath,
                 version=__version__
             ))
