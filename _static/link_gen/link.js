@@ -6,7 +6,7 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch, compressed, conten
 
     url.searchParams.set('repo', repoUrl);
     if(compressed) {
-        url.searchParams.set('content_provider', contentProvider);
+        url.searchParams.set('contentProvider', contentProvider);
     }
     if (urlPath) {
         url.searchParams.set('urlpath', urlPath);
@@ -34,7 +34,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, compressed, content
 
     nextUrlParams.append('repo', repoUrl);
     if(compressed) {
-        nextUrlParams.append('content_provider', contentProvider);
+        nextUrlParams.append('contentProvider', contentProvider);
     }
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
@@ -67,7 +67,7 @@ function generateBinderUrl(hubUrl, userName, envRepoName, envGitBranch, urlPath,
     nextUrlParams.append('repo', contentGitRepoUrl);
 
     if(compressed) {
-        nextUrlParams.append('content_provider', contentProvider);
+        nextUrlParams.append('contentProvider', contentProvider);
     }
     if (urlPath) {
         nextUrlParams.append('urlpath', urlPath);
