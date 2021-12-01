@@ -171,101 +171,116 @@ async def push_to_local_origin(temp_download_repo):
         yield e
 
 
-# this is needed because in handle_files_helper  I can not return
-# from the async generator so it needs a global variable to hold the
-# directory names of the files downloaded
-dir_names = None
-
-
-async def handle_files_helper(helper_args, query_line_args):
+class HandleFilesHelper:
     """
-    This does all the heavy lifting in the order needed to set up your local
-    repos, origin, download the file, unarchive and push the files
-    back to the origin
-
-    :param dict helper_args: key-value pairs including the:
-        - download_func download function
-        - download_func_params download parameters in the case
-            that the source needs to handle the download in a specific way(e.g. google
-            requires a confirmation of the download)
-        - extension (e.g. zip, tar) ] [OPTIONAL] this may or may not be included. If the repo name contains
-            name of archive (e.g. example.zip) then this function can determine the extension for you; if not it
-            needs to be provided.
-    :param dict query_line_args:
-        - repo,
-        - provider,
-        - repo_parent_dir
-    :return json object with the directory name of the download and
-    the origin_repo_path
-    :rtype json object
+    This class is needed to handle the use of dir_names inside the async generator as well as in the return object for
+    the function handle_files_helper.
     """
-    url = query_line_args["repo"].translate(str.maketrans('', '', string.punctuation))
-    provider = query_line_args["contentProvider"]
-    repo_parent_dir = helper_args["repo_parent_dir"]
-    origin_repo = f"{repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{provider}/{url}/"
-    temp_download_dir = tempfile.TemporaryDirectory()
-    # you can optionally pass the extension of your archive(e.g zip) if it is not identifiable from the URL file name
-    # otherwise the extract_file_extension function will pull it off the repo name
-    if "extension" not in helper_args:
-        ext = extract_file_extension(query_line_args["repo"])
-    else:
-        ext = helper_args['extension']
-    temp_download_file = f"{temp_download_dir.name}/download.{ext}"
+    def __init__(self, helper_args, query_line_args):
+        """
+        This sets up the helper_args and query_line_args for use in the handle_files_helper and gener functions.
 
-    async def gener():
-        global dir_names
+        :param dict helper_args: key-value pairs including the:
+            - download_func download function
+            - download_func_params download parameters in the case
+                that the source needs to handle the download in a specific way(e.g. google
+                requires a confirmation of the download)
+            - extension (e.g. zip, tar) ] [OPTIONAL] this may or may not be included. If the repo name contains
+                name of archive (e.g. example.zip) then this function can determine the extension for you; if not it
+                needs to be provided.
+        :param dict query_line_args:
+            - repo,
+            - provider,
+            - repo_parent_dir
+        :param helper_args:
+        :param query_line_args:
+        """
+        self.dir_names = None
+        self.url = query_line_args["repo"].translate(str.maketrans('', '', string.punctuation))
+        self.content_provider = query_line_args["contentProvider"]
+        self.repo = query_line_args["repo"]
+        self.repo_parent_dir = helper_args["repo_parent_dir"]
+        self.download_q = helper_args["download_q"]
+        self.origin_repo = f"{self.repo_parent_dir}{CACHED_ORIGIN_NON_GIT_REPO}{self.content_provider}/{self.url}/"
+        self.temp_download_dir = tempfile.TemporaryDirectory()
+
+        # you can optionally pass the extension of your archive(e.g zip) if it is not identifiable from the URL file name
+        # otherwise the extract_file_extension function will pull it off the repo name
+        if "extension" not in helper_args:
+            self.ext = extract_file_extension(query_line_args["repo"])
+        else:
+            self.ext = helper_args['extension']
+        self.temp_download_file = f"{self.temp_download_dir.name}/download.{self.ext}"
+        self.download_func = download_archive
+        self.download_args = {
+            "repo": self.repo,
+            "temp_download_file": self.temp_download_file
+        }
+
+        # you can pass your own download function as well as download function parameters
+        # if they are different from the standard download function and parameters. Notice I add
+        # the temp_download_file to the parameters
+        if "download_func" in helper_args:
+            self.download_func = helper_args["download_func"]
+        if "download_func_params" in helper_args:
+            helper_args["download_func_params"]["temp_download_file"] = self.temp_download_file
+            self.download_args = helper_args["download_func_params"]
+
+    async def gener(self):
+        """
+        This does all the heavy lifting in the order needed to set up your local
+        repos, origin, download the file, unarchive and push the files
+        back to the origin
+        """
+
         try:
-            if not os.path.exists(origin_repo):
-                async for i in initialize_local_repo(origin_repo):
+            if not os.path.exists(self.origin_repo):
+                async for i in initialize_local_repo(self.origin_repo):
                     yield i
 
-            async for c in clone_local_origin_repo(origin_repo, temp_download_dir.name):
+            async for c in clone_local_origin_repo(self.origin_repo, self.temp_download_dir.name):
                 yield c
 
-            download_func = download_archive
-            download_args = {
-                "repo": query_line_args["repo"],
-                "temp_download_file": temp_download_file
-            }
-            # you can pass your own download function as well as download function parameters
-            # if they are different from the standard download function and parameters. Notice I add
-            # the temp_download_file to the parameters
-            if "download_func" in helper_args:
-                download_func = helper_args["download_func"]
-            if "download_func_params" in helper_args:
-                helper_args["download_func_params"]["temp_download_file"] = temp_download_file
-                download_args = helper_args["download_func_params"]
-
-            async for d in download_func(**download_args):
+            async for d in self.download_func(**self.download_args):
                 yield d
 
-            async for e in execute_unarchive(ext, temp_download_file, temp_download_dir.name):
+            async for e in execute_unarchive(self.ext, self.temp_download_file, self.temp_download_dir.name):
                 yield e
 
-            os.remove(temp_download_file)
-            async for p in push_to_local_origin(temp_download_dir.name):
+            os.remove(self.temp_download_file)
+            async for p in push_to_local_origin(self.temp_download_dir.name):
                 yield p
 
-            unzipped_dirs = os.listdir(temp_download_dir.name)
+            unzipped_dirs = os.listdir(self.temp_download_dir.name)
             # name of the extracted directory
-            dir_names = list(filter(lambda dir: ".git" not in dir and "__MACOSX" not in dir, unzipped_dirs))
+            self.dir_names = list(filter(lambda dir: ".git" not in dir and "__MACOSX" not in dir, unzipped_dirs))
 
             yield "\n\n"
             yield "Process Complete: Archive is finished importing into hub\n"
-            yield f"The directory of your download is: {dir_names[0]}\n"
+            yield f"The directory of your download is: {self.dir_names[0]}\n"
 
         except Exception as e:
             logging.exception(e)
             raise ValueError(e)
         finally:
-            temp_download_dir.cleanup() # remove temporary download space
-    try:
-        async for line in gener():
-            helper_args["download_q"].put_nowait(line)
-            await asyncio.sleep(0.1)
-    except Exception as e:
-        helper_args["download_q"].put_nowait(e)
-        raise e
-    # mark the end of the queue with a None value
-    helper_args["download_q"].put_nowait(None)
-    return {"output_dir": dir_names[0], "origin_repo_path": origin_repo}
+            self.temp_download_dir.cleanup() # remove temporary download space
+
+    async def handle_files_helper(self):
+        """
+        This calls the async generator function and handle the storing of messages from the gener() function
+        into the download_q
+
+        :return json object with the directory name of the download and
+        the origin_repo_path
+        :rtype json object
+        """
+        try:
+            async for line in self.gener():
+                self.download_q.put_nowait(line)
+                await asyncio.sleep(0.1)
+        except Exception as e:
+            self.download_q.put_nowait(e)
+            raise e
+        # mark the end of the queue with a None value
+        self.download_q.put_nowait(None)
+        return {"output_dir": self.dir_names[0], "origin_repo_path": self.origin_repo}
