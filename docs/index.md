@@ -18,13 +18,18 @@ Here's an example of `nbgitpuller` in action:
 See [](use.md) for information about how to use `nbgitpuller`.
 Here's a short overview:
 
-1. Ensure your user has `nbgitpuller` installed. This is commonly done by installing it for all users of a JupyterHub (or, you may ask them to install it manually). See [the installation instructions](install.rst) for more information.
+1. Ensure your user has `nbgitpuller` installed. This is commonly done by installing it for all users of a JupyterHub. See [the installation instructions](install.rst) for more information.
 2. Create an "`nbgitpuller` link" which points to the content you'd like to distribute (e.g., a Jupyter Notebook in a GitHub repository).
 3. Tell your user to click the link, and `nbgitpuller` will automatically pull in the content to their file system.
 
-```{admonition} Try the nbgitpuller link generator!
-There is an app to help you build nbgitpuller links at [nbgitpuller.link](http://nbgitpuller.link).
-```
+### Generate an nbgitpuller link
+
+There are several ways to generate an `nbgitpuller` link.
+The two easiest ways to do so are:
+- Via a browser extension to generate links directly from your repository ([Chrome extension](https://chrome.google.com/webstore/detail/nbgitpuller-link-generato/hpdbdpklpmppnoibabdkkhnfhkkehgnc), [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/nbgitpuller-link-generator/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
+- Via a GUI web-app [at `nbgitpuller.link`](http://nbgitpuller.link)
+
+Fore more information about generating nbgitpuller links, see [](use.md).
 
 ### When to use `nbgitpuller`
 

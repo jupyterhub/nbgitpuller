@@ -24,8 +24,12 @@ You can install ``nbgitpuller`` from PyPI with ``pip``:
 
    pip install nbgitpuller
 
-If you're installing nbgitpuller on a JupyterHub, make sure that it is
-installed in the environment that your users have access to.
+```{note}
+If you use multiple environments in your JupyterHub, make sure you install
+nbgitpuller in the environment that the jupyter notebook or
+jupyter server process is running from. You can validate this by running
+`jupyter serverextension list` - it should have an entry that says `nbgitpuller  enabled`.
+```
 
 Troubleshooting
 ===============
