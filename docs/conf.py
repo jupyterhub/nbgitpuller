@@ -5,7 +5,6 @@ github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
 
 
 def setup(app):
-    app.add_css_file("custom.css")
     app.add_js_file("link_gen/link.js")
 
 
@@ -24,7 +23,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = []
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -37,7 +36,7 @@ root_doc = master_doc = "index"
 
 # General information about the project.
 project = "nbgitpuller"
-copyright = "2017, The nbgitpuller Team"
+copyright = "2021, The nbgitpuller Team"
 author = "The nbgitpuller Team"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -61,8 +60,6 @@ language = None
 # This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-html_sidebars = {"**": ["globaltoc.html", "relations.html", "searchbox.html"]}
-
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
@@ -75,6 +72,7 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = "sphinx_book_theme"
+html_title = "nbgitpuller documentation"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
