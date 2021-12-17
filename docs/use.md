@@ -7,7 +7,7 @@ This link will contain at least the following information:
 
 1. The location of the JupyterHub you are sending them to.
 2. The git repository where you have published your content.
-3. Optionally, a particular file or directory you want to automatically
+3. Optionally, a particular file or directory you want to automatically open after the content is pulled.
 4. Optionally, which UI should be opened when the user clicks the link.
    By default `nbgitpuller` uses the classic notebook interface - but you may instead use
    [JupyterLab](https://github.com/jupyterlab/jupyterlab/), [RStudio](https://github.com/jupyterhub/jupyter-rsession-proxy/), [Linux Desktop](https://github.com/jupyterhub/jupyter-remote-desktop-proxy), etc based on what you have available in your JupyterHub.
