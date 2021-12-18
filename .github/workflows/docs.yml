@@ -31,7 +31,7 @@ jobs:
         run: |
           pip install -r docs/doc-requirements.txt
 
-      - name: make linkcheck (Verifies links work)
+      - name: make linkcheck (Verifies documentation links work)
         run: |
           cd docs
           make linkcheck
@@ -40,13 +40,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     permissions:
+      # required to push to the gh-pages branch
       contents: write
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install Python
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v2
         with:
           python-version: '3.10'
 
@@ -54,12 +53,12 @@ jobs:
         run: |
           pip install -r docs/doc-requirements.txt
 
-      - name: Build docs
+      - name: make html (Builds documentation)
         run: |
           cd docs
           make html
 
-      - name: publish to github pages
+      - name: Publish to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: |
             pip install ghp-import
