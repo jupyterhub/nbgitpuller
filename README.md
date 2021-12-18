@@ -25,4 +25,12 @@ pip install nbgitpuller
 
 ## Example
 
-![](https://raw.githubusercontent.com/jupyterhub/nbgitpuller/v0.8.0/docs/_static/nbpuller.gif)
+1. The [nbgitpuller link
+   generator](https://jupyterhub.github.io/nbgitpuller/link) is used to create a
+   link.
+
+   ![](https://raw.githubusercontent.com/jupyterhub/nbgitpuller/9f380a933335f0f069b6e2f9965ed78c3abcce7a/docs/_static/nbgitpuller-link-generator.png)
+
+2. The link is clicked.
+
+   ![](https://raw.githubusercontent.com/jupyterhub/nbgitpuller/9f380a933335f0f069b6e2f9965ed78c3abcce7a/docs/_static/nbgitpuller-demo.gif)
