@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Installation &#8212; nbgitpuller documentation</title>
+    <title>Using nbgitpuller &#8212; nbgitpuller documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -35,8 +35,8 @@
     <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Using nbgitpuller" href="use.html" />
-    <link rel="prev" title="nbgitpuller" href="index.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Installation" href="install.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -69,13 +69,13 @@
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
         <ul class="current nav bd-sidenav">
- <li class="toctree-l1 current active">
-  <a class="current reference internal" href="#">
+ <li class="toctree-l1">
+  <a class="reference internal" href="install.html">
    Installation
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="use.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Using
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -150,9 +150,9 @@
         <!-- ipynb file if we had a myst markdown file -->
         
         <!-- Download raw file -->
-        <a class="dropdown-buttons" href="_sources/install.rst.txt"><button type="button"
+        <a class="dropdown-buttons" href="_sources/use.md.txt"><button type="button"
                 class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
-                data-placement="left">.rst</button></a>
+                data-placement="left">.md</button></a>
         <!-- Download PDF via print -->
         <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
             onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
@@ -170,7 +170,7 @@
                 data-toggle="tooltip" data-placement="left" title="Source repository"><i
                     class="fab fa-github"></i>repository</button></a>
         <a class="issues-button"
-            href="https://github.com/jupyterhub/nbgitpuller/issues/new?title=Issue%20on%20page%20%2Finstall.html&body=Your%20issue%20content%20here."><button
+            href="https://github.com/jupyterhub/nbgitpuller/issues/new?title=Issue%20on%20page%20%2Fuse.html&body=Your%20issue%20content%20here."><button
                 type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
                 title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
         
@@ -197,19 +197,48 @@
             <nav id="bd-toc-nav" aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#troubleshooting">
-   Troubleshooting
+  <a class="reference internal nav-link" href="#overview-of-nbgitpuller-links">
+   Overview of
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     nbgitpuller
+    </span>
+   </code>
+   links
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#nbgitpuller-link-shows-404-not-found">
-     nbgitpuller link shows
-     <cite>
-      404 Not Found
-     </cite>
-    </a>
-   </li>
-  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#create-an-nbgitpuller-link-via-a-web-extension">
+   Create an
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     nbgitpuller
+    </span>
+   </code>
+   link via a web extension
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#automatically-create-an-nbgitpuller-link-via-a-web-app">
+   Automatically create an
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     nbgitpuller
+    </span>
+   </code>
+   link via a web app
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#manually-create-an-nbgitpuller-link">
+   Manually create an
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     nbgitpuller
+    </span>
+   </code>
+   link
+  </a>
  </li>
 </ul>
 
@@ -222,40 +251,54 @@
         
               <div>
                 
-  <div class="section" id="installation">
-<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>nbgitpuller can work on any computer, but it is most-commonly used with a JupyterHub.
-By installing nbgitpuller in the user environment for your hub, it means that
-all users will be able to click nbgitpuller links to get the content.</p>
-<div class="tip admonition">
-<p class="admonition-title">To set up a JupyterHub</p>
-<p>If you do <em>not</em> have a JupyterHub, we recommend trying out <a class="reference external" href="https://tljh.jupyter.org">The Littlest
-JupyterHub</a> to set one up.
-It comes built in with nbgitpuller.</p>
-<p>For more information about JupyterHub, see
-<a class="reference external" href="https://jupyterhub.readthedocs.io/en/stable/">the JupyterHub Documentation</a>.</p>
+  <div class="tex2jax_ignore mathjax_ignore section" id="using-nbgitpuller">
+<h1>Using <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code><a class="headerlink" href="#using-nbgitpuller" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview-of-nbgitpuller-links">
+<h2>Overview of <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> links<a class="headerlink" href="#overview-of-nbgitpuller-links" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code>links may be sent to your users via any method you like - websites, emails, a learning management system, etc.
+This link will contain at least the following information:</p>
+<ol class="arabic simple">
+<li><p>The location of the JupyterHub you are sending them to.</p></li>
+<li><p>The git repository where you have published your content.</p></li>
+<li><p>Optionally, a particular file or directory you want to automatically open after the content is pulled.</p></li>
+<li><p>Optionally, which UI should be opened when the user clicks the link.
+By default <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> uses the classic notebook interface - but you may instead use
+<a class="reference external" href="https://github.com/jupyterlab/jupyterlab/">JupyterLab</a>, <a class="reference external" href="https://github.com/jupyterhub/jupyter-rsession-proxy/">RStudio</a>, <a class="reference external" href="https://github.com/jupyterhub/jupyter-remote-desktop-proxy">Linux Desktop</a>, etc based on what you have available in your JupyterHub.
+open for your students once the repository has been synchronized. Note the entire repository will be copied, not just the specified file.</p></li>
+</ol>
+<p>The first time a particular student clicks the link, a local copy of the
+repository is made for the student. On successive clicks, the latest version
+of the remote repository is fetched, and merged automatically with the
+student’s local copy using a <a class="reference internal" href="topic/automatic-merging.html#topic-automatic-merging"><span class="std std-ref">series of rules</span></a>
+that ensure students never get merge conflicts nor lose any of their changes.</p>
 </div>
-<p>You can install <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> from PyPI with <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install nbgitpuller
-</pre></div>
+<div class="section" id="create-an-nbgitpuller-link-via-a-web-extension">
+<h2>Create an <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> link via a web extension<a class="headerlink" href="#create-an-nbgitpuller-link-via-a-web-extension" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way to create an <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> link is via a web extension  (<a class="reference external" href="https://github.com/yuvipanda/nbgitpuller-link-generator-webextension">github repo</a>).
+This allows you to quickly generate an <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> link directly from the content in your repository (e.g., on GitHub).
+See the links below to download the extension.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://chrome.google.com/webstore/detail/nbgitpuller-link-generato/hpdbdpklpmppnoibabdkkhnfhkkehgnc">Chrome extension</a></p></li>
+<li><p><a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/nbgitpuller-link-generator/?utm_source=addons.mozilla.org&amp;utm_medium=referral&amp;utm_content=search">Firefox extension</a></p></li>
+</ul>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">`{note}</span>
-<span class="pre">If</span> <span class="pre">you</span> <span class="pre">use</span> <span class="pre">multiple</span> <span class="pre">environments</span> <span class="pre">in</span> <span class="pre">your</span> <span class="pre">JupyterHub,</span> <span class="pre">make</span> <span class="pre">sure</span> <span class="pre">you</span> <span class="pre">install</span>
-<span class="pre">nbgitpuller</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">environment</span> <span class="pre">that</span> <span class="pre">the</span> <span class="pre">jupyter</span> <span class="pre">notebook</span> <span class="pre">or</span>
-<span class="pre">jupyter</span> <span class="pre">server</span> <span class="pre">process</span> <span class="pre">is</span> <span class="pre">running</span> <span class="pre">from.</span> <span class="pre">You</span> <span class="pre">can</span> <span class="pre">validate</span> <span class="pre">this</span> <span class="pre">by</span> <span class="pre">running</span>
-<span class="pre">`jupyter</span> <span class="pre">serverextension</span> <span class="pre">list`</span> <span class="pre">-</span> <span class="pre">it</span> <span class="pre">should</span> <span class="pre">have</span> <span class="pre">an</span> <span class="pre">entry</span> <span class="pre">that</span> <span class="pre">says</span> <span class="pre">`nbgitpuller</span>&#160; <span class="pre">enabled`.</span>
-<span class="pre">`</span></code></p>
-<div class="section" id="troubleshooting">
-<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="nbgitpuller-link-shows-404-not-found">
-<h3>nbgitpuller link shows <cite>404 Not Found</cite><a class="headerlink" href="#nbgitpuller-link-shows-404-not-found" title="Permalink to this headline">¶</a></h3>
-<p>If you are on an old version of Jupyter Notebook, you might get a <cite>404 Not Found</cite>
-error when trying to access an nbgitpuller link. You might need to manually enable
-the server extension that handles nbgitpuller.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter serverextension <span class="nb">enable</span> nbgitpuller --sys-prefix
-</pre></div>
+<div class="section" id="automatically-create-an-nbgitpuller-link-via-a-web-app">
+<h2>Automatically create an <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> link via a web app<a class="headerlink" href="#automatically-create-an-nbgitpuller-link-via-a-web-app" title="Permalink to this headline">¶</a></h2>
+<p>You can also create an <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> link via a GUI web app at the below link:</p>
+<p><a class="reference external" href="http://nbgitpuller.link">nbgitpuller.link</a></p>
+<p>This contains a simple web form where you paste the location of the content you’d like your users to pull, and it will generate a link for you to distribute.</p>
 </div>
-</div>
+<div class="section" id="manually-create-an-nbgitpuller-link">
+<h2>Manually create an <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code> link<a class="headerlink" href="#manually-create-an-nbgitpuller-link" title="Permalink to this headline">¶</a></h2>
+<p>There is a short video showing</p>
+<iframe
+     width="560" height="315"
+     src="https://www.youtube-nocookie.com/embed/o7U0ZuICVFg"
+     frameborder="0"
+     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+     allowfullscreen>
+</iframe><p>If you are interested in the details of available options when creating
+the link, we have a <a class="reference internal" href="topic/url-options.html#topic-url-options"><span class="std std-ref">list of options</span></a> as well.</p>
 </div>
 </div>
 
@@ -265,17 +308,17 @@ the server extension that handles nbgitpuller.</p>
         
             <!-- Previous / next buttons -->
 <div class='prev-next-area'> 
-    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="install.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">nbgitpuller</p>
+            <p class="prev-next-title">Installation</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="use.html" title="next page">
+    <a class='right-next' id="next-link" href="contributing.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Using <code class="docutils literal notranslate"><span class="pre">nbgitpuller</span></code></p>
+        <p class="prev-next-title">Contributing</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

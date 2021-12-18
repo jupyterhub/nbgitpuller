@@ -5,10 +5,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Automatic Merging Behavior &#8212; nbgitpuller 0.1b documentation</title>
+    <title>Automatic Merging Behavior &#8212; nbgitpuller documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -24,9 +24,8 @@
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
@@ -38,12 +37,12 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Options in an nbgitpuller URL" href="url-options.html" />
     <link rel="prev" title="Contributing" href="../contributing.html" />
-
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
     
 
+    <!-- Google Analytics -->
+    
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
     
@@ -56,40 +55,69 @@
           
 <div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
     
-        
-<h3><a href="../index.html">Table of Contents</a></h3>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic Merging Behavior</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#case-1-the-instructor-changed-a-file-that-the-student-has-not-changed">Case 1: The instructor changed a file that the student has not changed</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#case-2-student-instructor-changed-different-lines-in-same-file">Case 2: Student &amp; instructor changed different lines in same file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#case-3-student-instructor-change-same-lines-in-same-file">Case 3: Student &amp; instructor change same lines in same file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#case-4-student-deletes-file-locally-but-instructor-doesn-t">Case 4: Student deletes file locally, but instructor doesn’t</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#case-5-student-creates-file-manually-but-instructor-adds-file-with-same-name">Case 5: Student creates file manually, but instructor adds file with same name</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="url-options.html">Options in an nbgitpuller URL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="repo-best-practices.html">Content git repository best practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../link.html">nbgitpuller link generator</a></li>
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">nbgitpuller documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../install.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../use.html">
+   Using
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     nbgitpuller
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../contributing.html">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Automatic Merging Behavior
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="url-options.html">
+   Options in an nbgitpuller URL
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="repo-best-practices.html">
+   Content git repository best practices
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../link.html">
+   nbgitpuller link generator
+  </a>
+ </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../contributing.html"
-                        title="previous chapter">Contributing</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="url-options.html"
-                        title="next chapter">Options in an nbgitpuller URL</a></p>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
     </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
 </div>
-<script>$('#searchbox').show(0);</script>
+
 </div>
 
 
@@ -259,31 +287,22 @@ student’s file, and pull the instructor’s file. So the student’s
               </div>
               
         
-            
-
-
-
-<div class='prev-next-bottom'>
-    
-    <div id="prev">
-        <a class="left-prev" href="../contributing.html" title="previous page">
-            <i class="prevnext-label fas fa-angle-left"></i>
-            <div class="prevnext-info">
-                <p class="prevnext-label">previous</p>
-                <p class="prevnext-title">Contributing</p>
-            </div>
-        </a>
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="../contributing.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Contributing</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="url-options.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Options in an nbgitpuller URL</p>
     </div>
-     <div id="next">
-        <a class="right-next" href="url-options.html" title="next page">
-            <div class="prevnext-info">
-                <p class="prevnext-label">next</p>
-                <p class="prevnext-title">Options in an nbgitpuller URL</p>
-            </div>
-            <i class="prevnext-label fas fa-angle-right"></i>
-        </a>
-     </div>
-
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
         
         </div>
@@ -294,7 +313,7 @@ student’s file, and pull the instructor’s file. So the student’s
         
           By The nbgitpuller Team<br/>
         
-            &copy; Copyright 2017, The nbgitpuller Team.<br/>
+            &copy; Copyright 2021, The nbgitpuller Team.<br/>
       </p>
     </div>
   </footer>
@@ -304,8 +323,7 @@ student’s file, and pull the instructor’s file. So the student’s
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>
