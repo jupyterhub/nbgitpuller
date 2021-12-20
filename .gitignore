@@ -21,7 +21,9 @@ docs/_build
 
 jupyterhub.sqlite
 jupyterhub_cookie_secret
+/jupyterhub-proxy.pid
 
 node_modules/
 package-lock.json
 nbgitpuller/static/dist
+

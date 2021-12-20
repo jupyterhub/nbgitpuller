@@ -3,5 +3,3 @@ pytest
 pytest-cov
 flake8
 nbclassic
-aioresponses
-pytest-asyncio
