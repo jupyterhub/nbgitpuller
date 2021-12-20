@@ -132,9 +132,9 @@
         <div class="col pl-md-4 topbar-main">
             
             <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
-                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
-                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
-                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation"
+                title="Toggle navigation" >
                 <i class="fas fa-bars"></i>
                 <i class="fas fa-arrow-left"></i>
                 <i class="fas fa-arrow-up"></i>
@@ -142,7 +142,7 @@
             
             
 <div class="dropdown-buttons-trigger">
-    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+    <button id="download-dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
             class="fas fa-download"></i></button>
 
     <div class="dropdown-buttons">
@@ -161,7 +161,7 @@
             <!-- Source interaction buttons -->
 
 <div class="dropdown-buttons-trigger">
-    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+    <button id="source-repo-dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
         aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
     <div class="dropdown-buttons sourcebuttons">
         <a class="repository-button"
@@ -241,7 +241,6 @@ instead! Available for <a class="reference external" href="https://addons.mozill
               <input type="text" readonly class="form-control form-control" id="binder-link" name="auth-binder-link" placeholder="Generated Binder link appears here...">
             </div>
           </div>
-          </ul>
         </div>
 
         <div class="form-group row">
@@ -259,15 +258,15 @@ instead! Available for <a class="reference external" href="https://addons.mozill
           </div>
         </div>
 
-        <div class="form-group row">
-          <label for="repo" class="col-sm-2 col-form-label">Git Repository URL</label>
+        <div class="form-group row content-provider-env" id="env-repo-group" style="display:none">
+          <label for="env-repo" class="col-sm-2 col-form-label">Git Environment Repository URL</label>
           <div class="col-sm-6">
-            <input class="form-control" type="text" id="repo" placeholder="https://github.com/example/test"
+            <input class="form-control" type="text" id="env-repo" disabled placeholder="https://github.com/example/test"
               oninput="displayLink()" required pattern="((git|https?)://.+|git@.+:.+)">
             <div class="invalid-feedback">
               Must be a valid git URL
             </div>
-            <small class="form-text text-muted" id="env-repo-help-text" hidden="true">
+            <small class="form-text text-muted" id="env-repo-help-text">
               The environment repository must have
               <a href="https://github.com/jupyterhub/nbgitpuller">nbgitpuller</a> installed.
             </small>
@@ -277,9 +276,9 @@ instead! Available for <a class="reference external" href="https://addons.mozill
               <div class="input-group-prepend">
                 <span class="input-group-text" id="branch-prepend-label">branch</span>
               </div>
-              <input name="branch" id="branch" type="text" class="form-control" value="master" aria-label="Branch Name" aria-describedby="branch-prepend-label">
-              <small class="form-text text-muted">
-                 Use <code>main</code> instead of <code>master</code> for
+              <input name="branch" id="env-branch" type="text" placeholder="main" aria-label="Branch Name" aria-describedby="branch-prepend-label">
+              <small id="default-repo-message" class="form-text text-muted">
+                 If left blank, the default branch of your repository is used. Also note, Github now names the default branch <code>main</code> instead of <code>master</code> on
                  <a href="https://github.blog/changelog/2020-10-01-the-default-branch-for-newly-created-repositories-is-now-main/">
                  new GitHub repositories</a>
               </small>
@@ -290,25 +289,95 @@ instead! Available for <a class="reference external" href="https://addons.mozill
           </div>
         </div>
 
-        <div class="form-group row" id="content-repo-group" hidden="true">
+        <div class="form-group row" id="app-content-provider">
+          <div class="col-sm-2 col-form-label">
+            <label>Notebook Content Provider</label>
+          </div>
+          <div class="col-sm-10">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-git" value="git" checked>
+              <label class="form-check-label text-dark" for="content-provider-git">
+                Git Repository(eg. github)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-googledrive" value="googledrive">
+              <label class="form-check-label text-dark" for="content-provider-googledrive">
+                Google Drive
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-dropbox" value="dropbox">
+              <label class="form-check-label text-dark" for="content-provider-dropbox">
+                Dropbox
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="content-provider" id="content-provider-generic-web" value="generic_web">
+              <label class="form-check-label text-dark" for="content-provider-generic-web">
+                Web(Public URL to archive)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        
+        
+        <div class="form-group row content-provider content-provider-git" id="content-repo-group">
           <label for="content-repo" class="col-sm-2 col-form-label">Git Content Repository URL</label>
           <div class="col-sm-6">
             <input class="form-control" type="text" id="content-repo" placeholder="https://github.com/example/test"
-              oninput="displayLink()" pattern="((git|https?)://.+|git@.+:.+)">
+              oninput="displayLink()" required pattern="((git|https?)://.+|git@.+:.+)">
             <div class="invalid-feedback">
               Must be a valid git URL
             </div>
           </div>
           <div class="col-sm-4">
-            <div class="input-group" id="content-branch-group" hidden="true">
+            <div class="input-group" id="content-branch-group">
               <div class="input-group-prepend">
                 <span class="input-group-text" id="content-branch-prepend-label">branch</span>
               </div>
-              <input name="content-branch" id="content-branch" type="text" class="form-control" value="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
+              <input name="content-branch" id="content-branch" type="text" placeholder="main" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
+              <small id="default-content-message" class="form-text text-muted">
+                If left blank, the default branch of your repository is used. Also note, Github now names the default branch <code>main</code> instead of <code>master</code> on
+                <a href="https://github.blog/changelog/2020-10-01-the-default-branch-for-newly-created-repositories-is-now-main/">new GitHub repositories</a>
+              </small>
             </div>
           </div>
          </div>
 
+        <div class="form-group row content-provider content-provider-googledrive">
+          <label for="drive-url" class="col-sm-2 col-form-label">Google Drive Shared Link</label>
+          <div class="col-sm-10">
+            <input class="form-control" type="text" id="drive-url" placeholder="https://drive.google.com/file/d/1p3m0h5UGWdLkVVP0S1HpG2yeDlU/view?usp=sharing"
+              oninput="displayLink()" required pattern="https?:\/\/drive.google.com\/file\/.+">
+            <div class="invalid-feedback">
+              Must be a valid Google Drive URL
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row content-provider content-provider-dropbox">
+          <label for="drop-url" class="col-sm-2 col-form-label">Dropbox Shared Link</label>
+          <div class="col-sm-10">
+            <input class="form-control"  type="text" id="drop-url" placeholder="https://www.dropbox.com/s/w0q4eirtuht/example.tgz?dl=0"
+              oninput="displayLink()" required pattern="https?:\/\/.+dropbox.com\/.+">
+            <div class="invalid-feedback">
+              Must be a valid Dropbox URL (Note: all the common compression formats work(e.g. zip, tar, tgz, etc))
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row content-provider content-provider-generic-web">
+          <label for="generic-web-url" class="col-sm-2 col-form-label">Public URL to archive</label>
+          <div class="col-sm-10">
+            <input class="form-control" type="text" id="generic-web-url" placeholder="https://example.com/materials-sp20-external.zip"
+              oninput="displayLink()" required pattern="https?://.+">
+            <div class="invalid-feedback">
+              Must be a valid public URL (Note: all the common compression formats work(e.g. zip, tar, tgz, etc))
+            </div>
+          </div>
+        </div>
         <div class="form-group row" id="filepath-container">
           <label for="filepath" class="col-sm-2 col-form-label">File to open</label>
           <div class="col-sm-10">
@@ -322,9 +391,7 @@ instead! Available for <a class="reference external" href="https://addons.mozill
 
         <div class="form-group row" id="app-container">
           <div class="col-sm-2 col-form-label">
-            <label for="app" class=>Application to Open</label>
-            <small class="form-text text-muted">
-            </small>
+            <label>Application to Open</label>
           </div>
           <div class="col-sm-10">
             <div class="form-check">
