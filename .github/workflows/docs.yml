@@ -1,0 +1,68 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+#
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "**/docs.yml"
+  push:
+    paths:
+      - "docs/**"
+      - "**/docs.yml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+  workflow_dispatch:
+
+env:
+  SPHINXOPTS: --color
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r docs/doc-requirements.txt
+
+      - name: make linkcheck (Verifies documentation links work)
+        run: |
+          cd docs
+          make linkcheck
+
+  build-and-publish:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      # required to push to the gh-pages branch
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r docs/doc-requirements.txt
+
+      - name: make html (Builds documentation)
+        run: |
+          cd docs
+          make html
+
+      - name: Publish to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+            pip install ghp-import
+            ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html
