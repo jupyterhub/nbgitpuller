@@ -17,7 +17,8 @@ Here's an example of `nbgitpuller` in action:
    ```{image} _static/nbgitpuller-link-generator.png
    ```
 
-2. The link is clicked.
+2. A user clicks the link, and the content is pulled into a live Jupyter session.
+
 
    ```{image} _static/nbgitpuller-demo.gif
    ```
