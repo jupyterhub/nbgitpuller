@@ -10,8 +10,17 @@ It is commonly used to distribute content to multiple users of a JupyterHub, tho
 
 Here's an example of `nbgitpuller` in action:
 
-```{image} _static/nbpuller.gif
-```
+1. The [nbgitpuller link
+   generator](https://jupyterhub.github.io/nbgitpuller/link) is used to create a
+   link.
+
+   ```{image} _static/nbgitpuller-link-generator.png
+   ```
+
+2. A user clicks the link, and the content is pulled into a live Jupyter session.
+
+   ```{image} _static/nbgitpuller-demo.gif
+   ```
 
 ## Use `nbgitpuller`
 
