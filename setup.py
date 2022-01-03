@@ -32,7 +32,7 @@ setup(
     author='Peter Veerman, YuviPanda',
     author_email='peterkangveerman@gmail.com',
     cmdclass=cmdclass,
-    description='Notebook Extension to do one-way synchronization of git repositories',
+    description='Jupyter Extension to do one-way synchronization of git repositories',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     packages=find_packages(),
