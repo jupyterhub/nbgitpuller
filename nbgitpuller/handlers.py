@@ -2,7 +2,7 @@ from tornado import gen, web, locks
 import traceback
 import urllib.parse
 
-from notebook.base.handlers import IPythonHandler
+from jupyter_server.base.handlers import JupyterHandler
 import threading
 import json
 import os
@@ -13,7 +13,7 @@ from .pull import GitPuller
 from .version import __version__
 
 
-class SyncHandler(IPythonHandler):
+class SyncHandler(JupyterHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -129,7 +129,7 @@ class SyncHandler(IPythonHandler):
             self.git_lock.release()
 
 
-class UIHandler(IPythonHandler):
+class UIHandler(JupyterHandler):
     def initialize(self):
         super().initialize()
         # FIXME: Is this really the best way to use jinja2 here?
@@ -179,7 +179,7 @@ class UIHandler(IPythonHandler):
         self.flush()
 
 
-class LegacyGitSyncRedirectHandler(IPythonHandler):
+class LegacyGitSyncRedirectHandler(JupyterHandler):
     @web.authenticated
     @gen.coroutine
     def get(self):
@@ -190,7 +190,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
         self.redirect(new_url)
 
 
-class LegacyInteractRedirectHandler(IPythonHandler):
+class LegacyInteractRedirectHandler(JupyterHandler):
     @web.authenticated
     @gen.coroutine
     def get(self):
