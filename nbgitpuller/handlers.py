@@ -6,12 +6,23 @@ from notebook.base.handlers import IPythonHandler
 import threading
 import json
 import os
-from queue import Queue, Empty
+from queue import Queue
 import jinja2
 
 from .pull import GitPuller
 from .version import __version__
+from . import plugin_hook_specs
+import pluggy
 
+
+class ContentProviderException(Exception):
+    """
+    Custom Exception thrown when the content_provider key specifying
+    the downloader plugin is not installed or can not be found by the
+    name given
+    """
+    def __init__(self, response=None):
+        self.response = response
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -38,6 +49,54 @@ class SyncHandler(IPythonHandler):
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
 
+    def setup_plugins(self, content_provider):
+        """
+        This automatically searches for and loads packages whose entrypoint is nbgitpuller. If found,
+        the plugin manager object is returned and used to execute the hook implemented by
+        the plugin.
+        :param content_provider: this is the name of the content_provider; each plugin is named to identify the
+        content_provider of the archive to be loaded(e.g. googledrive, dropbox, etc)
+        :return: returns the PluginManager object used to call the implemented hooks of the plugin
+        :raises: ContentProviderException -- this occurs when the content_provider parameter is not found
+        """
+        plugin_manager = pluggy.PluginManager("nbgitpuller")
+        plugin_manager.add_hookspecs(plugin_hook_specs)
+        num_loaded = plugin_manager.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
+        if num_loaded == 0:
+            raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
+        return plugin_manager
+
+    @gen.coroutine
+    def _wait_for_sync_progress_queue(self, queue):
+        """
+        The loop below constantly checks the queue parameter for messages
+        that are being sent to the UI so the user is kept aware of progress related to
+        the downloading of archives and the merging of files into the user's home folder
+
+        :param queue: download_queue or the original pull queue
+        """
+        while True:
+            if queue.empty():
+                yield gen.sleep(0.5)
+                continue
+            progress = queue.get_nowait()
+            if progress is None:
+                return
+            if isinstance(progress, Exception):
+                self.emit({
+                    'phase': 'error',
+                    'message': str(progress),
+                    'output': '\n'.join([
+                        line.strip()
+                        for line in traceback.format_exception(
+                            type(progress), progress, progress.__traceback__
+                        )
+                    ])
+                })
+                return
+
+            self.emit({'output': progress, 'phase': 'syncing'})
+
     @web.authenticated
     @gen.coroutine
     def get(self):
@@ -53,6 +112,7 @@ class SyncHandler(IPythonHandler):
         try:
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
+            content_provider = self.get_argument('contentProvider', None)
             depth = self.get_argument('depth', None)
             if depth:
                 depth = int(depth)
@@ -73,8 +133,21 @@ class SyncHandler(IPythonHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+            # if content_provider is specified then we are dealing with compressed
+            # archive and not a git repo
+            if content_provider is not None:
+                plugin_manager = self.setup_plugins(content_provider)
+                query_line_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
+                download_q = Queue()
+                helper_args = dict()
+                helper_args["wait_for_sync_progress_queue"] = lambda: self._wait_for_sync_progress_queue(download_q)
+                helper_args["download_q"] = download_q
+                helper_args["repo_parent_dir"] = repo_parent_dir
+                results = plugin_manager.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args)
+                repo_dir = repo_parent_dir + results["output_dir"]
+                repo = "file://" + results["origin_repo_path"]
 
+            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
             q = Queue()
 
             def pull():
@@ -87,33 +160,21 @@ class SyncHandler(IPythonHandler):
                     q.put_nowait(e)
                     raise e
             self.gp_thread = threading.Thread(target=pull)
-
             self.gp_thread.start()
-
-            while True:
-                try:
-                    progress = q.get_nowait()
-                except Empty:
-                    yield gen.sleep(0.5)
-                    continue
-                if progress is None:
-                    break
-                if isinstance(progress, Exception):
-                    self.emit({
-                        'phase': 'error',
-                        'message': str(progress),
-                        'output': '\n'.join([
-                            line.strip()
-                            for line in traceback.format_exception(
-                                type(progress), progress, progress.__traceback__
-                            )
-                        ])
-                    })
-                    return
-
-                self.emit({'output': progress, 'phase': 'syncing'})
-
+            yield self._wait_for_sync_progress_queue(q)
             self.emit({'phase': 'finished'})
+
+        except ContentProviderException as pe:
+            self.emit({
+                'phase': 'error',
+                'message': str(pe),
+                'output': '\n'.join([
+                    line.strip()
+                    for line in traceback.format_exception(
+                        type(pe), pe, pe.__traceback__
+                    )
+                ])
+        })
         except Exception as e:
             self.emit({
                 'phase': 'error',
@@ -151,6 +212,7 @@ class UIHandler(IPythonHandler):
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
+        content_provider = self.get_argument('contentProvider', None)
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
         subPath = self.get_argument('subpath', None) or \
@@ -171,10 +233,19 @@ class UIHandler(IPythonHandler):
             else:
                 path = 'tree/' + path
 
+        if content_provider is not None:
+            path = "tree/"
+
         self.write(
             self.render_template(
                 'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
+                repo=repo,
+                branch=branch,
+                path=path,
+                depth=depth,
+                contentProvider=content_provider,
+                targetpath=targetpath,
+                version=__version__
             ))
         self.flush()
 
