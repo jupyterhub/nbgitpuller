@@ -14,6 +14,8 @@ from .version import __version__
 from notebook.utils import url_path_join
 import pickle
 
+JINJA2_ENV_KEY = "notebook_jinja2_env"
+
 class HSLoginHandler(IPythonHandler):
     @gen.coroutine
     def get(self):
@@ -232,7 +234,7 @@ class UIHandler(IPythonHandler):
         # FIXME: Is this really the best way to use jinja2 here?
         # I can't seem to get the jinja2 env in the base handler to
         # actually load templates from arbitrary paths ugh.
-        jinja2_env = self.settings['jinja2_env']
+        jinja2_env = self.settings[JINJA2_ENV_KEY]
         jinja2_env.loader = jinja2.ChoiceLoader([
             jinja2_env.loader,
             jinja2.FileSystemLoader(
@@ -275,7 +277,7 @@ class UIHandler(IPythonHandler):
 class HSHandler(IPythonHandler):
     def initialize(self):
         super().initialize()
-        jinja2_env = self.settings['jinja2_env']
+        jinja2_env = self.settings[JINJA2_ENV_KEY]
         jinja2_env.loader = jinja2.ChoiceLoader([
             jinja2_env.loader,
             jinja2.FileSystemLoader(
