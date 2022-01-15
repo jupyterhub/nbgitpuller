@@ -110,7 +110,9 @@ class SyncHandler(IPythonHandler):
             return
 
         try:
-            repo = self.get_argument('repo')
+            q = Queue()
+
+            self.repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
             content_provider = self.get_argument('contentProvider', None)
             depth = self.get_argument('depth', None)
@@ -127,30 +129,34 @@ class SyncHandler(IPythonHandler):
             # must be expanded.
             repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
                                            os.getenv('NBGITPULLER_PARENTPATH', ''))
-            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
+            self.repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', self.repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            # if content_provider is specified then we are dealing with compressed
-            # archive and not a git repo
-            if content_provider is not None:
-                plugin_manager = self.setup_plugins(content_provider)
-                query_line_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
-                download_q = Queue()
-                helper_args = dict()
-                helper_args["wait_for_sync_progress_queue"] = lambda: self._wait_for_sync_progress_queue(download_q)
-                helper_args["download_q"] = download_q
-                helper_args["repo_parent_dir"] = repo_parent_dir
-                results = plugin_manager.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args)
-                repo_dir = repo_parent_dir + results["output_dir"]
-                repo = "file://" + results["origin_repo_path"]
-
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
-            q = Queue()
-
             def pull():
+                # if content_provider is specified then we are dealing with compressed
+                # archive and not a git repo
+                if content_provider is not None:
+                    plugin_manager = self.setup_plugins(content_provider)
+                    query_line_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
+                    helper_args = dict()
+                    helper_args["repo_parent_dir"] = repo_parent_dir
+
+                    try:
+                        for line in plugin_manager.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args):
+                            q.put_nowait(line)
+                    except Exception as e:
+                        q.put_nowait(e)
+                        raise e
+
+                    results = helper_args["handle_files_output"]
+                    self.repo_dir = repo_parent_dir + results["output_dir"]
+                    self.repo = "file://" + results["origin_repo_path"]
+
+                gp = GitPuller(self.repo, self.repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+
                 try:
                     for line in gp.pull():
                         q.put_nowait(line)
@@ -159,6 +165,7 @@ class SyncHandler(IPythonHandler):
                 except Exception as e:
                     q.put_nowait(e)
                     raise e
+
             self.gp_thread = threading.Thread(target=pull)
             self.gp_thread.start()
             yield self._wait_for_sync_progress_queue(q)
