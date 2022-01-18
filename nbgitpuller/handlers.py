@@ -180,6 +180,12 @@ class UIHandler(IPythonHandler):
 
 
 class LegacyGitSyncRedirectHandler(IPythonHandler):
+    """
+    The /git-pull endpoint was previously exposed /git-sync.
+
+    For backward compatibility we keep listening to the /git-sync endpoint but
+    respond with a redirect to the /git-pull endpoint.
+    """
     @web.authenticated
     @gen.coroutine
     def get(self):
@@ -191,6 +197,12 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
 
 
 class LegacyInteractRedirectHandler(IPythonHandler):
+    """
+    The /git-pull endpoint was previously exposed /interact.
+
+    For backward compatibility we keep listening to the /interact endpoint but
+    respond with a redirect to the /git-pull endpoint.
+    """
     @web.authenticated
     @gen.coroutine
     def get(self):
