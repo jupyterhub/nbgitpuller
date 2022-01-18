@@ -19,45 +19,38 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-20.04
     timeout-minutes: 10
 
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        node-version: ["16"]
+
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "${{ matrix.node-version }}"
 
       - name: Run webpack to build static assets
         run: |
             npm install
             npm run webpack
 
-      - name: Install Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
-      # DISABLED: Since we don't pin our dependencies in dev-requirements.txt
-      #           and only refresh the cache when it changes, we end up with a
-      #           cache that remains for too long and cause failures. Due to
-      #           this, it has been disabled.
-      #
-      # - name: Cache pip dependencies
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ~/.cache/pip
-      #     # Look to see if there is a cache hit for the corresponding requirements file
-      #     key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-pip-
-
       - name: Install dependencies
         run: |
           pip install -r dev-requirements.txt
+          pip install .
+          pip freeze
 
       - name: Run flake8 linter
         run: flake8
 
       - name: Run tests
         run: |
-          pip install .
           pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller
