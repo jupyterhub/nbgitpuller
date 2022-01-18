@@ -26,8 +26,7 @@ class SyncHandler(IPythonHandler):
     def git_lock(self):
         return self.settings['git_lock']
 
-    @gen.coroutine
-    def emit(self, data):
+    async def emit(self, data):
         if type(data) is not str:
             serialized_data = json.dumps(data)
             if 'output' in data:
@@ -36,15 +35,14 @@ class SyncHandler(IPythonHandler):
             serialized_data = data
             self.log.info(data)
         self.write('data: {}\n\n'.format(serialized_data))
-        yield self.flush()
+        await self.flush()
 
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         try:
-            yield self.git_lock.acquire(1)
+            await self.git_lock.acquire(1)
         except gen.TimeoutError:
-            self.emit({
+            await self.emit({
                 'phase': 'error',
                 'message': 'Another git operations is currently running, try again in a few minutes'
             })
@@ -94,12 +92,12 @@ class SyncHandler(IPythonHandler):
                 try:
                     progress = q.get_nowait()
                 except Empty:
-                    yield gen.sleep(0.5)
+                    await gen.sleep(0.5)
                     continue
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
-                    self.emit({
+                    await self.emit({
                         'phase': 'error',
                         'message': str(progress),
                         'output': '\n'.join([
@@ -111,11 +109,11 @@ class SyncHandler(IPythonHandler):
                     })
                     return
 
-                self.emit({'output': progress, 'phase': 'syncing'})
+                await self.emit({'output': progress, 'phase': 'syncing'})
 
-            self.emit({'phase': 'finished'})
+            await self.emit({'phase': 'finished'})
         except Exception as e:
-            self.emit({
+            await self.emit({
                 'phase': 'error',
                 'message': str(e),
                 'output': '\n'.join([
@@ -144,8 +142,7 @@ class UIHandler(IPythonHandler):
         ])
 
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
 
         repo = self.get_argument('repo')
@@ -176,13 +173,12 @@ class UIHandler(IPythonHandler):
                 'status.html',
                 repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
             ))
-        self.flush()
+        await self.flush()
 
 
 class LegacyGitSyncRedirectHandler(IPythonHandler):
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,
             query=self.request.query
@@ -192,8 +188,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
 
 class LegacyInteractRedirectHandler(IPythonHandler):
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         repo = self.get_argument('repo')
         account = self.get_argument('account', 'data-8')
         repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)
