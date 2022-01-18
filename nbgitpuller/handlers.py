@@ -42,7 +42,7 @@ class SyncHandler(IPythonHandler):
         try:
             await self.git_lock.acquire(1)
         except gen.TimeoutError:
-            self.emit({
+            await self.emit({
                 'phase': 'error',
                 'message': 'Another git operations is currently running, try again in a few minutes'
             })
@@ -97,7 +97,7 @@ class SyncHandler(IPythonHandler):
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
-                    self.emit({
+                    await self.emit({
                         'phase': 'error',
                         'message': str(progress),
                         'output': '\n'.join([
@@ -109,11 +109,11 @@ class SyncHandler(IPythonHandler):
                     })
                     return
 
-                self.emit({'output': progress, 'phase': 'syncing'})
+                await self.emit({'output': progress, 'phase': 'syncing'})
 
-            self.emit({'phase': 'finished'})
+            await self.emit({'phase': 'finished'})
         except Exception as e:
-            self.emit({
+            await self.emit({
                 'phase': 'error',
                 'message': str(e),
                 'output': '\n'.join([
@@ -173,7 +173,7 @@ class UIHandler(IPythonHandler):
                 'status.html',
                 repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
             ))
-        self.flush()
+        await self.flush()
 
 
 class LegacyGitSyncRedirectHandler(IPythonHandler):
