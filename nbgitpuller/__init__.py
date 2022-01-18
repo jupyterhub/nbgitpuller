@@ -20,17 +20,20 @@ def _jupyter_server_extension_points():
     }]
 
 
-def _load_jupyter_server_extension(nbapp):
+def _load_jupyter_server_extension(app):
     """
     This function is a hook for `notebook` and `jupyter_server` that we use to
     register additional endpoints to be handled by nbgitpuller.
+
+    Note that as this function is used as a hook for both notebook and
+    jupyter_server, the argument passed may be a NotebookApp or a ServerApp.
 
     Related documentation:
     - notebook: https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.htmland
     - notebook: https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.html#Example---Server-extension
     - jupyter_server: https://jupyter-server.readthedocs.io/en/latest/developers/extensions.html
     """
-    web_app = nbapp.web_app
+    web_app = app.web_app
     base_url = url_path_join(web_app.settings['base_url'], 'git-pull')
     handlers = [
         (url_path_join(base_url, 'api'), SyncHandler),
@@ -43,7 +46,10 @@ def _load_jupyter_server_extension(nbapp):
             {'path': os.path.join(os.path.dirname(__file__), 'static')}
         )
     ]
-    web_app.settings['nbapp'] = nbapp
+    # FIXME: See note on how to stop relying on settings to pass information:
+    #        https://github.com/jupyterhub/nbgitpuller/pull/242#pullrequestreview-854968180
+    #
+    web_app.settings['nbapp'] = app
     web_app.add_handlers('.*', handlers)
 
 
