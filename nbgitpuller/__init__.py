@@ -6,13 +6,30 @@ from tornado.web import StaticFileHandler
 import os
 
 
-def _jupyter_server_extension_paths():
+def _jupyter_server_extension_points():
+    """
+    This function is detected by `notebook` and `jupyter_server` because they
+    are explicitly configured to inspect the nbgitpuller module for it. That
+    explicit configuration is passed via setup.py's declared data_files.
+
+    Returns a list of dictionaries with metadata describing where to find the
+    `_load_jupyter_server_extension` function.
+    """
     return [{
         'module': 'nbgitpuller',
     }]
 
 
-def load_jupyter_server_extension(nbapp):
+def _load_jupyter_server_extension(nbapp):
+    """
+    This function is a hook for `notebook` and `jupyter_server` that we use to
+    register additional endpoints to be handled by nbgitpuller.
+
+    Related documentation:
+    - notebook: https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.htmland
+    - notebook: https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.html#Example---Server-extension
+    - jupyter_server: https://jupyter-server.readthedocs.io/en/latest/developers/extensions.html
+    """
     web_app = nbapp.web_app
     base_url = url_path_join(web_app.settings['base_url'], 'git-pull')
     handlers = [
@@ -29,4 +46,19 @@ def load_jupyter_server_extension(nbapp):
     web_app.settings['nbapp'] = nbapp
     web_app.add_handlers('.*', handlers)
 
-_load_jupyter_server_extension = load_jupyter_server_extension
+
+# For compatibility with both notebook and jupyter_server, we define
+# _jupyter_server_extension_paths alongside _jupyter_server_extension_points.
+#
+# "..._paths" is used by notebook and still supported by jupyter_server as of
+# jupyter_server 1.13.3, but was renamed to "..._points" in jupyter_server
+# 1.0.0.
+#
+_jupyter_server_extension_paths = _jupyter_server_extension_points
+
+# For compatibility with both notebook and jupyter_server, we define both
+# load_jupyter_server_extension alongside _load_jupyter_server_extension.
+#
+# "load..." is used by notebook and "_load..." is used by jupyter_server.
+#
+load_jupyter_server_extension = _load_jupyter_server_extension
