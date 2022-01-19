@@ -4,10 +4,21 @@ import logging
 import time
 import argparse
 import datetime
+import pluggy
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
+from . import plugin_hook_specs
 
+
+class ContentProviderException(Exception):
+    """
+    Custom Exception thrown when the content_provider key specifying
+    the downloader plugin is not installed or can not be found by the
+    name given
+    """
+    def __init__(self, response=None):
+        self.response = response
 
 def execute_cmd(cmd, **kwargs):
     """
@@ -45,6 +56,24 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 
+def setup_plugins(content_provider):
+    """
+    This automatically searches for and loads packages whose entrypoint is nbgitpuller. If found,
+    the plugin manager object is returned and used to execute the hook implemented by
+    the plugin.
+    :param content_provider: this is the name of the content_provider; each plugin is named to identify the
+    content_provider of the archive to be loaded(e.g. googledrive, dropbox, etc)
+    :return: returns the PluginManager object used to call the implemented hooks of the plugin
+    :raises: ContentProviderException -- this occurs when the content_provider parameter is not found
+    """
+    plugin_manager = pluggy.PluginManager("nbgitpuller")
+    plugin_manager.add_hookspecs(plugin_hook_specs)
+    num_loaded = plugin_manager.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
+    if num_loaded == 0:
+        raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
+    return plugin_manager
+
+
 class GitPuller(Configurable):
     depth = Integer(
         config=True,
@@ -71,12 +100,9 @@ class GitPuller(Configurable):
 
         self.git_url = git_url
         self.branch_name = kwargs.pop("branch")
-
-        if self.branch_name is None:
-            self.branch_name = self.resolve_default_branch()
-        elif not self.branch_exists(self.branch_name):
-            raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
-
+        self.content_provider = kwargs.pop("content_provider")
+        self.repo_parent_dir = kwargs.pop("repo_parent_dir")
+        self.other_kw_args = kwargs.pop("other_kw_args")
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
@@ -135,11 +161,35 @@ class GitPuller(Configurable):
             logging.exception(m)
             raise ValueError(m)
 
+    def handle_archive_download(self):
+        try:
+            plugin_manager = setup_plugins(self.content_provider)
+            other_kw_args = {k: v[0].decode() for k, v in self.other_kw_args}
+            yield from plugin_manager.hook.handle_files(repo_parent_dir=self.repo_parent_dir,other_kw_args=other_kw_args)
+            results = other_kw_args["handle_files_output"]
+            self.repo_dir = self.repo_parent_dir + results["output_dir"]
+            self.git_url = "file://" + results["origin_repo_path"]
+        except ContentProviderException as c:
+            raise c
+
+    def handle_branch_name(self):
+        if self.branch_name is None:
+            self.branch_name = self.resolve_default_branch()
+        elif not self.branch_exists(self.branch_name):
+            raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
+
     def pull(self):
         """
-        Pull selected repo from a remote git repository,
+        if compressed archive download first.
+        Execute pull of repo from a git repository(remote or temporary local created for compressed archives),
         while preserving user changes
         """
+        # if content_provider is specified then we are dealing with compressed archive and not a git repo
+        if self.content_provider is not None:
+            yield from self.handle_archive_download()
+
+        self.handle_branch_name()
+
         if not os.path.exists(self.repo_dir):
             yield from self.initialize_repo()
         else:
@@ -305,12 +355,18 @@ def main():
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
+    parser.add_argument('content_provider', default=None, help='If downloading compressed archive instead of using git repo set this(e.g. dropbox, googledrive, generic_web)', nargs='?')
+    parser.add_argument('repo_parent_dir', default='.', help='Only used if downloading compressed archive, location of download', nargs='?')
+    parser.add_argument('other_kw_args', default=None, help='you can pass any keyword args you want as a dict{"arg1":"value1","arg2":"value2"} -- could be used in downloader plugins', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
-        branch=args.branch_name if args.branch_name else None
+        branch=args.branch_name if args.branch_name else None,
+        content_provider=args.content_provider if args.content_provider else None,
+        repo_parent_dir=args.repo_parent_dir if args.repo_parent_dir else None,
+        other_kw_args=args.other_kw_args if args.other_kw_args else None
     ).pull():
         print(line)
 

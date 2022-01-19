@@ -11,18 +11,8 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
-from . import plugin_hook_specs
-import pluggy
 
 
-class ContentProviderException(Exception):
-    """
-    Custom Exception thrown when the content_provider key specifying
-    the downloader plugin is not installed or can not be found by the
-    name given
-    """
-    def __init__(self, response=None):
-        self.response = response
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -48,23 +38,6 @@ class SyncHandler(IPythonHandler):
             self.log.info(data)
         self.write('data: {}\n\n'.format(serialized_data))
         yield self.flush()
-
-    def setup_plugins(self, content_provider):
-        """
-        This automatically searches for and loads packages whose entrypoint is nbgitpuller. If found,
-        the plugin manager object is returned and used to execute the hook implemented by
-        the plugin.
-        :param content_provider: this is the name of the content_provider; each plugin is named to identify the
-        content_provider of the archive to be loaded(e.g. googledrive, dropbox, etc)
-        :return: returns the PluginManager object used to call the implemented hooks of the plugin
-        :raises: ContentProviderException -- this occurs when the content_provider parameter is not found
-        """
-        plugin_manager = pluggy.PluginManager("nbgitpuller")
-        plugin_manager.add_hookspecs(plugin_hook_specs)
-        num_loaded = plugin_manager.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
-        if num_loaded == 0:
-            raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
-        return plugin_manager
 
     @gen.coroutine
     def _wait_for_sync_progress_queue(self, queue):
@@ -112,7 +85,7 @@ class SyncHandler(IPythonHandler):
         try:
             q = Queue()
 
-            self.repo = self.get_argument('repo')
+            repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
             content_provider = self.get_argument('contentProvider', None)
             depth = self.get_argument('depth', None)
@@ -129,34 +102,14 @@ class SyncHandler(IPythonHandler):
             # must be expanded.
             repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
                                            os.getenv('NBGITPULLER_PARENTPATH', ''))
-            self.repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', self.repo.split('/')[-1]))
+            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
             def pull():
-                # if content_provider is specified then we are dealing with compressed
-                # archive and not a git repo
-                if content_provider is not None:
-                    plugin_manager = self.setup_plugins(content_provider)
-                    query_line_args = {k: v[0].decode() for k, v in self.request.arguments.items()}
-                    helper_args = dict()
-                    helper_args["repo_parent_dir"] = repo_parent_dir
-
-                    try:
-                        for line in plugin_manager.hook.handle_files(helper_args=helper_args,query_line_args=query_line_args):
-                            q.put_nowait(line)
-                    except Exception as e:
-                        q.put_nowait(e)
-                        raise e
-
-                    results = helper_args["handle_files_output"]
-                    self.repo_dir = repo_parent_dir + results["output_dir"]
-                    self.repo = "file://" + results["origin_repo_path"]
-
-                gp = GitPuller(self.repo, self.repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
-
+                gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'], content_provider=content_provider, repo_parent_dir=repo_parent_dir, other_kw_args=self.request.arguments.items())
                 try:
                     for line in gp.pull():
                         q.put_nowait(line)
@@ -171,17 +124,6 @@ class SyncHandler(IPythonHandler):
             yield self._wait_for_sync_progress_queue(q)
             self.emit({'phase': 'finished'})
 
-        except ContentProviderException as pe:
-            self.emit({
-                'phase': 'error',
-                'message': str(pe),
-                'output': '\n'.join([
-                    line.strip()
-                    for line in traceback.format_exception(
-                        type(pe), pe, pe.__traceback__
-                    )
-                ])
-        })
         except Exception as e:
             self.emit({
                 'phase': 'error',
