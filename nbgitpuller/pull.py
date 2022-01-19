@@ -5,10 +5,12 @@ import time
 import argparse
 import datetime
 import pluggy
+import importlib_metadata
+import inspect
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-from . import plugin_hook_specs
+import plugin_hook_specs
 
 
 class ContentProviderException(Exception):
@@ -19,6 +21,7 @@ class ContentProviderException(Exception):
     """
     def __init__(self, response=None):
         self.response = response
+
 
 def execute_cmd(cmd, **kwargs):
     """
@@ -56,6 +59,19 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 
+def load_downloader_plugin_classes_from_entrypoints(group, content_provider):
+    for dist in list(importlib_metadata.distributions()):
+        for ep in dist.entry_points:
+            if ep.group == group:
+                plugin = ep.load()
+                for name, cls in inspect.getmembers(plugin, inspect.isclass):
+                    if cls.__module__ == ep.value and ep.name == content_provider:
+                        for fn_name, fn in inspect.getmembers(cls, inspect.isfunction):
+                            if fn_name == "handle_files":
+                                return cls
+    return None
+
+
 def setup_plugins(content_provider):
     """
     This automatically searches for and loads packages whose entrypoint is nbgitpuller. If found,
@@ -68,10 +84,13 @@ def setup_plugins(content_provider):
     """
     plugin_manager = pluggy.PluginManager("nbgitpuller")
     plugin_manager.add_hookspecs(plugin_hook_specs)
-    num_loaded = plugin_manager.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
-    if num_loaded == 0:
+    download_class = load_downloader_plugin_classes_from_entrypoints("nbgitpuller", content_provider)
+    downloader_obj = download_class()
+    #num_loaded = plugin_manager.load_setuptools_entrypoints("nbgitpuller", name=content_provider)
+    if download_class is None:
         raise ContentProviderException(f"The content_provider key you supplied in the URL could not be found: {content_provider}")
-    return plugin_manager
+    plugin_manager.register(downloader_obj)
+    return {"plugin_manager": plugin_manager, "downloader_obj": downloader_obj }
 
 
 class GitPuller(Configurable):
@@ -163,10 +182,12 @@ class GitPuller(Configurable):
 
     def handle_archive_download(self):
         try:
-            plugin_manager = setup_plugins(self.content_provider)
+            plugin_info = setup_plugins(self.content_provider)
+            plugin_manager = plugin_info["plugin_manager"]
+            downloader_obj = plugin_info["downloader_obj"]
             other_kw_args = {k: v[0].decode() for k, v in self.other_kw_args}
             yield from plugin_manager.hook.handle_files(repo_parent_dir=self.repo_parent_dir,other_kw_args=other_kw_args)
-            results = other_kw_args["handle_files_output"]
+            results = downloader_obj.handle_files_results
             self.repo_dir = self.repo_parent_dir + results["output_dir"]
             self.git_url = "file://" + results["origin_repo_path"]
         except ContentProviderException as c:
@@ -353,11 +374,11 @@ def main():
 
     parser = argparse.ArgumentParser(description='Synchronizes a github repository with a local repository.')
     parser.add_argument('git_url', help='Url of the repo to sync')
-    parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
-    parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
-    parser.add_argument('content_provider', default=None, help='If downloading compressed archive instead of using git repo set this(e.g. dropbox, googledrive, generic_web)', nargs='?')
-    parser.add_argument('repo_parent_dir', default='.', help='Only used if downloading compressed archive, location of download', nargs='?')
-    parser.add_argument('other_kw_args', default=None, help='you can pass any keyword args you want as a dict{"arg1":"value1","arg2":"value2"} -- could be used in downloader plugins', nargs='?')
+    parser.add_argument('repo_dir', help='Path to clone repo under', nargs='?')
+    parser.add_argument('--branch_name', default=None, help='Branch of repo to sync', nargs='?')
+    parser.add_argument('--content_provider', default=None, help='If downloading compressed archive instead of using git repo set this(e.g. dropbox, googledrive, generic_web)', nargs='?')
+    parser.add_argument('--repo_parent_dir', default='.', help='Only used if downloading compressed archive, location of download', nargs='?')
+    parser.add_argument('--other_kw_args', default=None, help='you can pass any keyword args you want as a dict{"arg1":"value1","arg2":"value2"} -- could be used in downloader plugins', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
