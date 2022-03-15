@@ -13,6 +13,11 @@ from .pull import GitPuller
 from .version import __version__
 
 
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), 'templates')
+    ),
+)
+
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -128,19 +133,6 @@ class SyncHandler(IPythonHandler):
 
 
 class UIHandler(IPythonHandler):
-    def initialize(self):
-        super().initialize()
-        # FIXME: Is this really the best way to use jinja2 here?
-        # I can't seem to get the jinja2 env in the base handler to
-        # actually load templates from arbitrary paths ugh.
-        jinja2_env = self.settings['jinja2_env']
-        jinja2_env.loader = jinja2.ChoiceLoader([
-            jinja2_env.loader,
-            jinja2.FileSystemLoader(
-                os.path.join(os.path.dirname(__file__), 'templates')
-            )
-        ])
-
     @web.authenticated
     async def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
@@ -169,10 +161,11 @@ class UIHandler(IPythonHandler):
                 path = 'tree/' + path
 
         self.write(
-            self.render_template(
-                'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
-            ))
+            jinja_env.get_template('status.html').render(
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
+                **self.template_namespace
+            )
+        )
         await self.flush()
 
 
