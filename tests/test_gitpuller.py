@@ -346,6 +346,29 @@ def test_delete_conflicted_file():
             puller.pull_all()
 
 
+def test_delete_locally_and_remotely():
+    """
+    Test that sync works after deleting a file locally and remotely
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            # Delete locally (without git rm)
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            # Delete remotely
+            pusher.git('rm', 'README.md')
+            
+            # Create another change to pull
+            pusher.push_file('another_file.txt', '2')
+            puller.pull_all()
+
+            assert not os.path.exists(os.path.join(puller.path, 'README.md'))
+            assert puller.read_file('another_file.txt') == '2'
+
 
 @pytest.fixture(scope='module')
 def long_remote():
