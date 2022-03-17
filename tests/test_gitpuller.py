@@ -286,6 +286,32 @@ def test_merging_simple():
             assert puller.read_file('README.md') == '2'
 
 
+def test_merging_after_commit():
+    """
+    Test that merging works even after we make a commit locally
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            puller.write_file('README.md', '2')
+            puller.git('commit', '-am', 'Local change')
+
+            puller.pull_all()
+
+            assert puller.read_file('README.md') == '2'
+            assert pusher.read_file('README.md') == '1'
+
+            pusher.push_file('README.md', '3')
+            puller.pull_all()
+
+            # Check if there is a merge commit
+            parent_commits = puller.git('show', '-s', '--format="%P"', 'HEAD').strip().split(' ')
+            assert(len(parent_commits) == 2)
+
+
 def test_untracked_puller():
     """
     Test that untracked files in puller are preserved when pulling
