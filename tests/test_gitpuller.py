@@ -323,6 +323,29 @@ def test_reset_file():
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
             assert puller.read_file('unicode🙂.txt') == pusher.read_file('unicode🙂.txt') == '2'
 
+def test_delete_conflicted_file():
+    """
+    Test that after deleting a file that had a conflict, we can still pull
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'hello')
+
+        with Puller(remote) as puller:
+            # Change a file locally
+            puller.write_file('README.md', 'student changed')
+
+            # Sync will keep the local change
+            puller.pull_all()            
+            assert puller.read_file('README.md') == 'student changed'
+
+            # Delete previously changed file
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            # Make a change remotely.  We should be able to pull it
+            pusher.push_file('new_file.txt', 'hello world')
+            puller.pull_all()
+
+
 
 @pytest.fixture(scope='module')
 def long_remote():
