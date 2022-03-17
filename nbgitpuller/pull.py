@@ -262,6 +262,9 @@ class GitPuller(Configurable):
         # a fresh copy of a file they might have screwed up.
         yield from self.reset_deleted_files()
 
+        # Unstage all changes, otherwise the merge might fail
+        yield from execute_cmd(['git', 'reset'], cwd=self.repo_dir)
+
         # If there are local changes, make a commit so we can do merges when pulling
         # We also allow empty commits. On NFS (at least), sometimes repo_is_dirty returns a false
         # positive, returning True even when there are no local changes (git diff-files seems to return

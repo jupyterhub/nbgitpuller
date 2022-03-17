@@ -396,6 +396,28 @@ def test_delete_locally_and_remotely():
             assert puller.read_file('another_file.txt') == '2'
 
 
+def test_sync_with_staged_changes():
+    """
+    Test that we can sync even if there are staged changess
+    """
+
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            # Change a file locally and remotely
+            puller.write_file('README.md', 'student changed')
+            pusher.push_file('README.md', 'teacher changed')
+            
+            # Stage the local change, but do not commit
+            puller.git('add', 'README.md')
+
+            # Try to sync
+            puller.pull_all()
+
+
 @pytest.fixture(scope='module')
 def long_remote():
     with Remote("long_remote") as remote, Pusher(remote, "lr_pusher") as pusher:
