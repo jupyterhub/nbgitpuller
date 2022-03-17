@@ -172,7 +172,7 @@ class GitPuller(Configurable):
 
         for filename in deleted_files:
             if filename:  # Filter out empty lines
-                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
+                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
 
     def repo_is_dirty(self):
         """
