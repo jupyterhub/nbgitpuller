@@ -172,7 +172,7 @@ class GitPuller(Configurable):
 
         for filename in deleted_files:
             if filename:  # Filter out empty lines
-                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
+                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
 
     def repo_is_dirty(self):
         """
@@ -261,6 +261,11 @@ class GitPuller(Configurable):
         # unnecessary conflicts, and also allows users to click the link again to get
         # a fresh copy of a file they might have screwed up.
         yield from self.reset_deleted_files()
+
+        # Unstage any changes, otherwise the merge might fail.
+        # The following command resets the index, but keeps the working tree.  All changes
+        # to files will be preserved, but they are no longer staged for commit.
+        yield from execute_cmd(['git', 'reset', '--mixed'], cwd=self.repo_dir)
 
         # If there are local changes, make a commit so we can do merges when pulling
         # We also allow empty commits. On NFS (at least), sometimes repo_is_dirty returns a false

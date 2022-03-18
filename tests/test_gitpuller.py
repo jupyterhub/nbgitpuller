@@ -73,6 +73,8 @@ class Puller(Repository):
     def __enter__(self):
         print()
         self.pull_all()
+        self.git('config', '--local', 'user.email', 'puller@example.com')
+        self.git('config', '--local', 'user.name', 'puller')
         return self
 
 
@@ -286,6 +288,32 @@ def test_merging_simple():
             assert puller.read_file('README.md') == '2'
 
 
+def test_merging_after_commit():
+    """
+    Test that merging works even after we make a commit locally
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            puller.write_file('README.md', '2')
+            puller.git('commit', '-am', 'Local change')
+
+            puller.pull_all()
+
+            assert puller.read_file('README.md') == '2'
+            assert pusher.read_file('README.md') == '1'
+
+            pusher.push_file('README.md', '3')
+            puller.pull_all()
+
+            # Check if there is a merge commit
+            parent_commits = puller.git('show', '-s', '--format="%P"', 'HEAD').strip().split(' ')
+            assert(len(parent_commits) == 2)
+
+
 def test_untracked_puller():
     """
     Test that untracked files in puller are preserved when pulling
@@ -322,6 +350,74 @@ def test_reset_file():
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
             assert puller.read_file('unicode🙂.txt') == pusher.read_file('unicode🙂.txt') == '2'
+
+def test_delete_conflicted_file():
+    """
+    Test that after deleting a file that had a conflict, we can still pull
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'hello')
+
+        with Puller(remote) as puller:
+            # Change a file locally
+            puller.write_file('README.md', 'student changed')
+
+            # Sync will keep the local change
+            puller.pull_all()            
+            assert puller.read_file('README.md') == 'student changed'
+
+            # Delete previously changed file
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            # Make a change remotely.  We should be able to pull it
+            pusher.push_file('new_file.txt', 'hello world')
+            puller.pull_all()
+
+
+def test_delete_locally_and_remotely():
+    """
+    Test that sync works after deleting a file locally and remotely
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            # Delete locally (without git rm)
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            # Delete remotely
+            pusher.git('rm', 'README.md')
+            
+            # Create another change to pull
+            pusher.push_file('another_file.txt', '2')
+            puller.pull_all()
+
+            assert not os.path.exists(os.path.join(puller.path, 'README.md'))
+            assert puller.read_file('another_file.txt') == '2'
+
+
+def test_sync_with_staged_changes():
+    """
+    Test that we can sync even if there are staged changess
+    """
+
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            # Change a file locally and remotely
+            puller.write_file('README.md', 'student changed')
+            pusher.push_file('README.md', 'teacher changed')
+            
+            # Stage the local change, but do not commit
+            puller.git('add', 'README.md')
+
+            # Try to sync
+            puller.pull_all()
 
 
 @pytest.fixture(scope='module')
