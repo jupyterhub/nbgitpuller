@@ -73,6 +73,8 @@ class Puller(Repository):
     def __enter__(self):
         print()
         self.pull_all()
+        self.git('config', '--local', 'user.email', 'puller@example.com')
+        self.git('config', '--local', 'user.name', 'puller')
         return self
 
 
