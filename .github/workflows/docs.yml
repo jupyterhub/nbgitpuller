@@ -15,6 +15,7 @@ on:
     branches-ignore:
       - "dependabot/**"
       - "pre-commit-ci-update-config"
+    tags: ["**"]
   workflow_dispatch:
 
 env:
