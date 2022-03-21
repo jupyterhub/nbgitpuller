@@ -170,9 +170,13 @@ class GitPuller(Configurable):
             'git', 'ls-files', '--deleted', '-z'
         ], cwd=self.repo_dir).decode().strip().split('\0')
 
+        paths = self.find_upstream_changed('D')
+        upstream_deleted = [fn[len(self.repo_dir) + 1:] for fn in paths]
+
         for filename in deleted_files:
-            if filename:  # Filter out empty lines
-                yield from execute_cmd(['git', 'checkout', '--', filename], cwd=self.repo_dir)
+            # Filter out empty lines, and files that were deleted in the remote
+            if filename and filename not in upstream_deleted:
+                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
 
     def repo_is_dirty(self):
         """
