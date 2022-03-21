@@ -351,6 +351,34 @@ def test_reset_file():
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
             assert puller.read_file('unicode🙂.txt') == pusher.read_file('unicode🙂.txt') == '2'
 
+
+def test_reset_file_after_changes():
+    """
+    Test that we get the latest version of a file if we:
+    - change the file locally
+    - sync, so the change is preserved
+    - delete the file, in order to reset it
+    - sync again
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'original')
+
+        with Puller(remote) as puller:
+            puller.write_file('README.md', 'local change')
+            pusher.push_file('README.md', 'remote change')
+            puller.pull_all()
+
+            # It should keep the local change
+            assert puller.read_file('README.md') == 'local change'
+
+            # Delete the local file manually and pull
+            os.remove(os.path.join(puller.path, 'README.md'))
+            puller.pull_all()
+
+            # It should restore the remote change
+            assert puller.read_file('README.md') == 'remote change'
+
+
 def test_delete_conflicted_file():
     """
     Test that after deleting a file that had a conflict, we can still pull
