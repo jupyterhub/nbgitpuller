@@ -402,6 +402,25 @@ def test_delete_conflicted_file():
             puller.pull_all()
 
 
+def test_delete_remotely_modify_locally():
+    """
+    Test that we can delete a file upstream, and edit it at the same time locally
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file remotely
+            pusher.git('rm', 'README.md')
+            pusher.git('commit', '-m', 'Deleted file')
+            
+            # Edit locally
+            pusher.push_file('README.md', 'HELLO')
+            puller.pull_all()
+
+            assert puller.read_file('README.md') == 'HELLO'
+
+
 def test_delete_locally_and_remotely():
     """
     Test that sync works after deleting a file locally and remotely
