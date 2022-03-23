@@ -170,9 +170,7 @@ class GitPuller(Configurable):
             'git', 'ls-files', '--deleted', '-z'
         ], cwd=self.repo_dir).decode().strip().split('\0')
 
-        paths = self.find_upstream_changed('D')
-        upstream_deleted = [fn[len(self.repo_dir) + 1:] for fn in paths]
-
+        upstream_deleted = self.find_upstream_changed('D')
         for filename in deleted_files:
             # Filter out empty lines, and files that were deleted in the remote
             if filename and filename not in upstream_deleted:
@@ -206,7 +204,7 @@ class GitPuller(Configurable):
         files = []
         for line in output.split('\n'):
             if line.startswith(kind):
-                files.append(os.path.join(self.repo_dir, line.split('\t', 1)[1]))
+                files.append(line.split('\t', 1)[1])
 
         return files
 
@@ -241,6 +239,7 @@ class GitPuller(Configurable):
         # Find what files have been added!
         new_upstream_files = self.find_upstream_changed('A')
         for f in new_upstream_files:
+            f = os.path.join(self.repo_dir, f)
             if os.path.exists(f):
                 # If there's a file extension, put the timestamp before that
                 ts = datetime.datetime.now().strftime('__%Y%m%d%H%M%S')
