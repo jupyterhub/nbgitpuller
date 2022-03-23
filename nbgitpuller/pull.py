@@ -200,8 +200,8 @@ class GitPuller(Configurable):
         Return list of files that have been changed upstream belonging to a particular kind of change
         """
         output = subprocess.check_output([
-            'git', 'log', '..origin/{}'.format(self.branch_name),
-            '--oneline', '--name-status'
+            'git', 'diff', '..origin/{}'.format(self.branch_name),
+            '--name-status'
         ], cwd=self.repo_dir).decode()
         files = []
         for line in output.split('\n'):
