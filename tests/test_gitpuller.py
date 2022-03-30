@@ -351,6 +351,34 @@ def test_reset_file():
             assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
             assert puller.read_file('unicode🙂.txt') == pusher.read_file('unicode🙂.txt') == '2'
 
+
+def test_reset_file_after_changes():
+    """
+    Test that we get the latest version of a file if we:
+    - change the file locally
+    - sync, so the change is preserved
+    - delete the file, in order to reset it
+    - sync again
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'original')
+
+        with Puller(remote) as puller:
+            puller.write_file('README.md', 'local change')
+            pusher.push_file('README.md', 'remote change')
+            puller.pull_all()
+
+            # It should keep the local change
+            assert puller.read_file('README.md') == 'local change'
+
+            # Delete the local file manually and pull
+            os.remove(os.path.join(puller.path, 'README.md'))
+            puller.pull_all()
+
+            # It should restore the remote change
+            assert puller.read_file('README.md') == 'remote change'
+
+
 def test_delete_conflicted_file():
     """
     Test that after deleting a file that had a conflict, we can still pull
@@ -372,6 +400,25 @@ def test_delete_conflicted_file():
             # Make a change remotely.  We should be able to pull it
             pusher.push_file('new_file.txt', 'hello world')
             puller.pull_all()
+
+
+def test_delete_remotely_modify_locally():
+    """
+    Test that we can delete a file upstream, and edit it at the same time locally
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file remotely
+            pusher.git('rm', 'README.md')
+            pusher.git('commit', '-m', 'Deleted file')
+            
+            # Edit locally
+            pusher.push_file('README.md', 'HELLO')
+            puller.pull_all()
+
+            assert puller.read_file('README.md') == 'HELLO'
 
 
 def test_delete_locally_and_remotely():
