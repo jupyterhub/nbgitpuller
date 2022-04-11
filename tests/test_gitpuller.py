@@ -421,6 +421,51 @@ def test_delete_remotely_modify_locally():
             assert puller.read_file('README.md') == 'HELLO'
 
 
+def test_diverged():
+    """
+    Test deleting a file upstream, and editing it locally.  This time we
+    commit to create diverged brances.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file remotely
+            pusher.git('rm', 'README.md')
+            pusher.git('commit', '-m', 'Deleted file')
+            pusher.git('push', '-u', 'origin', 'master')
+
+            # Edit locally
+            puller.write_file('README.md', 'conflict')
+            puller.git('add', 'README.md')
+            puller.git('commit', '-m', 'Make conflicting change')
+
+            # The local change should be kept
+            puller.pull_all()
+            assert puller.read_file('README.md') == 'conflict'
+
+
+def test_diverged_reverse():
+    """
+    Test deleting a file locally, and editing it upstream.  We commit the changes
+    to create diverged branches.  Like `test_diverged`, but flipped. 
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file locally
+            puller.git('rm', 'README.md')
+            puller.git('commit', '-m', 'Deleted file')
+
+            # Edit the file remotely
+            pusher.push_file('README.md', 'conflicting change')
+
+            # Pulling should get the latest version of the file
+            puller.pull_all()
+            assert(puller.read_file('README.md') == 'conflicting change')
+
+
 def test_delete_locally_and_remotely():
     """
     Test that sync works after deleting a file locally and remotely

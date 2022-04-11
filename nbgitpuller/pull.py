@@ -45,6 +45,10 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 
+class ModifyDeleteConflict(Exception):
+    pass
+
+
 class GitPuller(Configurable):
     depth = Integer(
         config=True,
@@ -249,6 +253,48 @@ class GitPuller(Configurable):
                 os.rename(f, new_file_name)
                 yield 'Renamed {} to {} to avoid conflict with upstream'.format(f, new_file_name)
 
+    def merge(self):
+        """
+        Merges the branch from origin into the current branch. If there is a
+        conflict that needs resolution, a ModifyDeleteConflict exception is raised.
+        """
+        try:
+            # Not using execute_cmd, because we need to get the output
+            # when there is an error
+            lines = subprocess.check_output([
+                'git',
+                '-c', 'user.email=nbgitpuller@nbgitpuller.link',
+                '-c', 'user.name=nbgitpuller',
+                'merge',
+                '-Xours', 'origin/{}'.format(self.branch_name)
+            ],
+            cwd=self.repo_dir,
+            stderr=subprocess.STDOUT,
+            env={**os.environ, 'LANG': 'C'}).decode().splitlines()
+            for line in lines:
+                yield line
+                
+        except subprocess.CalledProcessError as exc:
+            for line in exc.output.decode().splitlines():
+                yield line
+
+            if exc.output.decode().startswith("CONFLICT (modify/delete)"):
+                raise ModifyDeleteConflict() from exc
+            raise
+
+    def commit_all(self):
+        """
+        Creates a new commit with all the changes
+        """
+        yield from execute_cmd([
+            'git',
+            '-c', 'user.email=nbgitpuller@nbgitpuller.link',
+            '-c', 'user.name=nbgitpuller',
+            'commit',
+            '-am', 'Automatic commit by nbgitpuller',
+            '--allow-empty'
+        ], cwd=self.repo_dir)
+
     def update(self):
         """
         Do the pulling if necessary
@@ -281,24 +327,17 @@ class GitPuller(Configurable):
         # better than passing --author, since git treats author separately from committer.
         if self.repo_is_dirty():
             yield from self.ensure_lock()
-            yield from execute_cmd([
-                'git',
-                '-c', 'user.email=nbgitpuller@nbgitpuller.link',
-                '-c', 'user.name=nbgitpuller',
-                'commit',
-                '-am', 'Automatic commit by nbgitpuller',
-                '--allow-empty'
-            ], cwd=self.repo_dir)
-
+            yield from self.commit_all()
+            
         # Merge master into local!
         yield from self.ensure_lock()
-        yield from execute_cmd([
-            'git',
-            '-c', 'user.email=nbgitpuller@nbgitpuller.link',
-            '-c', 'user.name=nbgitpuller',
-            'merge',
-            '-Xours', 'origin/{}'.format(self.branch_name)
-        ], cwd=self.repo_dir)
+        try:
+            yield from self.merge()
+        except ModifyDeleteConflict:
+            yield "Caught modify/delete conflict, trying to resolve"
+            # If a file was deleted on one branch, and modified on another,
+            # we just keep the modified file.  This is done by `git add`ing it.
+            yield from self.commit_all()
 
 
 def main():
