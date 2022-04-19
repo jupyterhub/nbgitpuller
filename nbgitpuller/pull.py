@@ -272,12 +272,12 @@ class GitPuller(Configurable):
             stderr=subprocess.STDOUT,
             env={**os.environ, 'LANG': 'C'}).decode().splitlines()
             for line in lines:
-                yield line
+                yield line + '\n'
                 
         except subprocess.CalledProcessError as exc:
             lines = exc.output.decode().splitlines()
             for line in lines:
-                yield line
+                yield line + '\n'
 
             for line in lines:
                 if line.startswith("CONFLICT (modify/delete)"):
