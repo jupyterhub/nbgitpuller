@@ -275,11 +275,13 @@ class GitPuller(Configurable):
                 yield line
                 
         except subprocess.CalledProcessError as exc:
-            for line in exc.output.decode().splitlines():
+            lines = exc.output.decode().splitlines()
+            for line in lines:
                 yield line
 
-            if exc.output.decode().startswith("CONFLICT (modify/delete)"):
-                raise ModifyDeleteConflict() from exc
+            for line in lines:
+                if line.startswith("CONFLICT (modify/delete)"):
+                    raise ModifyDeleteConflict() from exc
             raise
 
     def commit_all(self):
