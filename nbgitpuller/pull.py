@@ -45,10 +45,6 @@ def execute_cmd(cmd, **kwargs):
             raise subprocess.CalledProcessError(ret, cmd)
 
 
-class ModifyDeleteConflict(Exception):
-    pass
-
-
 class GitPuller(Configurable):
     depth = Integer(
         config=True,
@@ -255,45 +251,57 @@ class GitPuller(Configurable):
 
     def merge(self):
         """
-        Merges the branch from origin into the current branch. If there is a
-        conflict that needs resolution, a ModifyDeleteConflict exception is raised.
+        Merges branch from origin into current branch, resolving conflicts when possible.
+
+        Resolves conflicts in two ways:
+
+        - Passes `-Xours` to git, setting merge-strategy to preserve changes made by the
+          user whererver possible
+        - Detect (modify/delete) conflicts, where the user has locally modified something
+          that was deleted upstream. We just keep the local file.
         """
+        modify_delete_conflict = False
         try:
-            # Not using execute_cmd, because we need to get the output
-            # when there is an error
-            lines = subprocess.check_output([
+            for line in execute_cmd([
                 'git',
                 '-c', 'user.email=nbgitpuller@nbgitpuller.link',
                 '-c', 'user.name=nbgitpuller',
                 'merge',
                 '-Xours', 'origin/{}'.format(self.branch_name)
             ],
-            cwd=self.repo_dir,
-            stderr=subprocess.STDOUT,
-            env={**os.environ, 'LANG': 'C'}).decode().splitlines()
-            for line in lines:
-                yield line + '\n'
-                
-        except subprocess.CalledProcessError as exc:
-            lines = exc.output.decode().splitlines()
-            for line in lines:
-                yield line + '\n'
-
-            for line in lines:
+            cwd=self.repo_dir):
+                yield line
+                # Detect conflict caused by one branch
                 if line.startswith("CONFLICT (modify/delete)"):
-                    raise ModifyDeleteConflict() from exc
-            raise
+                    modify_delete_conflict = True
+        except subprocess.CalledProcessError:
+            if not modify_delete_conflict:
+                raise
+
+        if modify_delete_conflict:
+            yield "Caught modify/delete conflict, trying to resolve"
+            # If a file was deleted on one branch, and modified on another,
+            # we just keep the modified file.  This is done by `git add`ing it.
+            yield from self.commit_all()
 
     def commit_all(self):
         """
-        Creates a new commit with all the changes
+        Creates a new commit with all current changes
         """
         yield from execute_cmd([
             'git',
+            # We explicitly set user info of the commits we are making, to keep that separate from
+            # whatever author info is set in system / repo config by the user. We pass '-c' to git
+            # itself (rather than to 'git commit') to temporarily set config variables. This is
+            # better than passing --author, since git treats author separately from committer.
             '-c', 'user.email=nbgitpuller@nbgitpuller.link',
             '-c', 'user.name=nbgitpuller',
             'commit',
             '-am', 'Automatic commit by nbgitpuller',
+            # We allow empty commits. On NFS (at least), sometimes repo_is_dirty returns a false
+            # positive, returning True even when there are no local changes (git diff-files seems to return
+            # bogus output?). While ideally that would not happen, allowing empty commits keeps us
+            # resilient to that issue.
             '--allow-empty'
         ], cwd=self.repo_dir)
 
@@ -319,27 +327,13 @@ class GitPuller(Configurable):
         yield from execute_cmd(['git', 'reset', '--mixed'], cwd=self.repo_dir)
 
         # If there are local changes, make a commit so we can do merges when pulling
-        # We also allow empty commits. On NFS (at least), sometimes repo_is_dirty returns a false
-        # positive, returning True even when there are no local changes (git diff-files seems to return
-        # bogus output?). While ideally that would not happen, allowing empty commits keeps us
-        # resilient to that issue.
-        # We explicitly set user info of the commits we are making, to keep that separate from
-        # whatever author info is set in system / repo config by the user. We pass '-c' to git
-        # itself (rather than to 'git commit') to temporarily set config variables. This is
-        # better than passing --author, since git treats author separately from committer.
         if self.repo_is_dirty():
             yield from self.ensure_lock()
             yield from self.commit_all()
-            
+
         # Merge master into local!
         yield from self.ensure_lock()
-        try:
-            yield from self.merge()
-        except ModifyDeleteConflict:
-            yield "Caught modify/delete conflict, trying to resolve"
-            # If a file was deleted on one branch, and modified on another,
-            # we just keep the modified file.  This is done by `git add`ing it.
-            yield from self.commit_all()
+        yield from self.merge()
 
 
 def main():
