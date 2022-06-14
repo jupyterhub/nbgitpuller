@@ -37,7 +37,7 @@ gs.addHandler('finished', function() {
     progressTimers.forEach(function(timer)  { clearInterval(timer); });
     gsv.setProgressValue(100);
     gsv.setProgressText('Sync finished, redirecting...');
-    // window.location.href = gs.redirectUrl;
+    window.location.href = gs.redirectUrl;
 });
 gs.addHandler('error', function(data) {
     progressTimers.forEach(function(timer)  { clearInterval(timer); });
