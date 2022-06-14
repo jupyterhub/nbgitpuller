@@ -6,7 +6,7 @@ from urllib.parse import quote
 from uuid import uuid4
 import pytest
 
-from repohelpers import Puller, Pusher, Remote
+from repohelpers import Pusher, Remote
 
 PORT = os.getenv('TEST_PORT', 18888)
 
