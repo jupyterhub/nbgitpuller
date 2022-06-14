@@ -32,17 +32,17 @@ GitSync.prototype._emit = function(event, data) {
 
 GitSync.prototype.start = function() {
     // Start git pulling handled by SyncHandler, declared in handlers.py
-    var syncUrlParams = {
+    let syncUrlParams = new URLSearchParams({
         repo: this.repo,
         targetpath: this.targetpath
-    }
+    });
     if (typeof this.depth !== 'undefined' && this.depth != undefined) {
-        syncUrlParams['depth'] = this.depth;
+        syncUrlParams.append('depth', this.depth);
     }
     if (typeof this.branch !== 'undefined' && this.branch != undefined) {
-        syncUrlParams['branch'] = this.branch;
+        syncUrlParams.append('branch', this.branch);
     }
-    var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
+    var syncUrl = this.baseUrl + 'git-pull/api?' + syncUrlParams.toString();
 
     this.eventSource = new EventSource(syncUrl);
     var that = this;
