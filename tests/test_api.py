@@ -6,6 +6,8 @@ from urllib.parse import quote
 from uuid import uuid4
 import pytest
 
+from repohelpers import Pusher, Remote
+
 PORT = os.getenv('TEST_PORT', 18888)
 
 
@@ -58,17 +60,22 @@ class TestNbGitPullerApi:
         """
         jupyterdir = str(tmpdir)
         self.start_jupyter(jupyterdir, {}, backend_type)
-        params = {
-            'repo': 'https://github.com/binder-examples/jupyter-extension',
-            'branch': 'master',
-        }
-        r = request_api(params)
-        assert r.code == 200
-        s = r.read().decode()
-        print(s)
-        assert '--branch master' in s
-        assert "Cloning into '{}/{}'".format(jupyterdir, 'jupyter-extension') in s
-        assert os.path.isdir(os.path.join(jupyterdir, 'jupyter-extension', '.git'))
+
+        with Remote() as remote, Pusher(remote) as pusher:
+            pusher.push_file('README.md', 'Testing some content')
+            print(f'path: {remote.path}')
+            params = {
+                'repo': remote.path,
+                'branch': 'master',
+            }
+            r = request_api(params)
+            assert r.code == 200
+            s = r.read().decode()
+            print(s)
+            target_path = os.path.join(jupyterdir, os.path.basename(remote.path))
+            assert '--branch master' in s
+            assert f"Cloning into '{target_path}" in s
+            assert os.path.isdir(os.path.join(target_path, '.git'))
 
     @pytest.mark.parametrize(
         "backend_type",
@@ -84,17 +91,20 @@ class TestNbGitPullerApi:
         jupyterdir = str(tmpdir)
         target = str(uuid4())
         self.start_jupyter(jupyterdir, {}, backend_type)
-        params = {
-            'repo': 'https://github.com/binder-examples/jupyter-extension',
-            'branch': 'master',
-            'targetpath': target,
-        }
-        r = request_api(params)
-        assert r.code == 200
-        s = r.read().decode()
-        print(s)
-        assert "Cloning into '{}/{}'".format(jupyterdir, target) in s
-        assert os.path.isdir(os.path.join(jupyterdir, target, '.git'))
+        with Remote() as remote, Pusher(remote) as pusher:
+            pusher.push_file('README.md', 'Testing some content')
+            params = {
+                'repo': remote.path,
+                'branch': 'master',
+                'targetpath': target,
+            }
+            r = request_api(params)
+            assert r.code == 200
+            s = r.read().decode()
+            print(s)
+            target_path = os.path.join(jupyterdir, target)
+            assert f"Cloning into '{target_path}" in s
+            assert os.path.isdir(os.path.join(target_path, '.git'))
 
     @pytest.mark.parametrize(
         "backend_type",
@@ -111,14 +121,18 @@ class TestNbGitPullerApi:
         parent = str(uuid4())
         target = str(uuid4())
         self.start_jupyter(jupyterdir, {'NBGITPULLER_PARENTPATH': parent}, backend_type)
-        params = {
-            'repo': 'https://github.com/binder-examples/jupyter-extension',
-            'branch': 'master',
-            'targetpath': target,
-        }
-        r = request_api(params)
-        assert r.code == 200
-        s = r.read().decode()
-        print(s)
-        assert "Cloning into '{}/{}/{}'".format(jupyterdir, parent, target) in s
-        assert os.path.isdir(os.path.join(jupyterdir, parent, target, '.git'))
+
+        with Remote() as remote, Pusher(remote) as pusher:
+            pusher.push_file('README.md', 'Testing some content')
+            params = {
+                'repo': remote.path,
+                'branch': 'master',
+                'targetpath': target,
+            }
+            r = request_api(params)
+            assert r.code == 200
+            s = r.read().decode()
+            print(s)
+            target_path = os.path.join(jupyterdir, parent, target)
+            assert f"Cloning into '{target_path}" in s
+            assert os.path.isdir(os.path.join(target_path, '.git'))
