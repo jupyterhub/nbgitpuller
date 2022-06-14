@@ -95,7 +95,7 @@ GitSyncView.prototype.setTerminalVisibility = function(visible) {
 
 GitSyncView.prototype.setProgressValue = function(val) {
     this.progress.setAttribute('aria-valuenow', val);
-    $(this.progress).css('width', val + '%');
+    this.progress.style.width = val + '%';
 };
 
 GitSyncView.prototype.getProgressValue = function() {
