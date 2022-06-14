@@ -1,7 +1,6 @@
 {
   "description": "Dependencies to build nbgitpuller/static/dist/bundle.js from nbgitpuller/static/js/index.js with webpack.",
   "devDependencies": {
-    "jquery": "^3.6.0",
     "webpack": "^5.45.1",
     "webpack-cli": "^4.7.2",
     "xterm": "^4.13.0",
