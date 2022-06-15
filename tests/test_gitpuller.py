@@ -355,6 +355,85 @@ def test_delete_remotely_modify_locally():
             assert puller.read_file('README.md') == 'HELLO'
 
 
+def test_diverged():
+    """
+    Test deleting a file upstream, and editing it locally.  This time we
+    commit to create diverged brances.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file remotely
+            pusher.git('rm', 'README.md')
+            pusher.git('commit', '-m', 'Deleted file')
+            pusher.git('push', '-u', 'origin', 'master')
+
+            # Edit locally
+            puller.write_file('README.md', 'conflict')
+            puller.git('add', 'README.md')
+            puller.git('commit', '-m', 'Make conflicting change')
+
+            # The local change should be kept
+            puller.pull_all()
+            assert puller.read_file('README.md') == 'conflict'
+
+
+def test_diverged_reverse():
+    """
+    Test deleting a file locally, and editing it upstream.  We commit the changes
+    to create diverged branches.  Like `test_diverged`, but flipped. 
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file locally
+            puller.git('rm', 'README.md')
+            puller.git('commit', '-m', 'Deleted file')
+
+            # Edit the file remotely
+            pusher.push_file('README.md', 'conflicting change')
+
+            # Pulling should get the latest version of the file
+            puller.pull_all()
+            assert(puller.read_file('README.md') == 'conflicting change')
+
+
+def test_diverged_multiple():
+    """
+    Test deleting a file upstream, and editing it locally.  We commit the changes
+    to create diverged branches.
+
+    Use two files, so git merge doesn't mention the conflict in the first line.
+
+        puller: Auto-merging AFILE.txt
+        puller: CONFLICT (modify/delete): BFILE.txt deleted in origin/master and modified in HEAD.  Version HEAD of BFILE.txt left in tree.
+        puller: Automatic merge failed; fix conflicts and then commit the result.
+
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('AFILE.txt', 'new')
+        pusher.push_file('BFILE.txt', 'new')
+
+        with Puller(remote) as puller:
+            # Remote changes - BFILE.txt deleted    
+            pusher.write_file('AFILE.txt', 'changed remotely')
+            pusher.git('add', 'AFILE.txt')
+            pusher.git('rm', 'BFILE.txt')
+            pusher.git('commit', '-m', 'Remote changes')
+            pusher.git('push', '-u', 'origin', 'master')
+  
+            # Local changes - BFILE.txt edited
+            puller.write_file('AFILE.txt', 'edited')
+            puller.write_file('BFILE.txt', 'edited')
+            puller.git('commit', '-am', 'Make conflicting change')
+
+            puller.pull_all()
+            assert puller.read_file('AFILE.txt') == 'edited'
+            assert puller.read_file('BFILE.txt') == 'edited'
+
+
 def test_delete_locally_and_remotely():
     """
     Test that sync works after deleting a file locally and remotely
