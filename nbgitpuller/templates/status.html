@@ -34,7 +34,6 @@ data-targetpath="{{ targetpath | urlencode }}"
 
 {% block script %}
 {{super()}}
-<script type="module src="{{ base_url }}git-pull/static/js/index.js"></script>
 <script src="{{ base_url }}git-pull/static/dist/bundle.js"></script>
 {% endblock %}
 

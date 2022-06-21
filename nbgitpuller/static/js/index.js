@@ -24,25 +24,25 @@ GitSync.prototype.addHandler = function(event, cb) {
 
 GitSync.prototype._emit = function(event, data) {
     if (this.callbacks[event] == undefined) { return; }
-    $.each(this.callbacks[event], function(i, ev) {
+    for(let ev of this.callbacks[event]) {
         ev(data);
-    });
+    }
 };
 
 
 GitSync.prototype.start = function() {
     // Start git pulling handled by SyncHandler, declared in handlers.py
-    var syncUrlParams = {
+    let syncUrlParams = new URLSearchParams({
         repo: this.repo,
         targetpath: this.targetpath
-    }
+    });
     if (typeof this.depth !== 'undefined' && this.depth != undefined) {
-        syncUrlParams['depth'] = this.depth;
+        syncUrlParams.append('depth', this.depth);
     }
     if (typeof this.branch !== 'undefined' && this.branch != undefined) {
-        syncUrlParams['branch'] = this.branch;
+        syncUrlParams.append('branch', this.branch);
     }
-    var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
+    var syncUrl = this.baseUrl + 'git-pull/api?' + syncUrlParams.toString();
 
     this.eventSource = new EventSource(syncUrl);
     var that = this;
@@ -68,28 +68,25 @@ function GitSyncView(termSelector, progressSelector, termToggleSelector) {
     this.term.loadAddon(this.fit);
 
     this.visible = false;
-    this.$progress = $(progressSelector);
+    this.progress = document.querySelector(progressSelector);
 
-    this.$termToggle = $(termToggleSelector);
-    this.termSelector = termSelector;
+    this.termToggle = document.querySelector(termToggleSelector);
+    this.termElement = document.querySelector(termSelector);
 
-    var that = this;
-    this.$termToggle.click(function() {
-        that.setTerminalVisibility(!that.visible);
-    });
+    this.termToggle.onclick = () => this.setTerminalVisibility(!this.visible)
 }
 
 GitSyncView.prototype.setTerminalVisibility = function(visible) {
     if (visible) {
-        $(this.termSelector).parent().removeClass('hidden');
+        this.termElement.parentElement.classList.remove('hidden');
     } else {
-        $(this.termSelector).parent().addClass('hidden');
+        this.termElement.parentElement.classList.add('hidden');
     }
     this.visible = visible;
     if (visible) {
         // See https://github.com/jupyterhub/nbgitpuller/pull/46 on why this is here.
         if (!this.term.element) {
-            this.term.open($(this.termSelector)[0]);
+            this.term.open(this.termElement);
         }
         this.fit.fit();
     }
@@ -97,27 +94,27 @@ GitSyncView.prototype.setTerminalVisibility = function(visible) {
 }
 
 GitSyncView.prototype.setProgressValue = function(val) {
-    this.$progress.attr('aria-valuenow', val);
-    this.$progress.css('width', val + '%');
+    this.progress.setAttribute('aria-valuenow', val);
+    this.progress.style.width = val + '%';
 };
 
 GitSyncView.prototype.getProgressValue = function() {
-    return parseFloat(this.$progress.attr('aria-valuenow'));
+    return parseFloat(this.progress.getAttribute('aria-valuenow'));
 };
 
 GitSyncView.prototype.setProgressText = function(text) {
-    this.$progress.children('span').text(text);
+    this.progress.querySelector('span').innerText = text;
 };
 
 GitSyncView.prototype.getProgressText = function() {
-    return this.$progress.children('span').text();
+    return this.progress.querySelector('span').innerText;
 };
 
 GitSyncView.prototype.setProgressError = function(isError) {
     if (isError) {
-        this.$progress.addClass('progress-bar-danger');
+        this.progress.classList.add('progress-bar-danger');
     } else {
-        this.$progress.removeClass('progress-bar-danger');
+        this.progress.classList.remove('progress-bar-danger');
     }
 };
 
@@ -127,14 +124,15 @@ var get_body_data = function(key) {
      * we should never have any encoded URLs anywhere else in code
      * until we are building an actual request
      */
-    var val = $('body').data(key);
-    if (typeof val === 'undefined')
-        return val;
+    if(!document.body.hasAttribute('data-' + key)) {
+        return undefined;
+    }
+    let val = document.body.getAttribute('data-' + key);
     return decodeURIComponent(val);
 };
 
 var gs = new GitSync(
-    get_body_data('baseUrl'),
+    get_body_data('base-url'),
     get_body_data('repo'),
     get_body_data('branch'),
     get_body_data('depth'),
@@ -168,8 +166,6 @@ gs.addHandler('error', function(data) {
     }
 });
 gs.start();
-
-$('#header, #site').show();
 
 // Make sure we provide plenty of appearances of progress!
 var progressTimers = [];

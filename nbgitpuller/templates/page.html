@@ -14,6 +14,13 @@
 
     {% block meta %}
     {% endblock meta %}
+
+    <style>
+      /* These are hidden by default in page.css for some reason */
+      #header, #site {
+        display: block;
+      }
+    </style>
 </head>
 
 <body class="{% block bodyclasses %}{% endblock %}" {% block params %} {% if logged_in and token %}
