@@ -1,22 +1,23 @@
-from tornado import gen, web, locks
-import traceback
-import urllib.parse
-
-from notebook.base.handlers import IPythonHandler
-import threading
 import json
 import os
-from queue import Queue, Empty
+import threading
+import traceback
+import urllib.parse
+from queue import Empty, Queue
+
 import jinja2
+from notebook.base.handlers import IPythonHandler
+from tornado import gen, locks, web
 
 from .pull import GitPuller
 from .version import __version__
 
-
-jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
-        os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), "templates")
     ),
 )
+
 
 class SyncHandler(IPythonHandler):
     def __init__(self, *args, **kwargs):
@@ -24,22 +25,22 @@ class SyncHandler(IPythonHandler):
 
         # We use this lock to make sure that only one sync operation
         # can be happening at a time. Git doesn't like concurrent use!
-        if 'git_lock' not in self.settings:
-            self.settings['git_lock'] = locks.Lock()
+        if "git_lock" not in self.settings:
+            self.settings["git_lock"] = locks.Lock()
 
     @property
     def git_lock(self):
-        return self.settings['git_lock']
+        return self.settings["git_lock"]
 
     async def emit(self, data):
         if type(data) is not str:
             serialized_data = json.dumps(data)
-            if 'output' in data:
-                self.log.info(data['output'].rstrip())
+            if "output" in data:
+                self.log.info(data["output"].rstrip())
         else:
             serialized_data = data
             self.log.info(data)
-        self.write('data: {}\n\n'.format(serialized_data))
+        self.write(f"data: {serialized_data}\n\n")
         await self.flush()
 
     @web.authenticated
@@ -47,16 +48,18 @@ class SyncHandler(IPythonHandler):
         try:
             await self.git_lock.acquire(1)
         except gen.TimeoutError:
-            await self.emit({
-                'phase': 'error',
-                'message': 'Another git operations is currently running, try again in a few minutes'
-            })
+            await self.emit(
+                {
+                    "phase": "error",
+                    "message": "Another git operations is currently running, try again in a few minutes",
+                }
+            )
             return
 
         try:
-            repo = self.get_argument('repo')
-            branch = self.get_argument('branch', None)
-            depth = self.get_argument('depth', None)
+            repo = self.get_argument("repo")
+            branch = self.get_argument("branch", None)
+            depth = self.get_argument("depth", None)
             if depth:
                 depth = int(depth)
             # The default working directory is the directory from which Jupyter
@@ -68,15 +71,25 @@ class SyncHandler(IPythonHandler):
             # so that all repos are always in scope after cloning. Sometimes
             # server_root_dir will include things like `~` and so the path
             # must be expanded.
-            repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
-                                           os.getenv('NBGITPULLER_PARENTPATH', ''))
-            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
+            repo_parent_dir = os.path.join(
+                os.path.expanduser(self.settings["server_root_dir"]),
+                os.getenv("NBGITPULLER_PARENTPATH", ""),
+            )
+            repo_dir = os.path.join(
+                repo_parent_dir, self.get_argument("targetpath", repo.split("/")[-1])
+            )
 
             # We gonna send out event streams!
-            self.set_header('content-type', 'text/event-stream')
-            self.set_header('cache-control', 'no-cache')
+            self.set_header("content-type", "text/event-stream")
+            self.set_header("cache-control", "no-cache")
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+            gp = GitPuller(
+                repo,
+                repo_dir,
+                branch=branch,
+                depth=depth,
+                parent=self.settings["nbapp"],
+            )
 
             q = Queue()
 
@@ -89,6 +102,7 @@ class SyncHandler(IPythonHandler):
                 except Exception as e:
                     q.put_nowait(e)
                     raise e
+
             self.gp_thread = threading.Thread(target=pull)
 
             self.gp_thread.start()
@@ -102,32 +116,40 @@ class SyncHandler(IPythonHandler):
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
-                    await self.emit({
-                        'phase': 'error',
-                        'message': str(progress),
-                        'output': '\n'.join([
-                            line.strip()
-                            for line in traceback.format_exception(
-                                type(progress), progress, progress.__traceback__
-                            )
-                        ])
-                    })
+                    await self.emit(
+                        {
+                            "phase": "error",
+                            "message": str(progress),
+                            "output": "\n".join(
+                                [
+                                    line.strip()
+                                    for line in traceback.format_exception(
+                                        type(progress), progress, progress.__traceback__
+                                    )
+                                ]
+                            ),
+                        }
+                    )
                     return
 
-                await self.emit({'output': progress, 'phase': 'syncing'})
+                await self.emit({"output": progress, "phase": "syncing"})
 
-            await self.emit({'phase': 'finished'})
+            await self.emit({"phase": "finished"})
         except Exception as e:
-            await self.emit({
-                'phase': 'error',
-                'message': str(e),
-                'output': '\n'.join([
-                    line.strip()
-                    for line in traceback.format_exception(
-                        type(e), e, e.__traceback__
-                    )
-                ])
-            })
+            await self.emit(
+                {
+                    "phase": "error",
+                    "message": str(e),
+                    "output": "\n".join(
+                        [
+                            line.strip()
+                            for line in traceback.format_exception(
+                                type(e), e, e.__traceback__
+                            )
+                        ]
+                    ),
+                }
+            )
         finally:
             self.git_lock.release()
 
@@ -135,35 +157,43 @@ class SyncHandler(IPythonHandler):
 class UIHandler(IPythonHandler):
     @web.authenticated
     async def get(self):
-        app_env = os.getenv('NBGITPULLER_APP', default='notebook')
+        app_env = os.getenv("NBGITPULLER_APP", default="notebook")
 
-        repo = self.get_argument('repo')
-        branch = self.get_argument('branch', None)
-        depth = self.get_argument('depth', None)
-        urlPath = self.get_argument('urlpath', None) or \
-                  self.get_argument('urlPath', None)
-        subPath = self.get_argument('subpath', None) or \
-                  self.get_argument('subPath', '.')
-        app = self.get_argument('app', app_env)
-        parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
-        targetpath = self.get_argument('targetpath', None) or \
-                     self.get_argument('targetPath', repo.split('/')[-1])
+        repo = self.get_argument("repo")
+        branch = self.get_argument("branch", None)
+        depth = self.get_argument("depth", None)
+        urlPath = self.get_argument("urlpath", None) or self.get_argument(
+            "urlPath", None
+        )
+        subPath = self.get_argument("subpath", None) or self.get_argument(
+            "subPath", "."
+        )
+        app = self.get_argument("app", app_env)
+        parent_reldir = os.getenv("NBGITPULLER_PARENTPATH", "")
+        targetpath = self.get_argument("targetpath", None) or self.get_argument(
+            "targetPath", repo.split("/")[-1]
+        )
 
         if urlPath:
             path = urlPath
         else:
             path = os.path.join(parent_reldir, targetpath, subPath)
-            if app.lower() == 'lab':
-                path = 'lab/tree/' + path
-            elif path.lower().endswith('.ipynb'):
-                path = 'notebooks/' + path
+            if app.lower() == "lab":
+                path = "lab/tree/" + path
+            elif path.lower().endswith(".ipynb"):
+                path = "notebooks/" + path
             else:
-                path = 'tree/' + path
+                path = "tree/" + path
 
         self.write(
-            jinja_env.get_template('status.html').render(
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
-                **self.template_namespace
+            jinja_env.get_template("status.html").render(
+                repo=repo,
+                branch=branch,
+                path=path,
+                depth=depth,
+                targetpath=targetpath,
+                version=__version__,
+                **self.template_namespace,
             )
         )
         await self.flush()
@@ -176,11 +206,11 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
     For backward compatibility we keep listening to the /git-sync endpoint but
     respond with a redirect to the /git-pull endpoint.
     """
+
     @web.authenticated
     async def get(self):
-        new_url = '{base}git-pull?{query}'.format(
-            base=self.base_url,
-            query=self.request.query
+        new_url = "{base}git-pull?{query}".format(
+            base=self.base_url, query=self.request.query
         )
         self.redirect(new_url)
 
@@ -192,20 +222,20 @@ class LegacyInteractRedirectHandler(IPythonHandler):
     For backward compatibility we keep listening to the /interact endpoint but
     respond with a redirect to the /git-pull endpoint.
     """
+
     @web.authenticated
     async def get(self):
-        repo = self.get_argument('repo')
-        account = self.get_argument('account', 'data-8')
-        repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)
+        repo = self.get_argument("repo")
+        account = self.get_argument("account", "data-8")
+        repo_url = f"https://github.com/{account}/{repo}"
         query = {
-            'repo': repo_url,
+            "repo": repo_url,
             # branch & subPath are optional
-            'branch': self.get_argument('branch', 'gh-pages'),
-            'subPath': self.get_argument('path', '.')
+            "branch": self.get_argument("branch", "gh-pages"),
+            "subPath": self.get_argument("path", "."),
         }
-        new_url = '{base}git-pull?{query}'.format(
-            base=self.base_url,
-            query=urllib.parse.urlencode(query)
+        new_url = "{base}git-pull?{query}".format(
+            base=self.base_url, query=urllib.parse.urlencode(query)
         )
 
         self.redirect(new_url)

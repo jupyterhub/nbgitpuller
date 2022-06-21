@@ -1,6 +1,5 @@
 # [nbgitpuller](https://github.com/jupyterhub/nbgitpuller)
 
-
 [![GitHub Workflow Status - Test](https://img.shields.io/github/workflow/status/jupyterhub/nbgitpuller/Tests?logo=github&label=tests)](https://github.com/jupyterhub/nbgitpuller/actions)
 [![CircleCI build status](https://img.shields.io/circleci/build/github/jupyterhub/nbgitpuller?logo=circleci&label=docs)](https://circleci.com/gh/jupyterhub/nbgitpuller)
 [![](https://img.shields.io/pypi/v/nbgitpuller.svg?logo=pypi)](https://pypi.python.org/pypi/nbgitpuller)
@@ -25,8 +24,7 @@ pip install nbgitpuller
 
 ## Example
 
-
-This example shows how to use the  [nbgitpuller link generator](https://jupyterhub.github.io/nbgitpuller/link)
+This example shows how to use the [nbgitpuller link generator](https://jupyterhub.github.io/nbgitpuller/link)
 to create an nbgitpuller link, which a user then clicks.
 
 1. The [nbgitpuller link generator GUI](https://jupyterhub.github.io/nbgitpuller/link) is used to create a

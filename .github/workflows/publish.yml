@@ -7,8 +7,8 @@ name: Release
 on:
   pull_request:
     paths-ignore:
-    - "docs/**"
-    - "**/docs.yml"
+      - "docs/**"
+      - "**/docs.yml"
   push:
     paths-ignore:
       - "docs/**"

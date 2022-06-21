@@ -1,9 +1,16 @@
-from .version import __version__ # noqa
-from .handlers import SyncHandler, UIHandler, LegacyInteractRedirectHandler, LegacyGitSyncRedirectHandler
-from .pull import GitPuller # noqa
+import os
+
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
-import os
+
+from .handlers import (
+    LegacyGitSyncRedirectHandler,
+    LegacyInteractRedirectHandler,
+    SyncHandler,
+    UIHandler,
+)
+from .pull import GitPuller  # noqa
+from .version import __version__  # noqa
 
 
 def _jupyter_server_extension_points():
@@ -15,9 +22,11 @@ def _jupyter_server_extension_points():
     Returns a list of dictionaries with metadata describing where to find the
     `_load_jupyter_server_extension` function.
     """
-    return [{
-        'module': 'nbgitpuller',
-    }]
+    return [
+        {
+            "module": "nbgitpuller",
+        }
+    ]
 
 
 def _load_jupyter_server_extension(app):
@@ -34,23 +43,29 @@ def _load_jupyter_server_extension(app):
     - jupyter_server: https://jupyter-server.readthedocs.io/en/latest/developers/extensions.html
     """
     web_app = app.web_app
-    base_url = url_path_join(web_app.settings['base_url'], 'git-pull')
+    base_url = url_path_join(web_app.settings["base_url"], "git-pull")
     handlers = [
-        (url_path_join(base_url, 'api'), SyncHandler),
+        (url_path_join(base_url, "api"), SyncHandler),
         (base_url, UIHandler),
-        (url_path_join(web_app.settings['base_url'], 'git-sync'), LegacyGitSyncRedirectHandler),
-        (url_path_join(web_app.settings['base_url'], 'interact'), LegacyInteractRedirectHandler),
         (
-            url_path_join(base_url, 'static', '(.*)'),
+            url_path_join(web_app.settings["base_url"], "git-sync"),
+            LegacyGitSyncRedirectHandler,
+        ),
+        (
+            url_path_join(web_app.settings["base_url"], "interact"),
+            LegacyInteractRedirectHandler,
+        ),
+        (
+            url_path_join(base_url, "static", "(.*)"),
             StaticFileHandler,
-            {'path': os.path.join(os.path.dirname(__file__), 'static')}
-        )
+            {"path": os.path.join(os.path.dirname(__file__), "static")},
+        ),
     ]
     # FIXME: See note on how to stop relying on settings to pass information:
     #        https://github.com/jupyterhub/nbgitpuller/pull/242#pullrequestreview-854968180
     #
-    web_app.settings['nbapp'] = app
-    web_app.add_handlers('.*', handlers)
+    web_app.settings["nbapp"] = app
+    web_app.add_handlers(".*", handlers)
 
 
 # For compatibility with both notebook and jupyter_server, we define

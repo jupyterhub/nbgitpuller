@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 github_doc_root = "https://github.com/rtfd/recommonmark/tree/master/doc/"
 
@@ -91,7 +90,7 @@ html_context = {
 html_theme_options = {
     "repository_url": "https://github.com/jupyterhub/nbgitpuller",
     "use_issues_button": True,
-    "use_repository_button": True
+    "use_repository_button": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

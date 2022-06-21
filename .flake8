@@ -3,10 +3,12 @@
 # E: style errors
 # W: style warnings
 # C: complexity
-# E402: module level import not at top of file
+# F401: module imported but unused
 # I100: Import statements are in the wrong order
 # I101: Imported names are in the wrong order. Should be
-ignore = E, C, W, E402, I100, I101, D400
+ignore = E, C, W, F401, I100, I101, D400
 exclude =
     .cache,
-    .github
+    .github,
+    docs,
+    setup.py
