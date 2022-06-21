@@ -1,6 +1,7 @@
 
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import { WebLinksAddon } from 'xterm-addon-web-links';
 
 export class GitSyncView{
     constructor(termSelector, progressSelector, termToggleSelector) {
@@ -10,6 +11,7 @@ export class GitSyncView{
         });
         this.fit = new FitAddon();
         this.term.loadAddon(this.fit);
+        this.term.loadAddon(new WebLinksAddon());
 
         this.visible = false;
         this.progress = document.querySelector(progressSelector);
