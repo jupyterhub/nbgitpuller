@@ -125,8 +125,14 @@ class GitPuller(Configurable):
                     refs, heads, branch_name = ref.split("/", 2)
                     return branch_name
             raise ValueError(f"default branch not found in {self.git_url}")
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            sout = e.stdout if e.stdout else ''
+            serr = e.stderr if e.stderr else ''
             m = f"Problem accessing HEAD branch: {self.git_url}"
+            if sout:
+                m = f"{m}: {sout}"
+            if serr:
+                m = f"{m}; {serr}"
             logging.exception(m)
             raise ValueError(m)
 
