@@ -17,10 +17,6 @@ from jupyter_server.extension.handler import (
     ExtensionHandlerJinjaMixin,
 )
 
-# JINJA2_ENV_KEY = "notebook_jinja2_env"
-# JINJA2_ENV_KEY = "nbclassic_jinja2_env"
-JINJA2_ENV_KEY = "jinja2_env"
-
 
 class ExtensionHandler(
     ExtensionHandlerMixin, ExtensionHandlerJinjaMixin, JupyterHandler
