@@ -15,13 +15,18 @@ setup(
     license="3-clause BSD",
     author="Peter Veerman, YuviPanda",
     author_email="peterkangveerman@gmail.com",
+    maintainer="Austin Raney",
+    maintainer_email="araney@cuahsi.org",
     description="Notebook Extension to do one-way synchronization of git repositories",
     packages=find_packages(),
     include_package_data=True,
     platforms="any",
     install_requires=["notebook>=5.5.0", "tornado", "hs_restclient"],
     data_files=[
-        ("etc/jupyter/jupyter_notebook_config.d", ["nbfetch/etc/nbfetch.json"])
+        (
+            "etc/jupyter/jupyter_server_config.d",
+            ["jupyter-config/jupyter_server_config.d/nbfetch.json"],
+        ),
     ],
     zip_safe=False,
     entry_points={
