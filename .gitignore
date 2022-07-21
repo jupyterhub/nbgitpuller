@@ -1,15 +1,17 @@
+# python
 *.pyc
-
 dist/
 build/
 *.egg-info/
-
 .tox/
 .coverage
 
+# osx
 .DS_Store
-.cache/
-data8assets/
-.autopull_list
-summer/
-test-repo/
+
+# ignore vscode
+.vscode/
+
+# python virtual env
+env/
+venv/
