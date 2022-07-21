@@ -2,16 +2,14 @@ from tornado import gen, web, locks
 from tornado.escape import url_escape, url_unescape
 import traceback
 from urllib.parse import urljoin
-from notebook.base.handlers import IPythonHandler
+
 import threading
 import json
 import os
 from queue import Queue, Empty
-import jinja2
 from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
 from .pull import GitPuller, HSPuller
 from .version import __version__
-from notebook.utils import url_path_join
 import pickle
 
 JINJA2_ENV_KEY = "notebook_jinja2_env"
