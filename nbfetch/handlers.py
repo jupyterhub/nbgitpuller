@@ -11,6 +11,11 @@ from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
 from .pull import GitPuller, HSPuller
 from .version import __version__
 import pickle
+from jupyter_server.base.handlers import JupyterHandler
+from jupyter_server.extension.handler import (
+    ExtensionHandlerMixin,
+    ExtensionHandlerJinjaMixin,
+)
 
 JINJA2_ENV_KEY = "notebook_jinja2_env"
 
@@ -272,16 +277,7 @@ class UIHandler(IPythonHandler):
             ))
         self.flush()
 
-class HSHandler(IPythonHandler):
-    def initialize(self):
-        super().initialize()
-        jinja2_env = self.settings[JINJA2_ENV_KEY]
-        jinja2_env.loader = jinja2.ChoiceLoader([
-            jinja2_env.loader,
-            jinja2.FileSystemLoader(
-                os.path.join(os.path.dirname(__file__), 'templates')
-            )
-        ])
+class HSHandler(ExtensionHandler):
 
     def check_auth(self, auth):
         hs = HydroShare(auth=auth)
