@@ -335,14 +335,8 @@ class HSHandler(ExtensionHandler):
             # If oauth fails, we can log in using
             # user name and password.  These are saved in
             # files in the home directory.
-            pwfile = os.path.expanduser("~/.hs_pass")
-            userfile = os.path.expanduser("~/.hs_user")
-
+            username, password = _get_user_auth()
             try:
-                with open(userfile) as f:
-                    username = f.read().strip()
-                with open(pwfile) as f:
-                    password = f.read().strip()
                 auth = HydroShareAuthBasic(username=username, password=password)
                 hs = self.check_auth(auth)
                 if hs is None:
