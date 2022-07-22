@@ -6,6 +6,8 @@ from urllib.parse import urljoin
 import threading
 import json
 import os
+from pathlib import Path
+import io
 from queue import Queue, Empty
 from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
 from .pull import GitPuller, HSPuller
@@ -16,6 +18,9 @@ from jupyter_server.extension.handler import (
     ExtensionHandlerMixin,
     ExtensionHandlerJinjaMixin,
 )
+
+# typing imports
+from typing import Optional, Tuple
 
 
 class ExtensionHandler(
@@ -408,3 +413,34 @@ class HSHandler(ExtensionHandler):
             self.render_template("hstatus.html", id=id, path=path, version=__version__)
         )
         self.flush()
+
+
+def _get_user_auth() -> Tuple[Optional[str], Optional[str]]:
+    """retrieve HS authentication from standard locations(see below) as tuple of username and
+    password. If either cannot be located, both tuple members are be None.
+
+    Note: files take precedence over environment variables
+    standard file locations:
+        `~/.hs_user`
+        `~/.hs_pass`
+    standard environment variables:
+        `HS_USER`
+        `HS_PASS`
+
+    Returns
+    -------
+    Tuple[Optional[str], Optional[str]]
+        username, password
+    """
+    userfile = Path("~/.hs_user").expanduser()
+    pwfile = Path("~/.hs_pass").expanduser()
+
+    user = (
+        userfile.read_text().strip()
+        if userfile.exists()
+        else os.getenv("HS_USER", None)
+    )
+
+    pw = pwfile.read_text().strip() if pwfile.exists() else os.getenv("HS_PASS", None)
+
+    return user, pw
