@@ -9,17 +9,17 @@ with automatic conflict resolution.
 
 Pull Hydroshare resources to a local directory.
 
-# Installation
+## Installation
 
-You can install nbgitpuller from PyPI.
+```shell
+# install
+pip install -U --no-cache-dir --upgrade-strategy only-if-needed git+https://github.com/hydroshare/nbfetch
 
-    pip install -U --no-cache-dir --upgrade-strategy only-if-needed git+https://github.com/hydroshare/nbfetch
+# enable jupyter_server extension
+jupyter server extension enable --py nbfetch
+```
 
-You can then enable the serverextension
-
-    jupyter serverextension enable --py nbfetch --sys-prefix
-
-# Usage
+## Usage
 
 See https://github.com/jupyterhub/nbgitpuller.
 
