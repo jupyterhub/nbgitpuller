@@ -335,7 +335,7 @@ class HSHandler(ExtensionHandler):
             # If oauth fails, we can log in using
             # user name and password.  These are saved in
             # files in the home directory.
-            username, password = _get_user_auth()
+            username, password = _get_user_authentication()
             try:
                 auth = HydroShareAuthBasic(username=username, password=password)
                 hs = self.check_auth(auth)
@@ -409,7 +409,7 @@ class HSHandler(ExtensionHandler):
         self.flush()
 
 
-def _get_user_auth() -> Tuple[Optional[str], Optional[str]]:
+def _get_user_authentication() -> Tuple[Optional[str], Optional[str]]:
     """retrieve HS authentication from standard locations(see below) as tuple of username and
     password. If either cannot be located, both tuple members are be None.
 
