@@ -21,7 +21,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms="any",
-    install_requires=["notebook>=5.5.0", "tornado", "hs_restclient"],
+    install_requires=["notebook>=5.5.0", "tornado", "hs_restclient", "jupyter_server"],
+    extras_require={"develop": ["pytest", "pytest-jupyter"]},
     data_files=[
         (
             "etc/jupyter/jupyter_server_config.d",
