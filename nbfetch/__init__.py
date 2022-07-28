@@ -18,7 +18,7 @@ HERE = os.path.dirname(__file__)
 class NbFetchApp(ExtensionApp):
     # Name of the extension.
     name = "nbfetch"
-    default_url = "/"
+    default_url = "/nbfetch"
     load_other_extensions = True
     file_url_prefix = "/"
 
@@ -53,17 +53,18 @@ class NbFetchApp(ExtensionApp):
 
     def initialize_handlers(self):
         # Add a group with () to send to handler.
-        base_url = url_path_join(self.settings["base_url"], "git-pull")
-        hs_url = url_path_join(self.settings["base_url"], "hs-pull")
+        base_url = r"/nbfetch"
+        git_url = url_path_join(base_url, "git-pull")
+        hs_url = url_path_join(base_url, "hs-pull")
 
         self.handlers.extend(
             [
-                (url_path_join(base_url, "api"), SyncHandler),
+                (url_path_join(git_url, "api"), SyncHandler),
                 (url_path_join(hs_url, "api"), HSyncHandler),
-                (base_url, UIHandler),
+                (git_url, UIHandler),
                 (hs_url, HSHandler),
                 (
-                    url_path_join(base_url, "static", "(.*)"),
+                    url_path_join(git_url, "static", "(.*)"),
                     StaticFileHandler,
                     {"path": os.path.join(HERE, "static")},
                 ),
@@ -73,7 +74,7 @@ class NbFetchApp(ExtensionApp):
                     {"path": os.path.join(HERE, "static")},
                 ),
                 (
-                    url_path_join(self.settings["base_url"], "hslogin"),
+                    url_path_join(base_url, "hslogin"),
                     HSLoginHandler,
                 ),
             ]
