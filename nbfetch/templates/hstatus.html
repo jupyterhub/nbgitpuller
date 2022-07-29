@@ -32,7 +32,7 @@ data-path="{{ path | urlencode }}"
 
 {% block script %}
 {{super()}}
-<script src="{{ base_url }}hs-pull/static/hindex.js?v={{ version }}">
+<script src="{{ static_url("hindex.js") }}">
 </script>
 {% endblock %}
 
