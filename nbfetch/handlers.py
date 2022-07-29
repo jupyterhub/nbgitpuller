@@ -411,7 +411,13 @@ class HSHandler(ExtensionHandler):
             return
 
         self.write(
-            self.render_template("hstatus.html", id=id, path=path, version=__version__)
+            self.render_template(
+                "hstatus.html",
+                id=id,
+                path=path,
+                version=__version__,
+                app_url=self.app_url,
+            )
         )
         self.flush()
 

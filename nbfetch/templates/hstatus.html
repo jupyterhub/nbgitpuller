@@ -3,6 +3,7 @@
 {% block params %}
 {{super()}}
 data-base-url="{{ base_url | urlencode }}"
+data-app-url="{{ app_url | urlencode }}"
 data-id="{{ id | urlencode }}"
 data-path="{{ path | urlencode }}"
 {% endblock %}
