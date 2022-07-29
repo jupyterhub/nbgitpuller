@@ -26,7 +26,14 @@ from typing import Optional, Tuple
 class ExtensionHandler(
     ExtensionHandlerMixin, ExtensionHandlerJinjaMixin, JupyterHandler
 ):
-    pass
+    @property
+    def app_url(self) -> str:
+        """Base url joined to extension name.
+
+        If `jupyter_server.extension.application.ExtensionApp` not used to configure extension, it
+        is possible that `self.name` is "".
+        """
+        return urljoin(self.base_url, "{}/".format(self.name))
 
 
 class HSLoginHandler(ExtensionHandler):
