@@ -407,6 +407,7 @@ class HSHandler(ExtensionHandler):
 
         self.log.info("path=%s" % path)
         if goto:
+            path = urljoin(self.base_url, path)
             self.redirect(path)
             return
 
