@@ -401,6 +401,7 @@ class HSHandler(ExtensionHandler):
 
 
         if os.path.exists(pathid) and goto == 0 and overwrite == 0:
+            self.log.info("made it inside render confirm block")
             # overwrite or not? display modal dialog
             self.write(self.render_template("confirm.html", directory=pathid))
             self.flush()
