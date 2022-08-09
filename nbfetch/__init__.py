@@ -1,6 +1,5 @@
 from .version import __version__
 from .handlers import HSLoginHandler, SyncHandler, HSyncHandler, UIHandler, HSHandler
-from .pull import GitPuller
 from notebook.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os
