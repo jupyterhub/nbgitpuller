@@ -399,8 +399,8 @@ class HSHandler(ExtensionHandler):
         # remove soon
         self.log.info(f"{pathid=}")
 
-
-        if os.path.exists(pathid) and goto == 0 and overwrite == 0:
+        abs_pathid = os.path.join(download_dir, id)
+        if os.path.exists(abs_pathid) and goto == 0 and overwrite == 0:
             self.log.info("made it inside render confirm block")
             # overwrite or not? display modal dialog
             self.write(self.render_template("confirm.html", directory=pathid))
