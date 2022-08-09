@@ -389,19 +389,11 @@ class HSHandler(ExtensionHandler):
             os.makedirs(download_dir)
 
         nbdir = os.environ.get("NOTEBOOK_HOME")
-        # remove soon
-        self.log.info(f"{download_dir=}")
-        self.log.info(f"{nbdir=}")
-        self.log.info(f"{goto=}")
-        self.log.info(f"{overwrite=}")
         relative_download_dir = os.path.relpath(download_dir, nbdir)
         pathid = os.path.join(relative_download_dir, id)
-        # remove soon
-        self.log.info(f"{pathid=}")
 
         abs_pathid = os.path.join(download_dir, id)
         if os.path.exists(abs_pathid) and goto == 0 and overwrite == 0:
-            self.log.info("made it inside render confirm block")
             # overwrite or not? display modal dialog
             self.write(self.render_template("confirm.html", directory=pathid))
             self.flush()
