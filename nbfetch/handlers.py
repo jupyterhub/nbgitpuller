@@ -7,7 +7,6 @@ import threading
 import json
 import os
 from pathlib import Path
-import io
 from queue import Queue, Empty
 from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
 from .pull import GitPuller, HSPuller
