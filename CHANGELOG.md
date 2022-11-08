@@ -1,5 +1,34 @@
 ## 1.0
 
+### 1.1.1
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.1.0...1.1.1))
+
+#### Enhancements made
+
+- Make links in the terminal clickable [#274](https://github.com/jupyterhub/nbgitpuller/pull/274) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Bugs fixed
+
+- Deal with modify/delete conflicts [#269](https://github.com/jupyterhub/nbgitpuller/pull/269) ([@jdmansour](https://github.com/jdmansour))
+- Fix regression: can't reset some files anymore [#264](https://github.com/jupyterhub/nbgitpuller/pull/264) ([@jdmansour](https://github.com/jdmansour))
+
+#### Other merged PRs
+
+- Modernize JS a little [#273](https://github.com/jupyterhub/nbgitpuller/pull/273) ([@yuvipanda](https://github.com/yuvipanda))
+- Remove jquery dependency [#272](https://github.com/jupyterhub/nbgitpuller/pull/272) ([@yuvipanda](https://github.com/yuvipanda))
+- Make tests more robust [#271](https://github.com/jupyterhub/nbgitpuller/pull/271) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Continuous integration improvements
+
+- ci: react to pushed tags [#262](https://github.com/jupyterhub/nbgitpuller/pull/262) ([@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2022-03-19&to=2022-11-08&type=c))
+
+[@balajialg](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2022-03-19..2022-11-08&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2022-03-19..2022-11-08&type=Issues) | [@farcila](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afarcila+updated%3A2022-03-19..2022-11-08&type=Issues) | [@jdmansour](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2022-03-19..2022-11-08&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2022-03-19..2022-11-08&type=Issues)
+
 ### 1.1.0
 
 ([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.0.2...1.1.0))
