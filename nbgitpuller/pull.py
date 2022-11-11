@@ -16,6 +16,7 @@ def execute_cmd(cmd, **kwargs):
     yield '$ {}\n'.format(' '.join(cmd))
     kwargs['stdout'] = subprocess.PIPE
     kwargs['stderr'] = subprocess.STDOUT
+    kwargs['env'] = dict(os.environ, LANG='C')
 
     proc = subprocess.Popen(cmd, **kwargs)
 
