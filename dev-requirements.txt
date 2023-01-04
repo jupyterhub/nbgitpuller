@@ -1,5 +1,4 @@
 jupyter-packaging>=0.10
+nbclassic
 pytest
 pytest-cov
-flake8
-nbclassic

@@ -23,13 +23,13 @@ env:
 
 jobs:
   linkcheck:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -41,17 +41,17 @@ jobs:
           make linkcheck
 
   build-and-publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     permissions:
       # required to push to the gh-pages branch
       contents: write
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -65,5 +65,5 @@ jobs:
       - name: Publish to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: |
-            pip install ghp-import
-            ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html
+          pip install ghp-import
+          ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html

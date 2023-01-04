@@ -6,7 +6,6 @@
 These are instructions on how to make a release on PyPI.
 The PyPI release is done automatically by TravisCI when a tag is pushed.
 
-
 ## Steps to make a release
 
 1. Checkout main and make sure it is up to date.
