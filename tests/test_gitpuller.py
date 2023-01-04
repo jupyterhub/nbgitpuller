@@ -88,11 +88,15 @@ def test_exception_branch_exists():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
         with Puller(remote) as puller:
+            exception_raised = False
             orig_url = puller.gp.git_url
+            puller.gp.git_url = ""
             try:
                 puller.gp.branch_exists("wrong")
             except Exception as e:
+                exception_raised = True
                 assert type(e) == ValueError
+            assert exception_raised
             puller.gp.git_url = orig_url
 
 
