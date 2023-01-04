@@ -78,4 +78,3 @@ class Puller(Repository):
         self.git('config', '--local', 'user.email', 'puller@example.com')
         self.git('config', '--local', 'user.name', 'puller')
         return self
-
