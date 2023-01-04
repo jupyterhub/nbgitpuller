@@ -65,16 +65,21 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
      ```
 
    - Or you can start the new Jupyter Server.
+
      ```bash
      jupyter server
      ```
+
      This won't open any notebook interface, unless you don't enable one
      ([`nbclassic`](https://github.com/jupyterlab/nbclassic) or [`jupyterlab`](https://github.com/jupyterlab/jupyterlab))
      as a jupyter server extension.
+
      ```bash
      jupyter server extension enable --sys-prefix nbclassic
      ```
+
      or
+
      ```bash
      jupyter server extension enable --sys-prefix jupyterlab
      ```
