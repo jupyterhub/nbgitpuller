@@ -18,7 +18,7 @@ class Repository:
 
     def __enter__(self):
         os.makedirs(self.path, exist_ok=True)
-        self.git('init', '--bare')
+        self.git('init', '--bare', '--initial-branch=master')
         return self
 
     def __exit__(self, *args):

@@ -16,6 +16,9 @@ def execute_cmd(cmd, **kwargs):
     yield '$ {}\n'.format(' '.join(cmd))
     kwargs['stdout'] = subprocess.PIPE
     kwargs['stderr'] = subprocess.STDOUT
+    # Explicitly set LANG=C, as `git` commandline output will be different if
+    # the user environment has a different locale set!
+    kwargs['env'] = dict(os.environ, LANG='C')
 
     proc = subprocess.Popen(cmd, **kwargs)
 
