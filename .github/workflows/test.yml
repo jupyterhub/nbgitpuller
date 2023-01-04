@@ -49,9 +49,6 @@ jobs:
           pip install .
           pip freeze
 
-      - name: Run flake8 linter
-        run: flake8
-
       - name: Run tests
         run: |
           pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller

@@ -97,12 +97,6 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
     process (started in step 5) to see your changes take effect. This is not needed if
     you are only working on the javascript or css.
 
-## Running the flake8 linter
-
-[flake8](https://flake8.pycqa.org/en/latest/) is used to validate python coding style. The
-flake8 config is in `.flake8`, and is not super strict. You should be able to run
-`flake8` in the root directory of the repository to get a list of issues to be fixed.
-
 ## Running tests
 
 [pytest](https://docs.pytest.org/) is used to run unit and integration tests,
