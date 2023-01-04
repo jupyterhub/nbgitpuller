@@ -65,5 +65,5 @@ jobs:
       - name: Publish to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: |
-            pip install ghp-import
-            ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html
+          pip install ghp-import
+          ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html

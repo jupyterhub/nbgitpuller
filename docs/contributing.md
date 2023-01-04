@@ -42,40 +42,42 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
    ```
 
 7. Enable the nbgitpuller extension:
-   * as a jupyter serverextension (classic Notebook Server extension)
 
-      ```bash
-      jupyter serverextension enable --sys-prefix nbgitpuller
-      ```
-   * as a jupyter server extension
-      ```bash
-      jupyter server extension enable --sys-prefix nbgitpuller
-      ```
+   - as a jupyter serverextension (classic Notebook Server extension)
+
+     ```bash
+     jupyter serverextension enable --sys-prefix nbgitpuller
+     ```
+
+   - as a jupyter server extension
+     ```bash
+     jupyter server extension enable --sys-prefix nbgitpuller
+     ```
 
 8. Start the notebook server:
 
-   * You can either start the classical Notebook server.
-   This will open the classic notebook in your web
-   browser, and automatically authenticate you as a side effect.
+   - You can either start the classical Notebook server.
+     This will open the classic notebook in your web
+     browser, and automatically authenticate you as a side effect.
 
-      ```bash
-      jupyter notebook
-      ```
+     ```bash
+     jupyter notebook
+     ```
 
-   * Or you can start the new Jupyter Server.
-      ```bash
-      jupyter server
-      ```
-      This won't open any notebook interface, unless you don't enable one
-      ([`nbclassic`](https://github.com/jupyterlab/nbclassic) or [`jupyterlab`](https://github.com/jupyterlab/jupyterlab))
-      as a jupyter server extension.
-      ```bash
-      jupyter server extension enable --sys-prefix nbclassic
-      ```
-      or
-      ```bash
-      jupyter server extension enable --sys-prefix jupyterlab
-      ```
+   - Or you can start the new Jupyter Server.
+     ```bash
+     jupyter server
+     ```
+     This won't open any notebook interface, unless you don't enable one
+     ([`nbclassic`](https://github.com/jupyterlab/nbclassic) or [`jupyterlab`](https://github.com/jupyterlab/jupyterlab))
+     as a jupyter server extension.
+     ```bash
+     jupyter server extension enable --sys-prefix nbclassic
+     ```
+     or
+     ```bash
+     jupyter server extension enable --sys-prefix jupyterlab
+     ```
 
 9. You can now test nbgitpuller locally, by hitting the `/git-pull` url with any
    of the [URL query parameters](topic/url-options.rst). For example, to pull the
@@ -87,8 +89,8 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
    ```
 
 10. If you make changes to nbgitpuller's python code, you need to restart the `jupyter notebook`
-   process (started in step 5) to see your changes take effect. This is not needed if
-   you are only working on the javascript or css.
+    process (started in step 5) to see your changes take effect. This is not needed if
+    you are only working on the javascript or css.
 
 ## Running the flake8 linter
 
@@ -100,7 +102,7 @@ flake8 config is in `.flake8`, and is not super strict. You should be able to ru
 
 [pytest](https://docs.pytest.org/) is used to run unit and integration tests,
 under the `tests/` directory. If you add new functionality, you should also add
-tests to cover it.  You can run the tests locally with `py.test tests/`
+tests to cover it. You can run the tests locally with `py.test tests/`
 
 ## Building documentation
 

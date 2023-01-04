@@ -40,8 +40,8 @@ jobs:
 
       - name: Run webpack to build static assets
         run: |
-            npm install
-            npm run webpack
+          npm install
+          npm run webpack
 
       - name: Install dependencies
         run: |
