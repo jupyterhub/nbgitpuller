@@ -88,7 +88,7 @@ def test_exception_branch_exists():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
         with Puller(remote) as puller:
-            with pytest.raises(ValueError):
+            with pytest.raises(sp.CalledProcessError):
                 orig_url = puller.gp.git_url
                 puller.gp.git_url = ""
                 puller.gp.branch_exists("wrong")
