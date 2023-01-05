@@ -4,7 +4,6 @@ Sometimes, git's flexibility can lead to repositories that cause issues
 when used with nbgitpuller. Here are some recommendations to make your
 nbgitpuller experience smoother.
 
-
 ## Never force push
 
 Never use `--force` or `--force-with-lease` when pushing to your repositories.

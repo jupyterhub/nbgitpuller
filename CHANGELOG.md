@@ -68,7 +68,6 @@
 
 [@akhmerov](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aakhmerov+updated%3A2021-09-02..2022-03-18&type=Issues) | [@brian-rose](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abrian-rose+updated%3A2021-09-02..2022-03-18&type=Issues) | [@choldgraf](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Acholdgraf+updated%3A2021-09-02..2022-03-18&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2021-09-02..2022-03-18&type=Issues) | [@jameshowison](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajameshowison+updated%3A2021-09-02..2022-03-18&type=Issues) | [@jdmansour](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2021-09-02..2022-03-18&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2021-09-02..2022-03-18&type=Issues) | [@ryanlovett](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aryanlovett+updated%3A2021-09-02..2022-03-18&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Awelcome+updated%3A2021-09-02..2022-03-18&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2021-09-02..2022-03-18&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AZsailer+updated%3A2021-09-02..2022-03-18&type=Issues)
 
-
 ### 1.0.2 - 2021-09-03
 
 A release to fix an issue that stopped us from publishing nbgitpuller on
@@ -76,7 +75,7 @@ conda-forge.
 
 #### Maintenance and upkeep improvements
 
-- Fix jupyter-packaging reference, use - instead of _ [#219](https://github.com/jupyterhub/nbgitpuller/pull/219) ([@consideRatio](https://github.com/consideRatio))
+- Fix jupyter-packaging reference, use - instead of \_ [#219](https://github.com/jupyterhub/nbgitpuller/pull/219) ([@consideRatio](https://github.com/consideRatio))
 
 ### 1.0.1 - 2021-09-02
 
@@ -198,7 +197,7 @@ This is a critical security release, please upgrade to this and see [GHSA-mq5p-2
 - Add a mybinder.org tab to the link builder ([#129](https://github.com/jupyterhub/nbgitpuller/pull/129))
 - tab activation on link generator ([#132](https://github.com/jupyterhub/nbgitpuller/pull/132))
 - fixing bug ([#134](https://github.com/jupyterhub/nbgitpuller/pull/134))
-- Fix typo from ipynb link generator external tool reference  ([#136](https://github.com/jupyterhub/nbgitpuller/pull/136))
+- Fix typo from ipynb link generator external tool reference ([#136](https://github.com/jupyterhub/nbgitpuller/pull/136))
 - Use the correct branch for contentRepo ([#138](https://github.com/jupyterhub/nbgitpuller/pull/138))
 - Fix file paths or application paths ([#140](https://github.com/jupyterhub/nbgitpuller/pull/140))
 - Make the environment repo branch required for binder ([#143](https://github.com/jupyterhub/nbgitpuller/pull/143))

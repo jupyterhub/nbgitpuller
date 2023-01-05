@@ -18,9 +18,10 @@ repository is made for the student. On successive clicks, the latest version
 of the remote repository is fetched, and merged automatically with the
 student's local copy using a {ref}`series of rules <topic/automatic-merging>`
 that ensure students never get merge conflicts nor lose any of their changes.
+
 ## Create an `nbgitpuller` link via a web extension
 
-The easiest way to create an `nbgitpuller` link is via a web extension  ([github repo](https://github.com/yuvipanda/nbgitpuller-link-generator-webextension)).
+The easiest way to create an `nbgitpuller` link is via a web extension ([github repo](https://github.com/yuvipanda/nbgitpuller-link-generator-webextension)).
 This allows you to quickly generate an `nbgitpuller` link directly from the content in your repository (e.g., on GitHub).
 See the links below to download the extension.
 
@@ -37,8 +38,7 @@ This contains a simple web form where you paste the location of the content you'
 
 ## Manually create an `nbgitpuller` link
 
-
-There is a short video showing 
+There is a short video showing
 
 ```{raw} html
 <iframe

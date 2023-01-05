@@ -18,7 +18,7 @@ class Repository:
 
     def __enter__(self):
         os.makedirs(self.path, exist_ok=True)
-        self.git('init', '--bare')
+        self.git('init', '--bare', '--initial-branch=master')
         return self
 
     def __exit__(self, *args):
@@ -78,4 +78,3 @@ class Puller(Repository):
         self.git('config', '--local', 'user.email', 'puller@example.com')
         self.git('config', '--local', 'user.name', 'puller')
         return self
-
