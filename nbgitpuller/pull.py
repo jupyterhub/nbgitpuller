@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import logging
 import time
@@ -7,6 +8,7 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
+from .config import NbGitPullerFeatures
 
 
 def execute_cmd(cmd, **kwargs):
@@ -80,6 +82,9 @@ class GitPuller(Configurable):
         elif not self.branch_exists(self.branch_name):
             raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
+        self._features = NbGitPullerFeatures(parent=kwargs.get("parent"))
+        self._autorun = any(( re.match(pattern, git_url) for pattern in self._features.autorun_allow ))
+
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
@@ -143,6 +148,20 @@ class GitPuller(Configurable):
         else:
             yield from self.update()
 
+    def autorun(self, operation):
+        """
+        Search for and execute the autorun script.
+        """
+        if not self._autorun:
+            return
+
+        script = next(( s for s in self._features.autorun_script if os.path.exists(os.path.join(self.repo_dir, s)) ), None)
+        if not script:
+            return
+
+        logging.info(f'Running "{script} {operation}')
+        yield from execute_cmd([ script, operation ], cwd=self.repo_dir, shell=True)
+
     def initialize_repo(self):
         """
         Clones repository
@@ -154,6 +173,7 @@ class GitPuller(Configurable):
         clone_args.extend(['--branch', self.branch_name])
         clone_args.extend(["--", self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
+        self._autorun('init')
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
     def reset_deleted_files(self):
@@ -343,6 +363,7 @@ class GitPuller(Configurable):
         yield from self.ensure_lock()
         yield from self.merge()
 
+        self._autorun('update')
 
 def main():
     """
