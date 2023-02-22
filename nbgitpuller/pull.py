@@ -154,6 +154,9 @@ class GitPuller(Configurable):
         clone_args.extend(['--branch', self.branch_name])
         clone_args.extend(["--", self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
+        if os.path.exists(os.path.join(self.repo_dir, '.nbgitpuller.script.init')):
+            logging.info('Running init script')
+            yield from execute_cmd('. ./.nbgitpuller.script.init', cwd=self.repo_dir, shell=True)
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
     def reset_deleted_files(self):
@@ -343,6 +346,9 @@ class GitPuller(Configurable):
         yield from self.ensure_lock()
         yield from self.merge()
 
+        if os.path.exists(os.path.join(self.repo_dir, '.nbgitpuller.script.update')):
+            logging.info('Running update script')
+            yield from execute_cmd('. ./.nbgitpuller.script.update', cwd=self.repo_dir, shell=True)
 
 def main():
     """
