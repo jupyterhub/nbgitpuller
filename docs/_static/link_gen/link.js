@@ -185,7 +185,7 @@ function displayLink() {
                 hubUrl, urlPath, repoUrl, branch
             );
         } else if (activeTab === "tab-auth-binder"){
-            // FIXME: userName parsing using new URL(...) assumes a 
+            // FIXME: userName parsing using new URL(...) assumes a
             // HTTP based repoUrl. Does it make sense to create a
             // BinderHub link for SSH URLs? Then let's fix this parsing.
             var userName = new URL(repoUrl).pathname.split('/')[1];
@@ -248,7 +248,7 @@ function render() {
 /**
  * Entry point
  */
-function main() {
+function linkMain() {
     // Hook up any changes in form elements to call render()
     document.querySelectorAll('#linkgenerator input[type="radio"]').forEach(
         function (element) {
@@ -265,16 +265,15 @@ function main() {
 
     // Activate tabs based on search parameters
     var params = new URL(window.location).searchParams;
-    if (params.get("tab")) {
-      if (params.get("tab") === "binder") {
-        $("#tab-auth-binder").click()
-      } else if (params.get("tab") === "canvas") {
-        $("#tab-auth-canvas").click()
-      }
+    switch(params.get("tab")) {
+      case "binder":
+        $("#tab-auth-binder").click();
+        break;
+      case "canvas":
+        $("#tab-auth-canvas").click();
+        break;
     }
 
     // Do an initial render, to make sure our disabled / enabled properties are correctly set
     render();
 }
-
-window.onload = main;
