@@ -195,7 +195,7 @@ parameters **when accessing this page**:
 For example, the following URL will pre-populate the form with the
 UC Berkeley DataHub as the JupyterHub::
 
-    https://jupyterhub.github.io/nbgitpuller/link?hub=https://datahub.berkeley.edu
+    https://nbgitpuller.readthedocs.io/link.html?hub=https://datahub.berkeley.edu
 
 
 **Activating a tab when someone lands on this page**
