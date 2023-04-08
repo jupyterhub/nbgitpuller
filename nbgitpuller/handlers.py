@@ -132,6 +132,20 @@ class SyncHandler(IPythonHandler):
             self.git_lock.release()
 
 
+USED_UI_ARGUMENTS = frozenset((
+    'repo',
+    'branch',
+    'depth',
+    'urlpath',
+    'urlPath',
+    'subpath',
+    'subPath',
+    'app',
+    'targetpath',
+    'targetPath',
+))
+
+
 class UIHandler(IPythonHandler):
     @web.authenticated
     async def get(self):
@@ -160,6 +174,8 @@ class UIHandler(IPythonHandler):
             else:
                 path = 'tree/' + path
 
+        path = self.combine_query_string(path)
+
         self.write(
             jinja_env.get_template('status.html').render(
                 repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
@@ -167,6 +183,22 @@ class UIHandler(IPythonHandler):
             )
         )
         await self.flush()
+
+    def combine_query_string(self, targetpath):
+        """
+        This function combines the query string in `targetpath` with all unused
+        query string parameters passed to this handler.
+        """
+
+        from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+        target_parsed = urlparse(targetpath)
+        target_qs = parse_qs(target_parsed.query)
+        for key in self.request.arguments:
+            if key in USED_UI_ARGUMENTS or key in target_qs:
+                continue
+            target_qs[key] = self.get_argument(key)
+        targetpath = urlunparse(target_parsed._replace(query=urlencode(target_qs, doseq=True)))
+        return targetpath
 
 
 class LegacyGitSyncRedirectHandler(IPythonHandler):
