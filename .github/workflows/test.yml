@@ -76,4 +76,4 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller
+          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller tests
