@@ -140,7 +140,7 @@ def test_clone_targetpath(jupyterdir, jupyter_server):
 
 
 @pytest.mark.jupyter_server(extra_env={'NBGITPULLER_PARENTPATH': "parent"})
-def test_clone_parenttargetpath(jupyterdir, start_jupyter):
+def test_clone_parenttargetpath(jupyterdir, jupyter_server):
     """
     Tests use of the NBGITPULLER_PARENTPATH environment variable.
     """
