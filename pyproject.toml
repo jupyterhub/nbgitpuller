@@ -41,3 +41,8 @@ target_version = [
     "py310",
     "py311",
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    "jupyter_server: configure the jupyter_server fixture"
+]
