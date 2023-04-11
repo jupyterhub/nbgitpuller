@@ -12,7 +12,7 @@ Use the following form to create your own ``nbgitpuller`` links.
 
 .. raw:: html
 
-   <div class="container full-width">
+   <div class="container">
        <form id="linkgenerator" class="form needs-validation">
 
            <div class="form-group">
