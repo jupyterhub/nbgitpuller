@@ -170,8 +170,18 @@ class GitPuller(Configurable):
 
         upstream_deleted = self.find_upstream_changed('D')
         for filename in deleted_files:
-            # Filter out empty lines, and files that were deleted in the remote
-            if filename and filename not in upstream_deleted:
+            if not filename:
+                # filter out empty lines
+                continue
+
+            if filename in upstream_deleted:
+                # deleted in _both_, avoid conflict with git 2.40 by checking it out
+                # even though it's just about to be deleted
+                yield from execute_cmd(
+                    ['git', 'checkout', 'HEAD', '--', filename], cwd=self.repo_dir
+                )
+            else:
+                # not deleted in upstream, restore with checkout
                 yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
 
     def repo_is_dirty(self):
