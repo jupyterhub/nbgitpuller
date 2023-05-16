@@ -8,7 +8,7 @@ import json
 import os
 from queue import Queue, Empty
 import jinja2
-from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
+from hsclient import HydroShare
 from .pull import GitPuller, HSPuller
 from .version import __version__
 from notebook.utils import url_path_join
@@ -285,8 +285,13 @@ class HSHandler(IPythonHandler):
             )
         ])
 
-    def check_auth(self, auth):
-        hs = HydroShare(auth=auth)
+    def check_auth(self, authfile=None, username=None, password=None):
+        if authfile:
+            with open(authfile, 'rb') as f:
+                    token, cid = pickle.load(f)
+            hs = HydroShare(client_id=cid, token=token)
+        else:
+            hs = HydroShare(username=username, password=password)
         self.log.info('hs=%s' % str(hs))
 
 
@@ -304,12 +309,7 @@ class HSHandler(IPythonHandler):
         # check for oauth
         authfile = os.path.expanduser("~/.hs_auth")
         try:
-            with open(authfile, 'rb') as f:
-                token, cid = pickle.load(f)
-            auth = HydroShareAuthOAuth2(cid, '', token=token)
-            self.log.info('auth=%s' % str(auth))
-
-            hs = self.check_auth(auth)
+            hs = self.check_auth(authfile)
             self.log.info('hs=%s' % str(hs))
 
             if hs is None:
@@ -329,8 +329,7 @@ class HSHandler(IPythonHandler):
                     username = f.read().strip()
                 with open(pwfile) as f:
                     password = f.read().strip()
-                auth = HydroShareAuthBasic(username=username, password=password)
-                hs = self.check_auth(auth)
+                hs = self.check_auth(username=username, password=password)
                 if hs is None:
                     message = url_escape("Login Failed. Please Try again")
             except:

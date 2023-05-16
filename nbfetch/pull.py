@@ -5,7 +5,6 @@ import time
 import argparse
 import datetime
 from functools import partial
-from hs_restclient import HydroShare
 
 
 def execute_cmd(cmd, **kwargs):
