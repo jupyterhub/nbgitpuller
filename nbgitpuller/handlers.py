@@ -13,6 +13,11 @@ from .pull import GitPuller
 from .version import __version__
 
 
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), 'templates')
+    ),
+)
+
 class SyncHandler(JupyterHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,8 +31,7 @@ class SyncHandler(JupyterHandler):
     def git_lock(self):
         return self.settings['git_lock']
 
-    @gen.coroutine
-    def emit(self, data):
+    async def emit(self, data):
         if type(data) is not str:
             serialized_data = json.dumps(data)
             if 'output' in data:
@@ -36,15 +40,14 @@ class SyncHandler(JupyterHandler):
             serialized_data = data
             self.log.info(data)
         self.write('data: {}\n\n'.format(serialized_data))
-        yield self.flush()
+        await self.flush()
 
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         try:
-            yield self.git_lock.acquire(1)
+            await self.git_lock.acquire(1)
         except gen.TimeoutError:
-            self.emit({
+            await self.emit({
                 'phase': 'error',
                 'message': 'Another git operations is currently running, try again in a few minutes'
             })
@@ -94,12 +97,12 @@ class SyncHandler(JupyterHandler):
                 try:
                     progress = q.get_nowait()
                 except Empty:
-                    yield gen.sleep(0.5)
+                    await gen.sleep(0.5)
                     continue
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
-                    self.emit({
+                    await self.emit({
                         'phase': 'error',
                         'message': str(progress),
                         'output': '\n'.join([
@@ -111,11 +114,11 @@ class SyncHandler(JupyterHandler):
                     })
                     return
 
-                self.emit({'output': progress, 'phase': 'syncing'})
+                await self.emit({'output': progress, 'phase': 'syncing'})
 
-            self.emit({'phase': 'finished'})
+            await self.emit({'phase': 'finished'})
         except Exception as e:
-            self.emit({
+            await self.emit({
                 'phase': 'error',
                 'message': str(e),
                 'output': '\n'.join([
@@ -130,22 +133,8 @@ class SyncHandler(JupyterHandler):
 
 
 class UIHandler(JupyterHandler):
-    def initialize(self):
-        super().initialize()
-        # FIXME: Is this really the best way to use jinja2 here?
-        # I can't seem to get the jinja2 env in the base handler to
-        # actually load templates from arbitrary paths ugh.
-        jinja2_env = self.settings['jinja2_env']
-        jinja2_env.loader = jinja2.ChoiceLoader([
-            jinja2_env.loader,
-            jinja2.FileSystemLoader(
-                os.path.join(os.path.dirname(__file__), 'templates')
-            )
-        ])
-
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
 
         repo = self.get_argument('repo')
@@ -172,17 +161,23 @@ class UIHandler(JupyterHandler):
                 path = 'tree/' + path
 
         self.write(
-            self.render_template(
-                'status.html',
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__
-            ))
-        self.flush()
+            jinja_env.get_template('status.html').render(
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
+                **self.template_namespace
+            )
+        )
+        await self.flush()
 
 
 class LegacyGitSyncRedirectHandler(JupyterHandler):
+    """
+    The /git-pull endpoint was previously exposed /git-sync.
+
+    For backward compatibility we keep listening to the /git-sync endpoint but
+    respond with a redirect to the /git-pull endpoint.
+    """
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         new_url = '{base}git-pull?{query}'.format(
             base=self.base_url,
             query=self.request.query
@@ -191,9 +186,14 @@ class LegacyGitSyncRedirectHandler(JupyterHandler):
 
 
 class LegacyInteractRedirectHandler(JupyterHandler):
+    """
+    The /git-pull endpoint was previously exposed /interact.
+
+    For backward compatibility we keep listening to the /interact endpoint but
+    respond with a redirect to the /git-pull endpoint.
+    """
     @web.authenticated
-    @gen.coroutine
-    def get(self):
+    async def get(self):
         repo = self.get_argument('repo')
         account = self.get_argument('account', 'data-8')
         repo_url = 'https://github.com/{account}/{repo}'.format(account=account, repo=repo)

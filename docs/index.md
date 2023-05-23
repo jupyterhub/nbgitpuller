@@ -10,16 +10,16 @@ It is commonly used to distribute content to multiple users of a JupyterHub, tho
 
 Here's an example of `nbgitpuller` in action:
 
-1. The [nbgitpuller link
-   generator](https://jupyterhub.github.io/nbgitpuller/link) is used to create a
-   link.
+1. The [nbgitpuller link generator](link) is used to create a link.
 
    ```{image} _static/nbgitpuller-link-generator.png
+
    ```
 
 2. A user clicks the link, and the content is pulled into a live Jupyter session.
 
    ```{image} _static/nbgitpuller-demo.gif
+
    ```
 
 ## Use `nbgitpuller`
@@ -35,6 +35,7 @@ Here's a short overview:
 
 There are several ways to generate an `nbgitpuller` link.
 The two easiest ways to do so are:
+
 - Via a browser extension to generate links directly from your repository ([Chrome extension](https://chrome.google.com/webstore/detail/nbgitpuller-link-generato/hpdbdpklpmppnoibabdkkhnfhkkehgnc), [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/nbgitpuller-link-generator/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
 - Via a GUI web-app [at `nbgitpuller.link`](http://nbgitpuller.link)
 
@@ -45,7 +46,7 @@ Fore more information about generating nbgitpuller links, see [](use.md).
 Use nbgitpuller when:
 
 1. You want an easy way to distribute content (notebooks, markdown files, etc) to Jupyter users without requiring them to use `git`.
-2. You have an alternative method for *collecting* content from your users, as `nbgitpuller` does not "push", it only "pulls".
+2. You have an alternative method for _collecting_ content from your users, as `nbgitpuller` does not "push", it only "pulls".
 
 You should **not** use nbgitpuller when:
 

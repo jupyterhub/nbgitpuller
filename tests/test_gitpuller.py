@@ -1,79 +1,14 @@
 import os
-import shutil
 import subprocess as sp
 import glob
 import time
+from uuid import uuid4
 import pytest
+import tempfile
 
 from traitlets.config.configurable import Configurable
 
-from nbgitpuller import GitPuller
-
-
-class Repository:
-    def __init__(self, path='remote'):
-        self.path = path
-
-    def __enter__(self):
-        os.mkdir(self.path)
-        self.git('init', '--bare')
-        return self
-
-    def __exit__(self, *args):
-        shutil.rmtree(self.path)
-
-    def write_file(self, path, content):
-        with open(os.path.join(self.path, path), 'w') as f:
-            f.write(content)
-
-    def read_file(self, path):
-        with open(os.path.join(self.path, path)) as f:
-            return f.read()
-
-    def git(self, *args):
-        return sp.check_output(
-            ['git'] + list(args),
-            cwd=self.path,
-            stderr=sp.STDOUT
-        ).decode().strip()
-
-
-class Remote(Repository):
-    pass
-
-
-class Pusher(Repository):
-    def __init__(self, remote, path='pusher'):
-        self.remote = remote
-        super().__init__(path=path)
-
-    def __enter__(self):
-        sp.check_output(['git', 'clone', self.remote.path, self.path])
-        self.git('config', '--local', 'user.email', 'pusher@example.com')
-        self.git('config', '--local', 'user.name', 'pusher')
-        return self
-
-    def push_file(self, path, content):
-        self.write_file(path, content)
-        self.git('add', path)
-        self.git('commit', '-am', 'Ignore the message')
-        self.git('push', 'origin', 'master')
-
-
-class Puller(Repository):
-    def __init__(self, remote, path='puller', branch="master", *args, **kwargs):
-        super().__init__(path)
-        remotepath = "file://%s" % os.path.abspath(remote.path)
-        self.gp = GitPuller(remotepath, path, branch=branch, *args, **kwargs)
-
-    def pull_all(self):
-        for line in self.gp.pull():
-            print('{}: {}'.format(self.path, line.rstrip()))
-
-    def __enter__(self):
-        print()
-        self.pull_all()
-        return self
+from repohelpers import Remote, Pusher, Puller
 
 
 # Tests to write:
@@ -89,8 +24,9 @@ def test_initialize():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
 
-        assert not os.path.exists('puller')
-        with Puller(remote, 'puller') as puller:
+        cloned_path = os.path.join(tempfile.gettempdir(), str(uuid4()))
+        assert not os.path.exists(cloned_path)
+        with Puller(remote, cloned_path) as puller:
             assert os.path.exists(os.path.join(puller.path, 'README.md'))
             assert puller.git('name-rev', '--name-only', 'HEAD') == 'master'
             assert puller.git('rev-parse', 'HEAD') == pusher.git('rev-parse', 'HEAD')
@@ -142,7 +78,8 @@ def test_command_line_non_existing_branch():
 def test_branch_exists():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
-        with Puller(remote, 'puller') as puller:
+        with Puller(remote) as puller:
+            puller.pull_all()
             assert not puller.gp.branch_exists("wrong")
             assert puller.gp.branch_exists("master")
 
@@ -150,27 +87,24 @@ def test_branch_exists():
 def test_exception_branch_exists():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
-        with Puller(remote, 'puller') as puller:
-            orig_url = puller.gp.git_url
-            puller.gp.git_url = ""
-            try:
+        with Puller(remote) as puller:
+            with pytest.raises(sp.CalledProcessError):
+                orig_url = puller.gp.git_url
+                puller.gp.git_url = ""
                 puller.gp.branch_exists("wrong")
-            except Exception as e:
-                assert type(e) == ValueError
-            puller.gp.git_url = orig_url
-
+                puller.gp.git_url = orig_url
 
 def test_resolve_default_branch():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
-        with Puller(remote, 'puller') as puller:
+        with Puller(remote) as puller:
             assert puller.gp.resolve_default_branch() == "master"
 
 
 def test_exception_resolve_default_branch():
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
-        with Puller(remote, 'puller') as puller:
+        with Puller(remote) as puller:
             orig_url = puller.gp.git_url
             puller.gp.git_url = ""
             try:
@@ -286,6 +220,32 @@ def test_merging_simple():
             assert puller.read_file('README.md') == '2'
 
 
+def test_merging_after_commit():
+    """
+    Test that merging works even after we make a commit locally
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            puller.write_file('README.md', '2')
+            puller.git('commit', '-am', 'Local change')
+
+            puller.pull_all()
+
+            assert puller.read_file('README.md') == '2'
+            assert pusher.read_file('README.md') == '1'
+
+            pusher.push_file('README.md', '3')
+            puller.pull_all()
+
+            # Check if there is a merge commit
+            parent_commits = puller.git('show', '-s', '--format="%P"', 'HEAD').strip().split(' ')
+            assert(len(parent_commits) == 2)
+
+
 def test_untracked_puller():
     """
     Test that untracked files in puller are preserved when pulling
@@ -324,9 +284,203 @@ def test_reset_file():
             assert puller.read_file('unicode🙂.txt') == pusher.read_file('unicode🙂.txt') == '2'
 
 
+def test_reset_file_after_changes():
+    """
+    Test that we get the latest version of a file if we:
+    - change the file locally
+    - sync, so the change is preserved
+    - delete the file, in order to reset it
+    - sync again
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'original')
+
+        with Puller(remote) as puller:
+            puller.write_file('README.md', 'local change')
+            pusher.push_file('README.md', 'remote change')
+            puller.pull_all()
+
+            # It should keep the local change
+            assert puller.read_file('README.md') == 'local change'
+
+            # Delete the local file manually and pull
+            os.remove(os.path.join(puller.path, 'README.md'))
+            puller.pull_all()
+
+            # It should restore the remote change
+            assert puller.read_file('README.md') == 'remote change'
+
+
+def test_delete_conflicted_file():
+    """
+    Test that after deleting a file that had a conflict, we can still pull
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'hello')
+
+        with Puller(remote) as puller:
+            # Change a file locally
+            puller.write_file('README.md', 'student changed')
+
+            # Sync will keep the local change
+            puller.pull_all()
+            assert puller.read_file('README.md') == 'student changed'
+
+            # Delete previously changed file
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            # Make a change remotely.  We should be able to pull it
+            pusher.push_file('new_file.txt', 'hello world')
+            puller.pull_all()
+
+
+def test_delete_remotely_modify_locally():
+    """
+    Test that we can delete a file upstream, and edit it at the same time locally
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file remotely
+            pusher.git('rm', 'README.md')
+            pusher.git('commit', '-m', 'Deleted file')
+
+            # Edit locally
+            pusher.push_file('README.md', 'HELLO')
+            puller.pull_all()
+
+            assert puller.read_file('README.md') == 'HELLO'
+
+
+def test_diverged():
+    """
+    Test deleting a file upstream, and editing it locally.  This time we
+    commit to create diverged brances.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file remotely
+            pusher.git('rm', 'README.md')
+            pusher.git('commit', '-m', 'Deleted file')
+            pusher.git('push', '-u', 'origin', 'master')
+
+            # Edit locally
+            puller.write_file('README.md', 'conflict')
+            puller.git('add', 'README.md')
+            puller.git('commit', '-m', 'Make conflicting change')
+
+            # The local change should be kept
+            puller.pull_all()
+            assert puller.read_file('README.md') == 'conflict'
+
+
+def test_diverged_reverse():
+    """
+    Test deleting a file locally, and editing it upstream.  We commit the changes
+    to create diverged branches.  Like `test_diverged`, but flipped. 
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'new')
+
+        with Puller(remote) as puller:
+            # Delete the file locally
+            puller.git('rm', 'README.md')
+            puller.git('commit', '-m', 'Deleted file')
+
+            # Edit the file remotely
+            pusher.push_file('README.md', 'conflicting change')
+
+            # Pulling should get the latest version of the file
+            puller.pull_all()
+            assert(puller.read_file('README.md') == 'conflicting change')
+
+
+def test_diverged_multiple():
+    """
+    Test deleting a file upstream, and editing it locally.  We commit the changes
+    to create diverged branches.
+
+    Use two files, so git merge doesn't mention the conflict in the first line.
+
+        puller: Auto-merging AFILE.txt
+        puller: CONFLICT (modify/delete): BFILE.txt deleted in origin/master and modified in HEAD.  Version HEAD of BFILE.txt left in tree.
+        puller: Automatic merge failed; fix conflicts and then commit the result.
+
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('AFILE.txt', 'new')
+        pusher.push_file('BFILE.txt', 'new')
+
+        with Puller(remote) as puller:
+            # Remote changes - BFILE.txt deleted    
+            pusher.write_file('AFILE.txt', 'changed remotely')
+            pusher.git('add', 'AFILE.txt')
+            pusher.git('rm', 'BFILE.txt')
+            pusher.git('commit', '-m', 'Remote changes')
+            pusher.git('push', '-u', 'origin', 'master')
+  
+            # Local changes - BFILE.txt edited
+            puller.write_file('AFILE.txt', 'edited')
+            puller.write_file('BFILE.txt', 'edited')
+            puller.git('commit', '-am', 'Make conflicting change')
+
+            puller.pull_all()
+            assert puller.read_file('AFILE.txt') == 'edited'
+            assert puller.read_file('BFILE.txt') == 'edited'
+
+
+def test_delete_locally_and_remotely():
+    """
+    Test that sync works after deleting a file locally and remotely
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            # Delete locally (without git rm)
+            os.remove(os.path.join(puller.path, 'README.md'))
+
+            # Delete remotely
+            pusher.git('rm', 'README.md')
+
+            # Create another change to pull
+            pusher.push_file('another_file.txt', '2')
+            puller.pull_all()
+
+            assert not os.path.exists(os.path.join(puller.path, 'README.md'))
+            assert puller.read_file('another_file.txt') == '2'
+
+
+def test_sync_with_staged_changes():
+    """
+    Test that we can sync even if there are staged changess
+    """
+
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            assert puller.read_file('README.md') == pusher.read_file('README.md') == '1'
+
+            # Change a file locally and remotely
+            puller.write_file('README.md', 'student changed')
+            pusher.push_file('README.md', 'teacher changed')
+
+            # Stage the local change, but do not commit
+            puller.git('add', 'README.md')
+
+            # Try to sync
+            puller.pull_all()
+
+
 @pytest.fixture(scope='module')
 def long_remote():
-    with Remote("long_remote") as remote, Pusher(remote, "lr_pusher") as pusher:
+    with Remote() as remote, Pusher(remote) as pusher:
         for i in range(0, 10):
             pusher.git('commit', '--allow-empty', '-m', "Empty message %d" % i)
             pusher.git('push', 'origin', 'master')
@@ -366,7 +520,7 @@ def test_unshallow_clone(long_remote, clean_environment):
     Sanity-test that clones with 10 commits have 10 log entries
     """
     os.environ['NBGITPULLER_DEPTH'] = "0"
-    with Puller(long_remote, 'normal') as puller:
+    with Puller(long_remote) as puller:
         assert count_loglines(puller) == 10
 
 
@@ -374,7 +528,7 @@ def test_shallow_clone(long_remote, clean_environment):
     """
     Test that shallow clones only have a portion of the git history
     """
-    with Puller(long_remote, 'shallow4', depth=4) as puller:
+    with Puller(long_remote, depth=4) as puller:
         assert count_loglines(puller) == 4
 
 
@@ -387,7 +541,7 @@ def test_shallow_clone_config(long_remote, clean_environment):
             super(TempConfig)
             self.config['GitPuller']['depth'] = 5
 
-    with Puller(long_remote, 'shallow4', parent=TempConfig()) as puller:
+    with Puller(long_remote, parent=TempConfig()) as puller:
         assert count_loglines(puller) == 5
 
 
@@ -397,7 +551,7 @@ def test_environment_shallow_clone(long_remote, clean_environment):
     by default
     """
     os.environ['NBGITPULLER_DEPTH'] = "2"
-    with Puller(long_remote, 'shallow_env') as puller:
+    with Puller(long_remote) as puller:
         assert count_loglines(puller) == 2
 
 
@@ -406,7 +560,7 @@ def test_explicit_unshallow(long_remote, clean_environment):
     Test that we can disable environment-specified shallow clones
     """
     os.environ['NBGITPULLER_DEPTH'] = "2"
-    with Puller(long_remote, 'explicitly_full', depth=0) as puller:
+    with Puller(long_remote, depth=0) as puller:
         assert count_loglines(puller) == 10
 
 

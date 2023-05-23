@@ -1,5 +1,73 @@
 ## 1.0
 
+### 1.1.1
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.1.0...1.1.1))
+
+#### Enhancements made
+
+- Make links in the terminal clickable [#274](https://github.com/jupyterhub/nbgitpuller/pull/274) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Bugs fixed
+
+- Deal with modify/delete conflicts [#269](https://github.com/jupyterhub/nbgitpuller/pull/269) ([@jdmansour](https://github.com/jdmansour))
+- Fix regression: can't reset some files anymore [#264](https://github.com/jupyterhub/nbgitpuller/pull/264) ([@jdmansour](https://github.com/jdmansour))
+
+#### Other merged PRs
+
+- Modernize JS a little [#273](https://github.com/jupyterhub/nbgitpuller/pull/273) ([@yuvipanda](https://github.com/yuvipanda))
+- Remove jquery dependency [#272](https://github.com/jupyterhub/nbgitpuller/pull/272) ([@yuvipanda](https://github.com/yuvipanda))
+- Make tests more robust [#271](https://github.com/jupyterhub/nbgitpuller/pull/271) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Continuous integration improvements
+
+- ci: react to pushed tags [#262](https://github.com/jupyterhub/nbgitpuller/pull/262) ([@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2022-03-19&to=2022-11-08&type=c))
+
+[@balajialg](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2022-03-19..2022-11-08&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2022-03-19..2022-11-08&type=Issues) | [@farcila](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afarcila+updated%3A2022-03-19..2022-11-08&type=Issues) | [@jdmansour](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2022-03-19..2022-11-08&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2022-03-19..2022-11-08&type=Issues)
+
+### 1.1.0
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.0.2...1.1.0))
+
+#### Enhancements made
+
+- Add retrolab support to link generator [#225](https://github.com/jupyterhub/nbgitpuller/pull/225) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Bugs fixed
+
+- Fix sync problems after deleting files [#257](https://github.com/jupyterhub/nbgitpuller/pull/257) ([@jdmansour](https://github.com/jdmansour))
+- Use our own jinja2 template loader [#255](https://github.com/jupyterhub/nbgitpuller/pull/255) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Maintenance and upkeep improvements
+
+- Remove binder folder with link_generator.ipynb [#249](https://github.com/jupyterhub/nbgitpuller/pull/249) ([@consideRatio](https://github.com/consideRatio))
+- Use async/await instead of gen.coroutine/yield [#246](https://github.com/jupyterhub/nbgitpuller/pull/246) ([@consideRatio](https://github.com/consideRatio))
+
+#### Documentation improvements
+
+- Fix note format [#250](https://github.com/jupyterhub/nbgitpuller/pull/250) ([@brian-rose](https://github.com/brian-rose))
+- docs: adds docstrings (refactor: rename local parameter) [#242](https://github.com/jupyterhub/nbgitpuller/pull/242) ([@consideRatio](https://github.com/consideRatio))
+- DOC: Add link gen. screenshot, update example gif [#238](https://github.com/jupyterhub/nbgitpuller/pull/238) ([@consideRatio](https://github.com/consideRatio))
+- Update docs and remove unnecessary Sphinx configuration files [#237](https://github.com/jupyterhub/nbgitpuller/pull/237) ([@choldgraf](https://github.com/choldgraf))
+- Point people to the browser extension [#231](https://github.com/jupyterhub/nbgitpuller/pull/231) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Other merged PRs
+
+- ci: test against python 3.7-3.10 [#245](https://github.com/jupyterhub/nbgitpuller/pull/245) ([@consideRatio](https://github.com/consideRatio))
+- Build docs using GitHub Actions, add linkcheck, and small tweaks to CI system [#232](https://github.com/jupyterhub/nbgitpuller/pull/232) ([@yuvipanda](https://github.com/yuvipanda))
+- Fix conf.py to work on newer versions of sphinx [#226](https://github.com/jupyterhub/nbgitpuller/pull/226) ([@yuvipanda](https://github.com/yuvipanda))
+- npm: auto-rebuild dist if js changed [#222](https://github.com/jupyterhub/nbgitpuller/pull/222) ([@manics](https://github.com/manics))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2021-09-02&to=2022-03-18&type=c))
+
+[@akhmerov](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aakhmerov+updated%3A2021-09-02..2022-03-18&type=Issues) | [@brian-rose](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abrian-rose+updated%3A2021-09-02..2022-03-18&type=Issues) | [@choldgraf](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Acholdgraf+updated%3A2021-09-02..2022-03-18&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2021-09-02..2022-03-18&type=Issues) | [@jameshowison](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajameshowison+updated%3A2021-09-02..2022-03-18&type=Issues) | [@jdmansour](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2021-09-02..2022-03-18&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2021-09-02..2022-03-18&type=Issues) | [@ryanlovett](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aryanlovett+updated%3A2021-09-02..2022-03-18&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Awelcome+updated%3A2021-09-02..2022-03-18&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2021-09-02..2022-03-18&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AZsailer+updated%3A2021-09-02..2022-03-18&type=Issues)
+
 ### 1.0.2 - 2021-09-03
 
 A release to fix an issue that stopped us from publishing nbgitpuller on
@@ -7,7 +75,7 @@ conda-forge.
 
 #### Maintenance and upkeep improvements
 
-- Fix jupyter-packaging reference, use - instead of _ [#219](https://github.com/jupyterhub/nbgitpuller/pull/219) ([@consideRatio](https://github.com/consideRatio))
+- Fix jupyter-packaging reference, use - instead of \_ [#219](https://github.com/jupyterhub/nbgitpuller/pull/219) ([@consideRatio](https://github.com/consideRatio))
 
 ### 1.0.1 - 2021-09-02
 
@@ -129,7 +197,7 @@ This is a critical security release, please upgrade to this and see [GHSA-mq5p-2
 - Add a mybinder.org tab to the link builder ([#129](https://github.com/jupyterhub/nbgitpuller/pull/129))
 - tab activation on link generator ([#132](https://github.com/jupyterhub/nbgitpuller/pull/132))
 - fixing bug ([#134](https://github.com/jupyterhub/nbgitpuller/pull/134))
-- Fix typo from ipynb link generator external tool reference  ([#136](https://github.com/jupyterhub/nbgitpuller/pull/136))
+- Fix typo from ipynb link generator external tool reference ([#136](https://github.com/jupyterhub/nbgitpuller/pull/136))
 - Use the correct branch for contentRepo ([#138](https://github.com/jupyterhub/nbgitpuller/pull/138))
 - Fix file paths or application paths ([#140](https://github.com/jupyterhub/nbgitpuller/pull/140))
 - Make the environment repo branch required for binder ([#143](https://github.com/jupyterhub/nbgitpuller/pull/143))

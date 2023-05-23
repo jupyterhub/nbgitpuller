@@ -1,148 +1,30 @@
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
+import { GitSync  } from './gitsync';
+import { GitSyncView } from './gitsyncview';
 import css from '../../../node_modules/xterm/css/xterm.css';
 
-function GitSync(baseUrl, repo, branch, depth, targetpath, path) {
-    // Class that talks to the API backend & emits events as appropriate
-    this.baseUrl = baseUrl;
-    this.repo = repo;
-    this.branch = branch;
-    this.depth = depth;
-    this.targetpath = targetpath;
-    this.redirectUrl = baseUrl + path;
-
-    this.callbacks = {};
-}
-
-GitSync.prototype.addHandler = function(event, cb) {
-    if (this.callbacks[event] == undefined) {
-        this.callbacks[event] = [cb];
-    } else {
-        this.callbacks[event].push(cb);
-    }
-};
-
-GitSync.prototype._emit = function(event, data) {
-    if (this.callbacks[event] == undefined) { return; }
-    $.each(this.callbacks[event], function(i, ev) {
-        ev(data);
-    });
-};
-
-
-GitSync.prototype.start = function() {
-    // Start git pulling handled by SyncHandler, declared in handlers.py
-    var syncUrlParams = {
-        repo: this.repo,
-        targetpath: this.targetpath
-    }
-    if (typeof this.depth !== 'undefined' && this.depth != undefined) {
-        syncUrlParams['depth'] = this.depth;
-    }
-    if (typeof this.branch !== 'undefined' && this.branch != undefined) {
-        syncUrlParams['branch'] = this.branch;
-    }
-    var syncUrl = this.baseUrl + 'git-pull/api?' + $.param(syncUrlParams);
-
-    this.eventSource = new EventSource(syncUrl);
-    var that = this;
-    this.eventSource.addEventListener('message', function(ev) {
-        var data = JSON.parse(ev.data);
-        if (data.phase == 'finished' || data.phase == 'error') {
-            that.eventSource.close();
-        }
-        that._emit(data.phase, data);
-    });
-    this.eventSource.addEventListener('error', function(error) {
-        console.log(arguments);
-        that._emit('error', error);
-    });
-};
-
-function GitSyncView(termSelector, progressSelector, termToggleSelector) {
-    // Class that encapsulates view rendering as much as possible
-    this.term = new Terminal({
-        convertEol: true
-    });
-    this.fit = new FitAddon();
-    this.term.loadAddon(this.fit);
-
-    this.visible = false;
-    this.$progress = $(progressSelector);
-
-    this.$termToggle = $(termToggleSelector);
-    this.termSelector = termSelector;
-
-    var that = this;
-    this.$termToggle.click(function() {
-        that.setTerminalVisibility(!that.visible);
-    });
-}
-
-GitSyncView.prototype.setTerminalVisibility = function(visible) {
-    if (visible) {
-        $(this.termSelector).parent().removeClass('hidden');
-    } else {
-        $(this.termSelector).parent().addClass('hidden');
-    }
-    this.visible = visible;
-    if (visible) {
-        // See https://github.com/jupyterhub/nbgitpuller/pull/46 on why this is here.
-        if (!this.term.element) {
-            this.term.open($(this.termSelector)[0]);
-        }
-        this.fit.fit();
-    }
-
-}
-
-GitSyncView.prototype.setProgressValue = function(val) {
-    this.$progress.attr('aria-valuenow', val);
-    this.$progress.css('width', val + '%');
-};
-
-GitSyncView.prototype.getProgressValue = function() {
-    return parseFloat(this.$progress.attr('aria-valuenow'));
-};
-
-GitSyncView.prototype.setProgressText = function(text) {
-    this.$progress.children('span').text(text);
-};
-
-GitSyncView.prototype.getProgressText = function() {
-    return this.$progress.children('span').text();
-};
-
-GitSyncView.prototype.setProgressError = function(isError) {
-    if (isError) {
-        this.$progress.addClass('progress-bar-danger');
-    } else {
-        this.$progress.removeClass('progress-bar-danger');
-    }
-};
-
-var get_body_data = function(key) {
+const getBodyData = (key) => {
     /**
      * get a url-encoded item from body.data and decode it
      * we should never have any encoded URLs anywhere else in code
      * until we are building an actual request
      */
-    var val = $('body').data(key);
-    if (typeof val === 'undefined')
-        return val;
+    if(!document.body.hasAttribute('data-' + key)) {
+        return undefined;
+    }
+    let val = document.body.getAttribute('data-' + key);
     return decodeURIComponent(val);
 };
 
-var gs = new GitSync(
-    get_body_data('baseUrl'),
-    get_body_data('repo'),
-    get_body_data('branch'),
-    get_body_data('depth'),
-    get_body_data('targetpath'),
-    get_body_data('path')
+const gs = new GitSync(
+    getBodyData('base-url'),
+    getBodyData('repo'),
+    getBodyData('branch'),
+    getBodyData('depth'),
+    getBodyData('targetpath'),
+    getBodyData('path')
 );
 
-var gsv = new GitSyncView(
+const gsv = new GitSyncView(
     '#status-details',
     '#status-panel-title',
     '#status-panel-toggle'
@@ -151,7 +33,7 @@ var gsv = new GitSyncView(
 gs.addHandler('syncing', function(data) {
     gsv.term.write(data.output);
 });
-gs.addHandler('finished', function(data) {
+gs.addHandler('finished', function() {
     progressTimers.forEach(function(timer)  { clearInterval(timer); });
     gsv.setProgressValue(100);
     gsv.setProgressText('Sync finished, redirecting...');
@@ -169,10 +51,8 @@ gs.addHandler('error', function(data) {
 });
 gs.start();
 
-$('#header, #site').show();
-
 // Make sure we provide plenty of appearances of progress!
-var progressTimers = [];
+let progressTimers = [];
 progressTimers.push(setInterval(function() {
     gsv.setProgressText(substatus_messages[Math.floor(Math.random() * substatus_messages.length)]);
 }, 3000));
@@ -186,7 +66,7 @@ progressTimers.push(setInterval(function() {
 }, 900));
 
 
-var substatus_messages = [
+const substatus_messages = [
     "Adding Hidden Agendas",
     "Adjusting Bell Curves",
     "Aesthesizing Industrial Areas",

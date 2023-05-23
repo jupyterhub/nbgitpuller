@@ -5,9 +5,7 @@
     <meta charset="utf-8">
     <title>{% block title %}Jupyter Server{% endblock %}</title>
     {% block favicon %}<link id="favicon" rel="shortcut icon" type="image/x-icon" href="{{ static_url("favicon.ico") }}">{% endblock %}
-    <link rel="stylesheet" href="{{static_url("style/bootstrap.min.css") }}" />
-    <link rel="stylesheet" href="{{static_url("style/bootstrap-theme.min.css") }}" />
-    <link rel="stylesheet" href="{{static_url("style/index.css") }}" />
+    <link rel="stylesheet" href="{{static_url("style/style.min.css") }}" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -16,6 +14,13 @@
 
     {% block meta %}
     {% endblock meta %}
+
+    <style>
+      /* These are hidden by default in page.css for some reason */
+      #header, #site {
+        display: block;
+      }
+    </style>
 </head>
 
 <body class="{% block bodyclasses %}{% endblock %}" {% block params %} {% if logged_in and token %}
@@ -23,15 +28,15 @@
 
   <noscript>
     <div id='noscript'>
-      {% trans %}Jupyter Server requires JavaScript.{% endtrans %}<br>
-      {% trans %}Please enable it to proceed. {% endtrans %}
+      Jupyter Server requires JavaScript.<br>
+      Please enable it to proceed.
     </div>
   </noscript>
 
-  <div id="header" role="navigation" aria-label="{% trans %}Top Menu{% endtrans %}">
+  <div id="header" role="navigation" aria-label="Top Menu">
     <div id="header-container" class="container">
       <div id="jupyter_server" class="nav navbar-brand"><a href="{{default_url}}
-    {%- if logged_in and token -%}?token={{token}}{%- endif -%}" title='{% trans %}dashboard{% endtrans %}'>
+    {%- if logged_in and token -%}?token={{token}}{%- endif -%}" title='dashboard'>
           {% block logo %}<img src='{{static_url("logo/logo.png") }}' alt='Jupyter Server' />{% endblock %}
         </a></div>
 

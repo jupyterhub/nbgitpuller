@@ -7,7 +7,7 @@ Options in an nbgitpuller URL
 .. note::
 
    If you just want to generate an nbgitpuller link, we highly
-   recommend just using the `link generator <https://jupyterhub.github.io/nbgitpuller/link>`_
+   recommend just using the :doc:`link generator <../link>`
 
 Most aspects of the nbgitpuller student experience can be configured
 with various options in the nbgitpuller URL. This page documents
@@ -41,12 +41,12 @@ the file to be opened in.
    the local repository directory too, otherwise nbgitpuller can not
    find the file.
 
-   For example, if the repository you are cloning is 
+   For example, if the repository you are cloning is
    ``https://github.com/my-user/my-repository``, and the file you want
    your students to see is ``index.ipynb``, then ``<full-path-to-file>``
    should be ``my-repository/index.ipynb``, **not** ``index.ipynb``.
 
-   The `link generator <https://jupyterhub.github.io/nbgitpuller/link>`_
+   The :doc:`link generator <../link>`
    takes care of all of this for you, so it is recommended to use that.
 
 

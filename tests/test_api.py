@@ -1,91 +1,132 @@
 import os
 from http.client import HTTPConnection
 import subprocess
-from time import sleep
-from urllib.parse import quote
+import time
+from urllib.parse import urlencode
 from uuid import uuid4
 import pytest
+
+from repohelpers import Pusher, Remote
 
 PORT = os.getenv('TEST_PORT', 18888)
 
 
 def request_api(params, host='localhost'):
+    query_args = {"token": "secret"}
+    query_args.update(params)
+    query = urlencode(query_args)
+    url = f'/git-pull/api?{query}'
     h = HTTPConnection(host, PORT, 10)
-    query = '&'.join('{}={}'.format(k, quote(v)) for (k, v) in params.items())
-    url = '/git-pull/api?token=secret&{}'.format(query)
     h.request('GET', url)
     return h.getresponse()
 
-
-class TestNbGitPullerApi:
-
-    def setup(self):
-        self.jupyter_proc = None
-
-    def teardown(self):
-        if self.jupyter_proc:
-            self.jupyter_proc.kill()
-
-    def start_jupyter(self, jupyterdir, extraenv, backend_type):
-        env = os.environ.copy()
-        env.update(extraenv)
-        if "server" in backend_type:
-            command = [
-                'jupyter-server',
-                '--NotebookApp.token=secret',
-                '--port={}'.format(PORT),
-            ]
+def wait_for_server(host='localhost', port=PORT, timeout=10):
+    """Wait for an HTTP server to be responsive"""
+    t = 0.1
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            h = HTTPConnection(host, port, 10)
+            h.request("GET", "/")
+            r = h.getresponse()
+        except Exception as e:
+            print(f"Server not ready: {e}")
+            time.sleep(t)
+            t *= 2
+            t = min(t, 1)
         else:
-            command = [
-                'jupyter-notebook',
-                '--no-browser',
-                '--NotebookApp.token=secret',
-                '--port={}'.format(PORT),
-            ]
-        self.jupyter_proc = subprocess.Popen(command, cwd=jupyterdir, env=env)
-        sleep(2)
+            # success
+            return
+    assert False, f"Server never showed up at http://{host}:{port}"
 
-    @pytest.mark.parametrize(
-        "backend_type",
-        [
-            ("jupyter-server"),
-            ("jupyter-notebook"),
-        ],
-    )
-    def test_clone_default(self, tmpdir, backend_type):
-        """
-        Tests use of 'repo' and 'branch' parameters.
-        """
-        jupyterdir = str(tmpdir)
-        self.start_jupyter(jupyterdir, {}, backend_type)
+
+@pytest.fixture
+def jupyterdir(tmpdir):
+    path = tmpdir.join("jupyter")
+    path.mkdir()
+    return str(path)
+
+
+@pytest.fixture(params=["jupyter-server", "jupyter-notebook"])
+def jupyter_server(request, tmpdir, jupyterdir):
+    # allow passing extra_env via @pytest.mark.jupyter_server(extra_env={"key": "value"})
+    if "jupyter_server" in request.keywords:
+        extra_env = request.keywords["jupyter_server"].kwargs.get("extra_env")
+    else:
+        extra_env = None
+
+    backend_type = request.param
+
+    env = os.environ.copy()
+    # avoid interacting with user configuration, state
+    env["JUPYTER_CONFIG_DIR"] = str(tmpdir / "dotjupyter")
+    env["JUPYTER_RUNTIME_DIR"] = str(tmpdir / "runjupyter")
+
+    if extra_env:
+        env.update(extra_env)
+
+    if backend_type == "jupyter-server":
+        command = [
+            'jupyter-server',
+            '--ServerApp.token=secret',
+            '--port={}'.format(PORT),
+        ]
+        extension_command = ["jupyter", "server", "extension"]
+    elif backend_type == "jupyter-notebook":
+        command = [
+            'jupyter-notebook',
+            '--no-browser',
+            '--NotebookApp.token=secret',
+            '--port={}'.format(PORT),
+        ]
+        extension_command = ["jupyter", "serverextension"]
+    else:
+        raise ValueError(
+            f"backend_type must be 'jupyter-server' or 'jupyter-notebook' not {backend_type!r}"
+        )
+
+    # enable the extension
+    subprocess.check_call(extension_command + ["enable", "nbgitpuller"], env=env)
+
+    # launch the server
+    jupyter_proc = subprocess.Popen(command, cwd=jupyterdir, env=env)
+    wait_for_server()
+
+    with jupyter_proc:
+        yield jupyter_proc
+        jupyter_proc.terminate()
+
+
+def test_clone_default(jupyterdir, jupyter_server):
+    """
+    Tests use of 'repo' and 'branch' parameters.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
+        print(f'path: {remote.path}')
         params = {
-            'repo': 'https://github.com/binder-examples/jupyter-extension',
+            'repo': remote.path,
             'branch': 'master',
         }
         r = request_api(params)
         assert r.code == 200
         s = r.read().decode()
         print(s)
+        target_path = os.path.join(jupyterdir, os.path.basename(remote.path))
         assert '--branch master' in s
-        assert "Cloning into '{}/{}'".format(jupyterdir, 'jupyter-extension') in s
-        assert os.path.isdir(os.path.join(jupyterdir, 'jupyter-extension', '.git'))
+        assert f"Cloning into '{target_path}" in s
+        assert os.path.isdir(os.path.join(target_path, '.git'))
 
-    @pytest.mark.parametrize(
-        "backend_type",
-        [
-            ("jupyter-server"),
-            ("jupyter-notebook"),
-        ],
-    )
-    def test_clone_targetpath(self, tmpdir, backend_type):
-        """
-        Tests use of 'targetpath' parameter.
-        """
-        jupyterdir = str(tmpdir)
-        target = str(uuid4())
-        self.start_jupyter(jupyterdir, {}, backend_type)
+
+def test_clone_targetpath(jupyterdir, jupyter_server):
+    """
+    Tests use of 'targetpath' parameter.
+    """
+    target = str(uuid4())
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
         params = {
-            'repo': 'https://github.com/binder-examples/jupyter-extension',
+            'repo': remote.path,
             'branch': 'master',
             'targetpath': target,
         }
@@ -93,26 +134,23 @@ class TestNbGitPullerApi:
         assert r.code == 200
         s = r.read().decode()
         print(s)
-        assert "Cloning into '{}/{}'".format(jupyterdir, target) in s
-        assert os.path.isdir(os.path.join(jupyterdir, target, '.git'))
+        target_path = os.path.join(jupyterdir, target)
+        assert f"Cloning into '{target_path}" in s
+        assert os.path.isdir(os.path.join(target_path, '.git'))
 
-    @pytest.mark.parametrize(
-        "backend_type",
-        [
-            ("jupyter-server"),
-            ("jupyter-notebook"),
-        ],
-    )
-    def test_clone_parenttargetpath(self, tmpdir, backend_type):
-        """
-        Tests use of the NBGITPULLER_PARENTPATH environment variable.
-        """
-        jupyterdir = str(tmpdir)
-        parent = str(uuid4())
-        target = str(uuid4())
-        self.start_jupyter(jupyterdir, {'NBGITPULLER_PARENTPATH': parent}, backend_type)
+
+@pytest.mark.jupyter_server(extra_env={'NBGITPULLER_PARENTPATH': "parent"})
+def test_clone_parenttargetpath(jupyterdir, jupyter_server):
+    """
+    Tests use of the NBGITPULLER_PARENTPATH environment variable.
+    """
+    parent = "parent"
+    target = str(uuid4())
+
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
         params = {
-            'repo': 'https://github.com/binder-examples/jupyter-extension',
+            'repo': remote.path,
             'branch': 'master',
             'targetpath': target,
         }
@@ -120,5 +158,6 @@ class TestNbGitPullerApi:
         assert r.code == 200
         s = r.read().decode()
         print(s)
-        assert "Cloning into '{}/{}/{}'".format(jupyterdir, parent, target) in s
-        assert os.path.isdir(os.path.join(jupyterdir, parent, target, '.git'))
+        target_path = os.path.join(jupyterdir, parent, target)
+        assert f"Cloning into '{target_path}" in s
+        assert os.path.isdir(os.path.join(target_path, '.git'))
