@@ -27,7 +27,7 @@ pip install nbgitpuller
 This example shows how to use the [nbgitpuller link generator]
 to create an nbgitpuller link, which a user then clicks.
 
-[nbgitpuller link generator]: https://nbgitpuller.readthedocs.io/link
+[nbgitpuller link generator]: https://nbgitpuller.readthedocs.io/en/latest/link.html
 
 1. The nbgitpuller link generator GUI is used to create a
    link.
