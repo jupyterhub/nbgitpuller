@@ -2,7 +2,6 @@ from tornado import gen, web, locks
 import traceback
 import urllib.parse
 
-from jupyter_server.base.handlers import JupyterHandler
 import threading
 import json
 import os
@@ -11,6 +10,9 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
+from ._compat import get_base_handler
+
+JupyterHandler = get_base_handler()
 
 
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(

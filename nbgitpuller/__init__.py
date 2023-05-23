@@ -1,5 +1,4 @@
 from .version import __version__ # noqa
-from .handlers import SyncHandler, UIHandler, LegacyInteractRedirectHandler, LegacyGitSyncRedirectHandler
 from .pull import GitPuller # noqa
 from jupyter_server.utils import url_path_join
 from tornado.web import StaticFileHandler
@@ -33,6 +32,19 @@ def _load_jupyter_server_extension(app):
     - notebook: https://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Distributing%20Jupyter%20Extensions%20as%20Python%20Packages.html#Example---Server-extension
     - jupyter_server: https://jupyter-server.readthedocs.io/en/latest/developers/extensions.html
     """
+    # identify base handler by app class
+    # must do this before importing from .handlers
+    from ._compat import get_base_handler
+
+    get_base_handler(app)
+
+    from .handlers import (
+        SyncHandler,
+        UIHandler,
+        LegacyInteractRedirectHandler,
+        LegacyGitSyncRedirectHandler,
+    )
+
     web_app = app.web_app
     base_url = url_path_join(web_app.settings['base_url'], 'git-pull')
     handlers = [
