@@ -4,8 +4,8 @@ import logging
 import time
 import argparse
 import datetime
+import zipfile
 from functools import partial
-from hs_restclient import HydroShare
 
 
 def execute_cmd(cmd, **kwargs):
@@ -54,7 +54,11 @@ class HSPuller:
         """
         yield 'Successfully established a connection with HydroShare'
         download_dir = os.environ.get('JUPYTER_DOWNLOADS', 'Downloads')
-        self.hs.getResource(self.id, destination=download_dir, unzip=True)
+
+        downloaded_zip = self.hs.resource(self.id).download(save_path=download_dir)
+        with zipfile.ZipFile(downloaded_zip, 'r') as zip_ref:
+            zip_ref.extractall(download_dir)
+        os.remove(downloaded_zip)
 
         
 class GitPuller:

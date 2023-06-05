@@ -8,7 +8,8 @@ import json
 import os
 from pathlib import Path
 from queue import Queue, Empty
-from hs_restclient import HydroShare, HydroShareAuthBasic, HydroShareAuthOAuth2
+import jinja2
+from hsclient import HydroShare
 from .pull import GitPuller, HSPuller
 from .version import __version__
 import pickle
@@ -304,9 +305,14 @@ class UIHandler(ExtensionHandler):
 
 
 class HSHandler(ExtensionHandler):
-    def check_auth(self, auth):
-        hs = HydroShare(auth=auth)
-        self.log.info("hs=%s" % str(hs))
+    def check_auth(self, authfile=None, username=None, password=None):
+        if authfile:
+            with open(authfile, 'rb') as f:
+                    token, cid = pickle.load(f)
+            hs = HydroShare(client_id=cid, token=token)
+        else:
+            hs = HydroShare(username=username, password=password)
+        self.log.info('hs=%s' % str(hs))
 
         try:
             info = hs.getUserInfo()
@@ -322,13 +328,8 @@ class HSHandler(ExtensionHandler):
         # check for oauth
         authfile = os.path.expanduser("~/.hs_auth")
         try:
-            with open(authfile, "rb") as f:
-                token, cid = pickle.load(f)
-            auth = HydroShareAuthOAuth2(cid, "", token=token)
-            self.log.info("auth=%s" % str(auth))
-
-            hs = self.check_auth(auth)
-            self.log.info("hs=%s" % str(hs))
+            hs = self.check_auth(authfile)
+            self.log.info('hs=%s' % str(hs))
 
             if hs is None:
                 message = url_escape(
@@ -343,8 +344,7 @@ class HSHandler(ExtensionHandler):
             # files in the home directory.
             username, password = _get_user_authentication()
             try:
-                auth = HydroShareAuthBasic(username=username, password=password)
-                hs = self.check_auth(auth)
+                hs = self.check_auth(username=username, password=password)
                 if hs is None:
                     message = url_escape("Login Failed. Please Try again")
             except:
