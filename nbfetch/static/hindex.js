@@ -12,12 +12,12 @@ require([
 
     Terminal.applyAddon(fit);
 
-    function GitSync(baseUrl, id, path) {
+    function GitSync(baseUrl, appUrl, id, path) {
         console.log("HINDEX GitSync");
         // Class that talks to the API backend & emits events as appropriate
-        this.baseUrl = baseUrl;
+        this.appUrl = appUrl;
         this.id = id;
-        this.redirectUrl = baseUrl + path;
+        this.redirectUrl =  baseUrl + path;
         this.callbacks = {};
     }
 
@@ -40,7 +40,7 @@ require([
     GitSync.prototype.start = function() {
         console.log('START');
         // Start git pulling handled by SyncHandler, declared in handlers.py
-        var syncUrl = this.baseUrl + 'hs-pull/api?' + $.param({
+        var syncUrl = this.appUrl + 'hs-pull/api?' + $.param({
             id: this.id
         });
 
@@ -120,6 +120,7 @@ require([
 
     var gs = new GitSync(
         utils.get_body_data('baseUrl'),
+        utils.get_body_data('appUrl'),
         utils.get_body_data('id'),
         utils.get_body_data('path')
     );
