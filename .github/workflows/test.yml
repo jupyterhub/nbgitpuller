@@ -1,0 +1,79 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+#
+name: Tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/docs.yml"
+  push:
+    paths-ignore:
+      - "docs/**"
+      - "**/docs.yml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+    tags: ["**"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.7"
+          - python-version: "3.8"
+            # 2.17 is in ubuntu 18.04
+            git-version: "2.17"
+          - python-version: "3.9"
+            # 2.25 is in ubuntu 20.04
+            git-version: "2.25"
+          - python-version: "3.10"
+            # 2.34 is in ubuntu 22.04
+            git-version: "2.34"
+          - python-version: "3.11"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "${{ matrix.python-version }}"
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "${{ matrix.node-version || '16'}}"
+
+      - name: install git ${{ matrix.git-version }}
+        if: ${{ matrix.git-version }}
+        run: |
+          export MAMBA_ROOT_PREFIX=$/tmp/conda
+          mkdir -p $MAMBA_ROOT_PREFIX/bin
+          curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.4.2 | tar -xvj -C $MAMBA_ROOT_PREFIX/bin/ --strip-components=1 bin/micromamba
+          $MAMBA_ROOT_PREFIX/bin/micromamba install -c conda-forge -p $MAMBA_ROOT_PREFIX "git=${{ matrix.git-version }}"
+          echo "PATH=$MAMBA_ROOT_PREFIX/bin:$PATH" >> $GITHUB_ENV
+
+      - name: git version
+        run: |
+          which git
+          git --version
+
+      - name: Run webpack to build static assets
+        run: |
+          npm install
+          npm run webpack
+
+      - name: Install dependencies
+        run: |
+          pip install -r dev-requirements.txt
+          pip install .
+          pip freeze
+
+      - name: Run tests
+        run: |
+          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller tests

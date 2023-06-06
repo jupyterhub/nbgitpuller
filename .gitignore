@@ -15,3 +15,16 @@ build/
 # python virtual env
 env/
 venv/
+.cache/
+data8assets/
+.autopull_list
+summer/
+test-repo/
+
+.ipynb_checkpoints
+docs/_build
+
+node_modules/
+package-lock.json
+
+nbgitpuller/static/dist

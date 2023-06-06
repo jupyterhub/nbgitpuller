@@ -1,0 +1,18 @@
+{
+  "description": "Dependencies to build nbgitpuller/static/dist/bundle.js from nbgitpuller/static/js/index.js with webpack.",
+  "devDependencies": {
+    "css-loader": "^6.2.0",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.45.1",
+    "webpack-cli": "^4.7.2"
+  },
+  "dependencies": {
+    "xterm": "^4.18.0",
+    "xterm-addon-fit": "^0.5.0",
+    "xterm-addon-web-links": "^0.5.1"
+  },
+  "scripts": {
+    "webpack": "webpack",
+    "webpack:watch": "webpack --watch"
+  }
+}

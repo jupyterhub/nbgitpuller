@@ -1,0 +1,11 @@
+[flake8]
+# Ignore style and complexity
+# E: style errors
+# W: style warnings
+# C: complexity
+# D: docstring warnings (unused pydocstyle extension)
+# F841: local variable assigned but never used
+ignore = E, C, W, D, F841
+exclude =
+    .cache,
+    .github

@@ -5,7 +5,9 @@
 data-base-url="{{ base_url | urlencode }}"
 data-repo="{{ repo | urlencode }}"
 data-path="{{ path | urlencode }}"
-data-branch="{{ branch | urlencode }}"
+{% if branch %}data-branch="{{ branch | urlencode }}"{% endif %}
+{% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
+data-targetpath="{{ targetpath | urlencode }}"
 {% endblock %}
 
 {% block site %}
@@ -32,15 +34,12 @@ data-branch="{{ branch | urlencode }}"
 
 {% block script %}
 {{super()}}
-<script src="{{ base_url }}git-pull/static/index.js?v={{ version }}">
-</script>
+<script src="{{ base_url }}git-pull/static/dist/bundle.js"></script>
 {% endblock %}
 
 {% block stylesheet %}
 {{super()}}
 
-<link rel="stylesheet" href="{{ static_url("terminal/css/override.css") }}" type="text/css" />
-<link rel="stylesheet" href="{{ static_url("components/xterm.js-css/index.css") }}" type="text/css" />
 <style>
 #status-details-container {
     padding: 16px;

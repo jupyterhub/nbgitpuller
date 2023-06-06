@@ -1,0 +1,41 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+#
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "**/docs.yml"
+  push:
+    paths:
+      - "docs/**"
+      - "**/docs.yml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+    tags: ["**"]
+  workflow_dispatch:
+
+env:
+  SPHINXOPTS: --color
+
+jobs:
+  linkcheck:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r docs/doc-requirements.txt
+
+      - name: make linkcheck (Verifies documentation links work)
+        run: |
+          cd docs
+          make linkcheck
