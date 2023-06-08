@@ -37,7 +37,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     platforms="any",
-    install_requires=["notebook>=5.5.0", "tornado", "hsclient", "jupyter_server"],
+    install_requires=["notebook==6.4.6", "tornado", "hsclient", "jupyter_server"],
     extras_require={"develop": ["pytest", "pytest-jupyter"]},
     data_files=[
         ("etc/jupyter/jupyter_server_config.d", ["jupyter-config/jupyter_server_config.d/nbfetch.json"])
