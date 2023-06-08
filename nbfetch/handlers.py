@@ -306,16 +306,16 @@ class UIHandler(ExtensionHandler):
 
 class HSHandler(ExtensionHandler):
     def check_auth(self, authfile=None, username=None, password=None):
-        if authfile:
-            with open(authfile, 'rb') as f:
-                    token, cid = pickle.load(f)
-            hs = HydroShare(client_id=cid, token=token)
-        else:
-            hs = HydroShare(username=username, password=password)
-        self.log.info('hs=%s' % str(hs))
-
         try:
-            info = hs.getUserInfo()
+            if authfile:
+                with open(authfile, 'rb') as f:
+                        token, cid = pickle.load(f)
+                hs = HydroShare(client_id=cid, token=token)
+            else:
+                hs = HydroShare(username=username, password=password)
+            self.log.info('hs=%s' % str(hs))
+
+            info = hs.my_user_info()
             self.settings["hydroshare"] = hs
             self.log.info("info=%s" % info)
         except:
@@ -398,7 +398,7 @@ class HSHandler(ExtensionHandler):
             self.flush()
             return
 
-        path = os.path.join(pathid, id, "data", "contents", start)
+        path = os.path.join(pathid, "data", "contents", start)
         if app.lower() == "lab":
             path = "lab/tree/" + path
         elif path.lower().endswith(".ipynb"):
