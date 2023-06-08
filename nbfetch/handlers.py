@@ -398,7 +398,7 @@ class HSHandler(ExtensionHandler):
             self.flush()
             return
 
-        path = os.path.join(pathid, id, "data", "contents", start)
+        path = os.path.join(pathid, "data", "contents", start)
         if app.lower() == "lab":
             path = "lab/tree/" + path
         elif path.lower().endswith(".ipynb"):
