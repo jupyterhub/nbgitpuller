@@ -397,8 +397,13 @@ class HSHandler(ExtensionHandler):
             self.write(self.render_template("confirm.html", directory=pathid))
             self.flush()
             return
-
-        path = os.path.join(pathid, start)
+        # NBfetch used to download into a duplicated nested directory
+        # Make redirect backward compatible
+        duplicate_nested_dir = os.path.join(pathid, id)
+        if os.path.exists(duplicate_nested_dir):
+            path = os.path.join(duplicate_nested_dir, "data", "contents", start)
+        else:
+            path = os.path.join(pathid, "data", "contents", start)
         if app.lower() == "lab":
             path = "lab/tree/" + path
         elif path.lower().endswith(".ipynb"):
