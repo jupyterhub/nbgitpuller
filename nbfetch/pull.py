@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import logging
 import time
@@ -59,9 +60,9 @@ class HSPuller:
 
         abs_pathid = os.path.join(download_dir, self.id)
         if not abs_pathid.startswith('/'):
-            abs_pathid = '/' + abs_pathid
+            abs_pathid = './' + abs_pathid
         if os.path.exists(abs_pathid):
-            os.rmdir(abs_pathid)
+            shutil.rmtree(abs_pathid)
         with zipfile.ZipFile(downloaded_zip, 'r') as zip_ref:
             zip_ref.extractall(download_dir)
         os.remove(downloaded_zip)
