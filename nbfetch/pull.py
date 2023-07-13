@@ -56,6 +56,11 @@ class HSPuller:
         yield 'Successfully established a connection with HydroShare'
         download_dir = os.environ.get('JUPYTER_DOWNLOADS', 'Downloads')
 
+        # HACK: hsclient does not check if bag is dirty
+        # so request download to the HS api to regenerate the bag in case it is dirty
+        # this .get() can be removed once the following issue is resolved:
+        # https://github.com/hydroshare/hsclient/issues/56
+        _ = self.hs._hs_session.get(f'/hsapi/resource/{self.id}', 200)
         downloaded_zip = self.hs.resource(self.id).download(save_path='.')
 
         abs_pathid = os.path.join(download_dir, self.id)
