@@ -2,7 +2,6 @@ from tornado import gen, web, locks
 import traceback
 import urllib.parse
 
-from notebook.base.handlers import IPythonHandler
 import threading
 import json
 import os
@@ -11,6 +10,9 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
+from ._compat import get_base_handler
+
+JupyterHandler = get_base_handler()
 
 
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
@@ -18,7 +20,7 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
     ),
 )
 
-class SyncHandler(IPythonHandler):
+class SyncHandler(JupyterHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -132,7 +134,7 @@ class SyncHandler(IPythonHandler):
             self.git_lock.release()
 
 
-class UIHandler(IPythonHandler):
+class UIHandler(JupyterHandler):
     @web.authenticated
     async def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
@@ -169,7 +171,7 @@ class UIHandler(IPythonHandler):
         await self.flush()
 
 
-class LegacyGitSyncRedirectHandler(IPythonHandler):
+class LegacyGitSyncRedirectHandler(JupyterHandler):
     """
     The /git-pull endpoint was previously exposed /git-sync.
 
@@ -185,7 +187,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
         self.redirect(new_url)
 
 
-class LegacyInteractRedirectHandler(IPythonHandler):
+class LegacyInteractRedirectHandler(JupyterHandler):
     """
     The /git-pull endpoint was previously exposed /interact.
 

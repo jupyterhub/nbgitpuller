@@ -32,13 +32,13 @@ setup(
     author='Peter Veerman, YuviPanda',
     author_email='peterkangveerman@gmail.com',
     cmdclass=cmdclass,
-    description='Notebook Extension to do one-way synchronization of git repositories',
+    description='Jupyter Extension to do one-way synchronization of git repositories',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     packages=find_packages(),
     include_package_data=True,
     platforms='any',
-    install_requires=['notebook>=5.5.0', 'jupyter_server>=1.10.1', 'tornado'],
+    install_requires=['jupyter_server>=1.10.1', 'tornado'],
     data_files=[
         ('etc/jupyter/jupyter_server_config.d', ['nbgitpuller/etc/jupyter_server_config.d/nbgitpuller.json']),
         ('etc/jupyter/jupyter_notebook_config.d', ['nbgitpuller/etc/jupyter_notebook_config.d/nbgitpuller.json'])

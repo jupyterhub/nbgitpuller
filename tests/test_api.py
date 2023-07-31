@@ -118,6 +118,23 @@ def test_clone_default(jupyterdir, jupyter_server):
         assert os.path.isdir(os.path.join(target_path, '.git'))
 
 
+def test_clone_auth(jupyterdir, jupyter_server):
+    """
+    Tests use of 'repo' and 'branch' parameters.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
+        print(f'path: {remote.path}')
+        params = {
+            'repo': remote.path,
+            'branch': 'master',
+            'token': 'wrong',
+        }
+        r = request_api(params)
+        # no token, redirect to login
+        assert r.code == 302
+
+
 def test_clone_targetpath(jupyterdir, jupyter_server):
     """
     Tests use of 'targetpath' parameter.
