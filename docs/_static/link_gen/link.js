@@ -1,5 +1,5 @@
 // Pure function that generates an nbgitpuller URL
-function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
+function generateRegularUrl(hubUrl, serverPath, urlPath, repoUrl, branch) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
@@ -17,7 +17,12 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
     if (!url.pathname.endsWith('/')) {
         url.pathname += '/'
     }
-    url.pathname += 'hub/user-redirect/git-pull';
+
+    if (serverPath) {
+        url.pathname += 'hub/user-redirect/'+serverPath+'/git-pull';
+    } else {
+        url.pathname += 'hub/user-redirect/git-pull';
+    }
 
     return url.toString();
 }
@@ -160,6 +165,7 @@ function displayLink() {
         var contentRepoUrl = document.getElementById('content-repo').value;
         var contentRepoBranch = document.getElementById('content-branch').value;
         var filePath = document.getElementById('filepath').value;
+        var server = document.getElementById('server').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
         var activeTab = document.querySelector(".nav-link.active").id;
 
@@ -178,7 +184,7 @@ function displayLink() {
 
         if (activeTab === "tab-auth-default") {
             document.getElementById('default-link').value = generateRegularUrl(
-                hubUrl, urlPath, repoUrl, branch
+                hubUrl, server, urlPath, repoUrl, branch
             );
         } else if (activeTab === "tab-auth-canvas"){
             document.getElementById('canvas-link').value = generateCanvasUrl(

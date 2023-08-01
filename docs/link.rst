@@ -172,6 +172,17 @@ Use the following form to create your own ``nbgitpuller`` links.
              </div>
            </div>
 
+           <div class="form-group row" id="server-container">
+            <label for="server" class="col-sm-2 col-form-label">Named Server to open</label>
+            <div class="col-sm-10">
+              <input class="form-control" type="text" id="server" placeholder="NamedServer"
+                oninput="displayLink()">
+              <small class="form-text text-muted">
+                Use for specific <a href="https://jupyterhub.readthedocs.io/en/stable/howto/configuration/config-user-env.html#named-servers">named server</a> Jupyter server instance.
+              </small>
+            </div>
+          </div>
+
        </form>
      </div>
      <br /><br /><br />
