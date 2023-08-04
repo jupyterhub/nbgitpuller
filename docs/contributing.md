@@ -3,7 +3,7 @@
 ## Setup
 
 nbgitpuller is a jupyter extension that works with both the
-[classic Notebook Server](https://jupyter-notebook.readthedocs.io/en/stable/extending/handlers.html),
+[classic Notebook Server](https://nbclassic.readthedocs.io/en/latest/extending/handlers.html),
 and the newer [Jupyter Server](https://jupyter-server.readthedocs.io/en/latest/operators/configuring-extensions.html).
 Hence, nbgitpuller can be developed locally without needing a JupyterHub.
 
