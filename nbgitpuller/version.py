@@ -1,2 +1,4 @@
-""""The nbgitpuller PyPI package SemVer version."""
-__version__ = '1.1.2dev'
+# __version__ should be updated using tbump, based on configuration in
+# pyproject.toml, according to instructions in RELEASE.md.
+#
+__version__ = "1.1.2.dev"

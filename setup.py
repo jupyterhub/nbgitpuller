@@ -1,6 +1,5 @@
 from jupyter_packaging import wrap_installers, npm_builder
 from setuptools import find_packages, setup
-from distutils.util import convert_path
 import os.path
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -17,16 +16,9 @@ cmdclass = wrap_installers(
     pre_develop=jsdeps, pre_dist=jsdeps,
     ensured_targets=jstargets)
 
-# Imports __version__, reference: https://stackoverflow.com/a/24517154/2220152
-ns = {}
-ver_path = convert_path('nbgitpuller/version.py')
-with open(ver_path) as ver_file:
-    exec(ver_file.read(), ns)
-__version__ = ns['__version__']
-
 setup(
     name='nbgitpuller',
-    version=__version__,
+    version="1.1.2.dev",
     url='https://github.com/jupyterhub/nbgitpuller',
     license='3-clause BSD',
     author='Peter Veerman, YuviPanda',
@@ -50,7 +42,7 @@ setup(
         ],
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Operating System :: MacOS',
