@@ -399,7 +399,7 @@ class HSHandler(ExtensionHandler):
             return
         # NBfetch used to download into a duplicated nested directory
         # Make redirect backward compatible
-        duplicate_nested_dir = os.path.join(pathid, id)
+        duplicate_nested_dir = os.path.join(abs_pathid, id)
         path = os.path.join(pathid, "data", "contents", start)
         if os.path.exists(duplicate_nested_dir) and not int(overwrite):
             path = os.path.join(duplicate_nested_dir, "data", "contents", start)
