@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import logging
 import time
@@ -55,7 +56,13 @@ class HSPuller:
         yield 'Successfully established a connection with HydroShare'
         download_dir = os.environ.get('JUPYTER_DOWNLOADS', 'Downloads')
 
-        downloaded_zip = self.hs.resource(self.id).download(save_path=download_dir)
+        downloaded_zip = self.hs.resource(self.id).download(save_path='.')
+
+        abs_pathid = os.path.join(download_dir, self.id)
+        if not abs_pathid.startswith('/'):
+            abs_pathid = './' + abs_pathid
+        if os.path.exists(abs_pathid):
+            shutil.rmtree(abs_pathid)
         with zipfile.ZipFile(downloaded_zip, 'r') as zip_ref:
             zip_ref.extractall(download_dir)
         os.remove(downloaded_zip)

@@ -29,10 +29,14 @@
           <h5 class="modal-title" id="confirmModalLabel">Directory Exists</h5>
         </div>
         <div class="modal-body word-wrap">
-          Directory "{{directory}}" already exists on JupyterHub.
+          This resource already exists on CUAHSI JupyterHub.
           <br><br>
-          Do you want to overwrite the current contents, replacing it with files from HydroShare?
-          Or just go to the current directory on JupyterHub?
+          To replace these files with those currently in Hydroshare, select "Overwrite."
+          <br><br>
+          <strong>NOTE:</strong> This will update the existing resource on JupyterHub to use our new directory structure.
+          This shouldn't affect most workflows.
+          <br><br>
+          If you do not wish to replace these files, select "Go to Directory" to view them.
         </div>
         <div class="modal-footer">
           <button id="overwrite" class="btn btn-danger" data-dismiss="modal">Overwrite</button>
