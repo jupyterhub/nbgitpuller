@@ -5,6 +5,13 @@ from tornado.web import StaticFileHandler
 import os
 
 
+def _jupyter_labextension_paths():
+    return [{
+        "src": "labextension",
+        "dest": "nbgitpuller"
+    }]
+
+
 def _jupyter_server_extension_points():
     """
     This function is detected by `notebook` and `jupyter_server` because they

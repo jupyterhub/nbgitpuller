@@ -22,3 +22,7 @@ node_modules/
 package-lock.json
 
 nbgitpuller/static/dist
+
+nbgitpuller/labextension/
+lib/
+*.tsbuildinfo

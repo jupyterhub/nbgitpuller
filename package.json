@@ -1,18 +1,43 @@
 {
+  "name": "nbgitpuller",
+  "version": "0.1.0",
   "description": "Dependencies to build nbgitpuller/static/dist/bundle.js from nbgitpuller/static/js/index.js with webpack.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}"
+  ],
   "devDependencies": {
+    "@jupyterlab/builder": "~3.5.3",
     "css-loader": "^6.2.0",
     "style-loader": "^3.2.1",
+    "typescript": "~4.1.3",
     "webpack": "^5.45.1",
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
+    "@jupyterlab/application": "~3.5.3",
+    "@jupyterlab/filebrowser": "~3.5.3",
+    "@jupyterlab/services": "~6.5.3",
     "xterm": "^4.18.0",
     "xterm-addon-fit": "^0.5.0",
     "xterm-addon-web-links": "^0.5.1"
   },
+  "resolutions": {
+    "@jupyterlab/docprovider": "~3.5.3",
+    "@jupyterlab/docregistry": "~3.5.3",
+    "@jupyterlab/rendermime-interfaces": "~3.5.3",
+    "@jupyterlab/services": "~6.5.3"
+  },
   "scripts": {
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc",
     "webpack": "webpack",
     "webpack:watch": "webpack --watch"
+  },
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "nbgitpuller/labextension"
   }
 }
