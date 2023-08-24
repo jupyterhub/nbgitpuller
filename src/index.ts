@@ -11,13 +11,18 @@ const assignmentListExtension: JupyterFrontEndPlugin<void> = {
     app: JupyterFrontEnd,
     browserFactory: IFileBrowserFactory
   ) => {
-    const puller = new GithubPuller({
-      browserFactory: browserFactory,
-      contents: app.serviceManager.contents
-    });
+
+    if (!(app.name === 'JupyterLite')) {
+      return;
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const repo = urlParams.get('repo');
+
+    if (!repo) {
+      return;
+    }
+
     const branch = urlParams.get('branch') || 'main';
     let filePath = urlParams.get('urlpath');
 
@@ -27,6 +32,11 @@ const assignmentListExtension: JupyterFrontEndPlugin<void> = {
 
     // TODO: delete the following line as soon as a dedicated url generator is available.
     filePath = '/' + PathExt.relative(`tree/${PathExt.basename(repoUrl.href)}`, filePath);
+
+    const puller = new GithubPuller({
+      browserFactory: browserFactory,
+      contents: app.serviceManager.contents
+    });
 
     puller.clone(repoUrl.href, branch)
       .then(async basePath => {
