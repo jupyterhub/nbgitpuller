@@ -3,17 +3,17 @@ import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { Contents } from "@jupyterlab/services";
 
 
-export class GithubPuller{
+export class GithubPuller {
   constructor(options: Private.IOptions){
     this._browserFactory = options.browserFactory;
     this._contents = options.contents;
   }
 
-  async clone(url: string): Promise<void> {
-    const mainPath = PathExt.basename(url);
-    await this._createTree([mainPath]);
+  async clone(url: string, branch: string): Promise<string> {
+    const basePath = PathExt.basename(url);
+    await this._createTree([basePath]);
 
-    const fetchUrl = `${url}/git/trees/main?recursive=true`;
+    const fetchUrl = `${url}/git/trees/${branch}?recursive=true`;
     const fileList = await fetch(
       fetchUrl,
       {
@@ -34,18 +34,23 @@ export class GithubPuller{
     const files = Object.values(fileList)
       .filter(fileDesc => fileDesc.type === 'blob');
 
-    this._createTree(directories, mainPath)
+    await this._createTree(directories, basePath)
       .then(async () => {
         for (const file of files) {
-          await this._getFile(url, file.path, mainPath);
+          await this._getFile(url, file.path, branch, basePath);
         }
       });
+
+      return basePath;
   }
 
-  private async _createTree(directories: string[], mainPath: string = null) {
+  private async _createTree(
+    directories: string[],
+    basePath: string = null
+  ): Promise<void> {
     directories.sort();
     for (let directory of directories) {
-      directory = mainPath ? PathExt.join(mainPath, directory) : directory
+      directory = basePath ? PathExt.join(basePath, directory) : directory
       const options = {
         type: 'directory' as Contents.ContentType,
         path: PathExt.dirname(directory)
@@ -61,9 +66,14 @@ export class GithubPuller{
     }
   }
 
-  private async _getFile(url:string, filePath: string, mainPath: string = null) {
+  private async _getFile (
+    url:string,
+    filePath: string,
+    branch: string,
+    basePath: string = null
+  ): Promise<void> {
     const { defaultBrowser: browser } = this._browserFactory;
-    const fetchUrl = `${url}/contents/${filePath}`;
+    const fetchUrl = `${url}/contents/${filePath}?ref=${branch}`;
     const downloadUrl = await fetch(
       fetchUrl,
       {
@@ -99,7 +109,7 @@ export class GithubPuller{
     const file = new File([blob], filename, {type});
     await browser.model.upload(file)
       .then(async model => {
-        filePath = mainPath ? PathExt.join(mainPath, filePath) : filePath
+        filePath = basePath ? PathExt.join(basePath, filePath) : filePath
         if (!(model.path === filePath)){
           await this._contents.rename(model.path, filePath);
         }

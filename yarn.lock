@@ -281,6 +281,19 @@
     path-browserify "^1.0.0"
     url-parse "~1.5.1"
 
+"@jupyterlab/coreutils@~5.5.3":
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/@jupyterlab/coreutils/-/coreutils-5.5.3.tgz#3e10a7a94d6c88f10e51cf7b94b76a5d0782a821"
+  integrity sha512-GCAymoQAwscE8MGH7eb366bRxvWawOXKFeyq642SAtl0/xWty8Kem56UfdUdyTCRzxwYW5r1sJuRHBvbTjnvUA==
+  dependencies:
+    "@lumino/coreutils" "^1.11.0"
+    "@lumino/disposable" "^1.10.0"
+    "@lumino/signaling" "^1.10.0"
+    minimist "~1.2.0"
+    moment "^2.24.0"
+    path-browserify "^1.0.0"
+    url-parse "~1.5.1"
+
 "@jupyterlab/docmanager@^3.5.3":
   version "3.6.5"
   resolved "https://registry.yarnpkg.com/@jupyterlab/docmanager/-/docmanager-3.6.5.tgz#a0ce3bfc73748fc128b99588ebea64c4643f1f1c"
