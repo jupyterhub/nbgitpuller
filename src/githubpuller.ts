@@ -32,10 +32,20 @@ export class GithubPuller {
       (fileDesc) => fileDesc.type === "blob",
     );
 
+    const errors = new Map<string, string[]>();
     await this._createTree(directories, basePath).then(async () => {
       for (const file of files) {
-        await this._getFile(url, file.path, branch, basePath);
+        const uploadError = await this._getFile(url, file.path, branch, basePath);
+        if (uploadError) {
+          const files = errors.get(uploadError.type) || [];
+          errors.set(uploadError.type, [...files, uploadError.file]);
+        }
       }
+    });
+    errors.forEach((value, key) => {
+      console.warn(
+        `The following files have not been uploaded.\nCAUSE: ${key}\nFILES: `, value
+      );
     });
 
     return basePath;
@@ -63,12 +73,30 @@ export class GithubPuller {
 
   private async _getFile(
     url: string,
-    filePath: string,
+    fileUrl: string,
     branch: string,
     basePath: string = null,
-  ): Promise<void> {
+  ): Promise<void | Private.uploadError> {
+    const filePath = basePath ? PathExt.join(basePath, fileUrl) : fileUrl;
+
+    // do not upload existing file.
+    let fileExist = false;
+    await this._contents.get(filePath, { content: false })
+      .then(() => {
+        fileExist = true;
+      })
+      .catch(() => undefined);
+
+    if (fileExist) {
+      return {
+        type: 'File already exist',
+        file: filePath
+      };
+    }
+
+    // Upload missing files.
     const { defaultBrowser: browser } = this._browserFactory;
-    const fetchUrl = `${url}/contents/${filePath}?ref=${branch}`;
+    const fetchUrl = `${url}/contents/${fileUrl}?ref=${branch}`;
     const downloadUrl = await fetch(fetchUrl, {
       method: "GET",
       headers: {
@@ -84,7 +112,7 @@ export class GithubPuller {
     const blob = await resp.blob();
     const type = resp.headers.get("Content-Type") ?? "";
 
-    let filename = PathExt.basename(filePath);
+    let filename = PathExt.basename(fileUrl);
     let inc = 0;
     let uniqueFilename = false;
 
@@ -102,7 +130,6 @@ export class GithubPuller {
 
     const file = new File([blob], filename, { type });
     await browser.model.upload(file).then(async (model) => {
-      filePath = basePath ? PathExt.join(basePath, filePath) : filePath;
       if (!(model.path === filePath)) {
         await this._contents.rename(model.path, filePath);
       }
@@ -117,5 +144,10 @@ namespace Private {
   export interface IOptions {
     browserFactory: IFileBrowserFactory;
     contents: Contents.IManager;
+  }
+
+  export interface uploadError {
+    type: string;
+    file: string;
   }
 }
