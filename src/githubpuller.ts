@@ -35,7 +35,12 @@ export class GithubPuller {
     const errors = new Map<string, string[]>();
     await this._createTree(directories, basePath).then(async () => {
       for (const file of files) {
-        const uploadError = await this._getFile(url, file.path, branch, basePath);
+        const uploadError = await this._getFile(
+          url,
+          file.path,
+          branch,
+          basePath,
+        );
         if (uploadError) {
           const files = errors.get(uploadError.type) || [];
           errors.set(uploadError.type, [...files, uploadError.file]);
@@ -44,7 +49,8 @@ export class GithubPuller {
     });
     errors.forEach((value, key) => {
       console.warn(
-        `The following files have not been uploaded.\nCAUSE: ${key}\nFILES: `, value
+        `The following files have not been uploaded.\nCAUSE: ${key}\nFILES: `,
+        value,
       );
     });
 
@@ -81,7 +87,8 @@ export class GithubPuller {
 
     // do not upload existing file.
     let fileExist = false;
-    await this._contents.get(filePath, { content: false })
+    await this._contents
+      .get(filePath, { content: false })
       .then(() => {
         fileExist = true;
       })
@@ -89,8 +96,8 @@ export class GithubPuller {
 
     if (fileExist) {
       return {
-        type: 'File already exist',
-        file: filePath
+        type: "File already exist",
+        file: filePath,
       };
     }
 
