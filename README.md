@@ -41,6 +41,12 @@ Setup development environment
 # clone git repo
 git clone git@github.com:hydroshare/nbfetch.git && cd nbfetch
 
+# if desired, replicate the production jupyterhub environment by creating a conda env
+# for example, if you have the prod conda env in environment.yml:
+conda env update -f environment.yml -n scientific-prod --prune
+conda activate scientific-prod
+conda install pip
+
 # create and activate python environment
 python3 -m venv venv
 source venv/bin/activate
@@ -54,6 +60,9 @@ jupyter server extension enable --py nbfetch
 
 # start jupyter lab
 jupyter lab
+
+# to test fetching, visit the `/nbfetch` url, for example:
+http://127.0.0.1:8888/nbfetch/hs-pull?id=432d503a507e493581d25beb3379471a&res_id=432d503a507e493581d25beb3379471a
 ```
 
 `nbfetch` requires HydroShare user authentication (username, password) or authorization (OAuth2) to
