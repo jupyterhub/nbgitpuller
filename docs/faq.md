@@ -1,6 +1,6 @@
 # Frequently asked questions
 
-## Can I automatically JupyterHub what kind of server to start(node size, profile name, etc) as part of my nbgitpuller link?
+## Can I automatically tell JupyterHub what kind of server to start (node size, profile name, etc) as part of my nbgitpuller link?
 
 You can use Kubespawner's profile_list or ProfileSpawner to allow your
 end users to choose the resources (memory, cpu, GPUs, etc) they want before
