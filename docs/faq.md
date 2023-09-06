@@ -11,13 +11,13 @@ for your students?
 While it would indeed be very nice, this is not currently possible for two
 reasons:
 
-1. nbgitpuller is a Jupyter Server extension, and only runs *after* the server
+1. nbgitpuller is a Jupyter Server extension, and only runs _after_ the server
    is started. It knows nothing about JupyterHub. So it can not influence the
    options JupyterHub uses to start the server.
 2. There is UX complexity in what happens if the user clicks an nbgitpuller
-   link when a server is *already* running, but with a different set of resource
+   link when a server is _already_ running, but with a different set of resource
    requests / profile options. Do we shut that existing one down? Just error? Do
    nothing? Many valid options, but takes a bunch of work.
 
-So while this workflow *is* possible, it would most likely require work in
+So while this workflow _is_ possible, it would most likely require work in
 JupyterHub to make it possible, rather than in nbgitpuller
