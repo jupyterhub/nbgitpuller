@@ -8,7 +8,7 @@ starting their server. Wouldn't it be nice if this information could be
 embedded in the nbgitpuller link, so this (often confusing) choice is made
 for your students?
 
-While it would indeed be very nice, this is not currently not easy for two
+While it would indeed be very nice, this is currently not easy for two
 reasons:
 
 1. nbgitpuller is a Jupyter Server extension, and only runs _after_ the server
