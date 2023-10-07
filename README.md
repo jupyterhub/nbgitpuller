@@ -9,7 +9,7 @@
 
 `nbgitpuller` lets you distribute content in a git repository to your students
 by having them click a simple link. [Automatic
-merging](https://nbgitpuller.readthedocs.io/topic/automatic-merging.html)
+merging](https://nbgitpuller.readthedocs.io/en/latest/topic/automatic-merging.html)
 ensures that your students are never exposed to `git` directly. It is primarily
 used with a JupyterHub, but can also work on students' local computers.
 
