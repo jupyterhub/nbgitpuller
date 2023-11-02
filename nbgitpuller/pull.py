@@ -4,7 +4,7 @@ import logging
 import time
 import argparse
 import datetime
-from traitlets import Integer, default
+from traitlets import Integer, Bool, default
 from traitlets.config import Configurable
 from functools import partial
 
@@ -68,6 +68,7 @@ class GitPuller(Configurable):
         consequence of the tests not starting with a totally clean environment
         where the GitPuller class hadn't been loaded already."""
         return int(os.environ.get('NBGITPULLER_DEPTH', 1))
+
 
     def __init__(self, git_url, repo_dir, **kwargs):
         assert git_url

@@ -1,6 +1,7 @@
 from tornado import gen, web, locks
 import traceback
 import urllib.parse
+from textwrap import dedent
 
 import threading
 import json
@@ -11,6 +12,7 @@ import jinja2
 from .pull import GitPuller
 from .version import __version__
 from ._compat import get_base_handler
+from .config import NbGitPullerFeatures
 
 JupyterHandler = get_base_handler()
 
@@ -46,6 +48,15 @@ class SyncHandler(JupyterHandler):
 
     @web.authenticated
     async def get(self):
+        features = NbGitPullerFeatures(parent=self.settings['nbapp'])
+
+        if not features.enable_targetpath and self.get_argument('targetpath', None) is not None:
+            error_text = dedent("""
+            targetPath is set in the URL, but NbGitPullerFeatures.enable_targetpath is set to False.
+            Please remove targetPath from the URL, or configure NbGitPullerFeatures.enable_targetpath to True.
+            """)
+            raise web.HTTPError(403, error_text)
+
         try:
             await self.git_lock.acquire(1)
         except gen.TimeoutError:
@@ -139,17 +150,34 @@ class UIHandler(JupyterHandler):
     async def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
 
+        features = NbGitPullerFeatures(parent=self.settings['nbapp'])
+
         repo = self.get_argument('repo')
         branch = self.get_argument('branch', None)
         depth = self.get_argument('depth', None)
         urlPath = self.get_argument('urlpath', None) or \
                   self.get_argument('urlPath', None)
-        subPath = self.get_argument('subpath', None) or \
-                  self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
         parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
+
+        # Defaults are set below, as these can be disabled
         targetpath = self.get_argument('targetpath', None) or \
-                     self.get_argument('targetPath', repo.split('/')[-1])
+                     self.get_argument('targetPath', None)
+        subPath = self.get_argument('subpath', None) or \
+                  self.get_argument('subPath', None)
+
+        if not features.enable_targetpath:
+            if targetpath is not None and subPath is not None:
+                error_text = dedent("""
+                targetPath is set in the URL, but NbGitPullerFeatures.enable_targetpath is set to False.
+                Please remove targetPath from the URL, or configure NbGitPullerFeatures.enable_targetpath to True.
+                """)
+                raise web.HTTPError(403, error_text)
+
+        if targetpath is None:
+            targetpath = repo.split('/')[-1]
+        if subPath is None:
+            subPath = '.'
 
         if urlPath:
             path = urlPath
