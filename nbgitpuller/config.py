@@ -15,4 +15,3 @@ class NbGitPullerFeatures(Configurable):
         Set to False to disable, for higher security
         """
     )
-
