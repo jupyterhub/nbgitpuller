@@ -27,7 +27,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - python-version: "3.7"
           - python-version: "3.8"
             # 2.17 is in ubuntu 18.04
             git-version: "2.17"
