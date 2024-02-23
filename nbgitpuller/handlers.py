@@ -78,7 +78,8 @@ class SyncHandler(JupyterHandler):
             # must be expanded.
             repo_parent_dir = os.path.join(os.path.expanduser(self.settings['server_root_dir']),
                                            os.getenv('NBGITPULLER_PARENTPATH', ''))
-            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo.split('/')[-1]))
+            repo_basename = os.path.splitext(os.path.basename(repo))[0]
+            repo_dir = os.path.join(repo_parent_dir, self.get_argument('targetpath', repo_basename))
 
             # We gonna send out event streams!
             self.set_header('content-type', 'text/event-stream')
@@ -154,8 +155,9 @@ class UIHandler(JupyterHandler):
                   self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
         parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
+        repo_basename = os.path.splitext(os.path.basename(repo))[0]
         targetpath = self.get_argument('targetpath', None) or \
-                     self.get_argument('targetPath', repo.split('/')[-1])
+                     self.get_argument('targetPath', repo_basename)
 
         if urlPath:
             path = urlPath
