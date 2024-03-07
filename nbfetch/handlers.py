@@ -45,6 +45,7 @@ class HSLoginHandler(ExtensionHandler):
             "image": urljoin(self.request.uri, "hs-pull/static/hydroshare_logo.png"),
             "error": self.get_argument("error", "Login Needed"),
             "next": self.get_argument("next", "/"),
+            "xsrf_token": self.xsrf_token,
         }
         temp = self.render_template("hslogin.html", **params)
         self.write(temp)
