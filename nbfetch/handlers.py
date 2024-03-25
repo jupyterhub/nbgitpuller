@@ -45,6 +45,7 @@ class HSLoginHandler(ExtensionHandler):
             "image": urljoin(self.request.uri, "hs-pull/static/hydroshare_logo.png"),
             "error": self.get_argument("error", "Login Needed"),
             "next": self.get_argument("next", "/"),
+            "xsrf_token": self.xsrf_token,
         }
         temp = self.render_template("hslogin.html", **params)
         self.write(temp)
@@ -372,9 +373,20 @@ class HSHandler(ExtensionHandler):
         app_env = "notebook"
         self.log.info("HS GET " + str(self.request.uri))
 
-        self.login()
-
         id = self.get_argument("id")
+
+        # check to see if the resource is public
+        hs = HydroShare()
+        try:
+            hs.resource(id)
+            self.log.info(f"Pulling public rid {id}. \
+                          hsclient will remain unauthenticated")
+            self.settings["hydroshare"] = hs
+        except Exception as e:
+            self.log.info(f"Unauthenticated pull for private rid {id} \
+                           failed: {e}")
+            self.login()
+
         start = self.get_argument("start", "")
         app = self.get_argument("app", app_env)
         overwrite = self.get_argument("overwrite", 0)
