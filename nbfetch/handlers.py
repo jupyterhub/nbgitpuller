@@ -22,6 +22,11 @@ from jupyter_server.extension.handler import (
 # typing imports
 from typing import Optional, Tuple
 
+# probably need a varify=False for the hs client session? ssl cert...
+host = "www2-hydroshare.edc.renci.org"
+protocol = "https"
+port = 443
+
 
 class ExtensionHandler(
     ExtensionHandlerMixin, ExtensionHandlerJinjaMixin, JupyterHandler
@@ -311,9 +316,9 @@ class HSHandler(ExtensionHandler):
             if authfile:
                 with open(authfile, 'rb') as f:
                         token, cid = pickle.load(f)
-                hs = HydroShare(client_id=cid, token=token)
+                hs = HydroShare(client_id=cid, token=token, host=host, protocol=protocol, port=port)
             else:
-                hs = HydroShare(username=username, password=password)
+                hs = HydroShare(username=username, password=password, host=host, protocol=protocol, port=port)
             self.log.info('hs=%s' % str(hs))
 
             info = hs.my_user_info()
@@ -376,7 +381,7 @@ class HSHandler(ExtensionHandler):
         id = self.get_argument("id")
 
         # check to see if the resource is public
-        hs = HydroShare()
+        hs = HydroShare(host=host, protocol=protocol, port=port)
         try:
             hs.resource(id)
             self.log.info(f"Pulling public rid {id}. \
@@ -428,7 +433,7 @@ class HSHandler(ExtensionHandler):
             path = urljoin(self.base_url, path)
             self.redirect(path)
             return
-
+        # 
         self.write(
             self.render_template(
                 "hstatus.html",
