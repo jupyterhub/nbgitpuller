@@ -40,13 +40,21 @@ target_version = [
     "py39",
     "py310",
     "py311",
+    "py312",
 ]
 
+
+# pytest is used for running Python based tests
+#
+# ref: https://docs.pytest.org/en/stable/
+#
 [tool.pytest.ini_options]
+addopts = "--verbose --color=yes --durations=10 --cov nbgitpuller"
+asyncio_mode = "auto"
+testpaths = ["tests"]
 markers = [
     "jupyter_server: configure the jupyter_server fixture"
 ]
-
 
 
 # tbump is used to simplify and standardize the release process when updating

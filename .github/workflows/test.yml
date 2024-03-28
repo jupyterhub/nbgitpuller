@@ -38,6 +38,9 @@ jobs:
             # 2.34 is in ubuntu 22.04
             git-version: "2.34"
           - python-version: "3.11"
+          - python-version: "3.12"
+            # 2.43 is in ubuntu 24.04
+            git-version: "2.43"
 
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +50,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "${{ matrix.node-version || '18'}}"
+          node-version: "lts/*"
 
       - name: install git ${{ matrix.git-version }}
         if: ${{ matrix.git-version }}
         run: |
           export MAMBA_ROOT_PREFIX=$/tmp/conda
           mkdir -p $MAMBA_ROOT_PREFIX/bin
-          curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.4.2 | tar -xvj -C $MAMBA_ROOT_PREFIX/bin/ --strip-components=1 bin/micromamba
+          curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.8 | tar -xvj -C $MAMBA_ROOT_PREFIX/bin/ --strip-components=1 bin/micromamba
           $MAMBA_ROOT_PREFIX/bin/micromamba install -c conda-forge -p $MAMBA_ROOT_PREFIX "git=${{ matrix.git-version }}"
           echo "PATH=$MAMBA_ROOT_PREFIX/bin:$PATH" >> $GITHUB_ENV
 
@@ -72,8 +75,11 @@ jobs:
         run: |
           pip install -r dev-requirements.txt
           pip install .
+
+      - name: List dependencies
+        run: |
           pip freeze
 
       - name: Run tests
         run: |
-          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller tests
+          pytest --maxfail=2
