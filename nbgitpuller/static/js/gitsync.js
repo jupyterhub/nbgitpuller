@@ -1,5 +1,5 @@
 export class GitSync {
-    constructor(baseUrl, repo, branch, depth, targetpath, path) {
+    constructor(baseUrl, repo, branch, depth, targetpath, path, xsrf) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
@@ -7,6 +7,7 @@ export class GitSync {
         this.depth = depth;
         this.targetpath = targetpath;
         this.redirectUrl = baseUrl + path;
+        this._xsrf = xsrf;
 
         this.callbacks = {};
     }
@@ -30,6 +31,7 @@ export class GitSync {
     start() {
         // Start git pulling handled by SyncHandler, declared in handlers.py
         let syncUrlParams = new URLSearchParams({
+            _xsrf: this._xsrf,
             repo: this.repo,
             targetpath: this.targetpath
         });
