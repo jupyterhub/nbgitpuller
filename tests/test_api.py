@@ -4,6 +4,7 @@ import subprocess
 import time
 from urllib.parse import urlencode
 from uuid import uuid4
+import notebook
 import pytest
 
 from repohelpers import Pusher, Remote
@@ -65,13 +66,13 @@ def jupyter_server(request, tmpdir, jupyterdir):
     if extra_env:
         env.update(extra_env)
 
+    extension_command = ["jupyter", "server", "extension"]
     if backend_type == "jupyter-server":
         command = [
             'jupyter-server',
             '--ServerApp.token=secret',
             '--port={}'.format(PORT),
         ]
-        extension_command = ["jupyter", "server", "extension"]
     elif backend_type == "jupyter-notebook":
         command = [
             'jupyter-notebook',
@@ -79,7 +80,10 @@ def jupyter_server(request, tmpdir, jupyterdir):
             '--NotebookApp.token=secret',
             '--port={}'.format(PORT),
         ]
-        extension_command = ["jupyter", "serverextension"]
+        # notebook <7 require "jupyter serverextension" instead of "jupyter
+        # server extension"
+        if notebook.version_info[0] < 7:
+            extension_command = ["jupyter", "serverextension"]
     else:
         raise ValueError(
             f"backend_type must be 'jupyter-server' or 'jupyter-notebook' not {backend_type!r}"

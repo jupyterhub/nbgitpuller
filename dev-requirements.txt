@@ -1,6 +1,6 @@
 jupyter-packaging>=0.10
 nbclassic
-notebook>=5.5,<7
+notebook>=5.5
 packaging
 pytest
 pytest-cov
