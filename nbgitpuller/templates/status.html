@@ -5,6 +5,7 @@
 data-base-url="{{ base_url | urlencode }}"
 data-repo="{{ repo | urlencode }}"
 data-path="{{ path | urlencode }}"
+data-xsrf="{{ xsrf_token | urlencode }}"
 {% if branch %}data-branch="{{ branch | urlencode }}"{% endif %}
 {% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
 data-targetpath="{{ targetpath | urlencode }}"
