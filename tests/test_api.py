@@ -136,7 +136,7 @@ def test_clone_auth(jupyterdir, jupyter_server):
         }
         r = request_api(params)
         # no token, redirect to login
-        assert r.code == 302
+        assert r.code == 403
 
 
 def test_clone_targetpath(jupyterdir, jupyter_server):

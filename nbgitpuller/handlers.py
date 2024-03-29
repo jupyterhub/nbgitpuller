@@ -29,6 +29,12 @@ class SyncHandler(JupyterHandler):
         if 'git_lock' not in self.settings:
             self.settings['git_lock'] = locks.Lock()
 
+    def get_login_url(self):
+        # raise on failed auth, not redirect
+        # can't redirect EventStream to login
+        # same as Jupyter's APIHandler
+        raise web.HTTPError(403)
+
     @property
     def git_lock(self):
         return self.settings['git_lock']
