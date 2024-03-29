@@ -18,7 +18,7 @@ cmdclass = wrap_installers(
 
 setup(
     name='nbgitpuller',
-    version="1.2.1",
+    version="1.2.2.dev",
     url='https://github.com/jupyterhub/nbgitpuller',
     license='3-clause BSD',
     author='Peter Veerman, YuviPanda',
