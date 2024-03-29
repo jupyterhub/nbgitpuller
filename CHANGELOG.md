@@ -2,6 +2,8 @@
 
 ### 1.2.1 - 2024-03-29
 
+This release provides compatibility with JupyterHub >=4.1.
+
 ([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.0...1.2.1))
 
 #### Bugs fixed
