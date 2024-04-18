@@ -38,17 +38,25 @@ Use the following form to create your own ``nbgitpuller`` links.
              </ul>
 
              <div class="tab-content">
-               <div class="tab-pane fade show active" id="auth-default" role="tabpanel" aria-labelledby="tab-auth-default" tabindex="0">
-                 <input type="text" readonly class="form-control form-control" id="default-link" name="auth-default-link" placeholder="Generated link appears here...">
-               </div>
-               <div class="tab-pane fade" id="auth-canvas" role="tabpanel" aria-labelledby="tab-auth-canvas"  tabindex="0">
-                 <input type="text" readonly class="form-control form-control" id="canvas-link" name="auth-canvas-link" placeholder="Generated canvas 'external app' link appears here...">
-               </div>
-               <div class="tab-pane fade" id="auth-binder" role="tabpanel" aria-labelledby="tab-auth-binder"  tabindex="0">
-                 <input type="text" readonly class="form-control form-control" id="binder-link" name="auth-binder-link" placeholder="Generated Binder link appears here...">
-               </div>
+              <div class="tab-pane fade show active" id="auth-default" role="tabpanel" aria-labelledby="tab-auth-default" tabindex="0">
+                  <div class="input-group">
+                      <input type="text" readonly class="form-control form-control" id="default-link" name="auth-default-link" placeholder="Generated link appears here...">
+                      <button class="btn btn-outline-secondary" type="button" onclick="copyLink('default-link')">Copy</button>
+                  </div>
+              </div>
+              <div class="tab-pane fade" id="auth-canvas" role="tabpanel" aria-labelledby="tab-auth-canvas" tabindex="0">
+                  <div class="input-group">
+                      <input type="text" readonly class="form-control form-control" id="canvas-link" name="auth-canvas-link" placeholder="Generated canvas 'external app' link appears here...">
+                      <button class="btn btn-outline-secondary" type="button" onclick="copyLink('canvas-link')">Copy</button>
+                  </div>
+              </div>
+              <div class="tab-pane fade" id="auth-binder" role="tabpanel" aria-labelledby="tab-auth-binder" tabindex="0">
+                  <div class="input-group">
+                      <input type="text" readonly class="form-control form-control" id="binder-link" name="auth-binder-link" placeholder="Generated Binder link appears here...">
+                      <button class="btn btn-outline-secondary" type="button" onclick="copyLink('binder-link')">Copy</button>
+                  </div>
+              </div>
              </div>
-           </div>
 
            <div class="form-group row">
              <label for="hub" class="col-sm-2 col-form-label">JupyterHub URL</label>
@@ -191,6 +199,19 @@ Use the following form to create your own ``nbgitpuller`` links.
          // load link javascript on page load
          window.addEventListener("load", linkMain);
      </script>
+    <style>
+      .input-group {
+          display: flex;
+          align-items: center;
+      }
+      .input-group input {
+          flex: 1;
+          margin-right: 5px;
+      }
+      .input-group button {
+          flex-shrink: 0;
+      }
+    </style>
 
 
 **Pre-populating some fields in the link generator**
