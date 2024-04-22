@@ -203,6 +203,7 @@ Use the following form to create your own ``nbgitpuller`` links.
       .input-group {
           display: flex;
           align-items: center;
+          margin: 10px;
       }
       .input-group input {
           flex: 1;
