@@ -286,6 +286,7 @@ function linkMain() {
 
 function copyLink(elementId) {
   var copyText = document.getElementById(elementId);
-  copyText.focus();
+  copyText.select();
+  copyText.setSelectionRange(0, copyText.value.length);
   navigator.clipboard.writeText(copyText.value);
 } 
