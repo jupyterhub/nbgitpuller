@@ -1,4 +1,5 @@
 import os
+import tempfile
 from http.client import HTTPConnection
 import subprocess
 import time
@@ -121,6 +122,55 @@ def test_clone_default(jupyterdir, jupyter_server):
         assert f"Cloning into '{target_path}" in s
         assert os.path.isdir(os.path.join(target_path, '.git'))
 
+
+def test_clone_suffix_dropped(jupyterdir, jupyter_server):
+    """
+    Tests drop of .git suffix from source repo path.
+    """
+    target = str(uuid4())
+    with Remote(path=os.path.join(tempfile.gettempdir(), target + '.git')) as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
+        print(f'path: {remote.path}')
+        params = {
+            'repo': remote.path,
+            'branch': 'master',
+        }
+        r = request_api(params)
+        assert r.code == 200
+        s = r.read().decode()
+        print(s)
+        target_path = os.path.join(jupyterdir, target)
+        assert f"Cloning into '{target_path}" in s
+        assert os.path.isdir(target_path)
+        assert not os.path.isdir(target_path + '.git')
+
+def test_clone_suffix_dropped_legacy(jupyterdir, jupyter_server):
+    """
+    Tests keep using legacy .git suffixed destination directory.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
+        print(f'path: {remote.path}')
+        params = {
+            'repo': remote.path,
+            'branch': 'master',
+        }
+        r = request_api(params)
+        assert r.code == 200
+        s = r.read().decode()
+        print(s)
+        target_path = os.path.join(jupyterdir, os.path.basename(remote.path))
+        assert f"Cloning into '{target_path}" in s
+        assert os.path.isdir(target_path)
+
+        # rename target and run puller again
+        # simulate a cloned repo with nbgitpuller previous version
+        os.rename(target_path, target_path + '.git')
+        r = request_api(params)
+        assert r.code == 200
+        s = r.read().decode()
+        print(s)
+        assert "Already up to date" in s
 
 def test_clone_auth(jupyterdir, jupyter_server):
     """
