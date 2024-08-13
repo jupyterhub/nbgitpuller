@@ -154,8 +154,11 @@ class UIHandler(JupyterHandler):
                   self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
         parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
+        # Remove trailing slashes before determining default targetPath
+        # Otherwise we end up with targetpath being `.`, which always exists (given it is current
+        # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
-                     self.get_argument('targetPath', repo.split('/')[-1])
+                     self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
 
         if urlPath:
             path = urlPath
