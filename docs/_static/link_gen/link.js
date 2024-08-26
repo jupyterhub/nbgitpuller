@@ -1,5 +1,5 @@
 // Pure function that generates an nbgitpuller URL
-function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
+function generateRegularUrl(hubUrl, serverPath, urlPath, repoUrl, branch) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
@@ -17,7 +17,12 @@ function generateRegularUrl(hubUrl, urlPath, repoUrl, branch) {
     if (!url.pathname.endsWith('/')) {
         url.pathname += '/'
     }
-    url.pathname += 'hub/user-redirect/git-pull';
+
+    if (serverPath) {
+        url.pathname += 'hub/user-redirect/'+serverPath+'/git-pull';
+    } else {
+        url.pathname += 'hub/user-redirect/git-pull';
+    }
 
     return url.toString();
 }
@@ -160,6 +165,7 @@ function displayLink() {
         var contentRepoUrl = document.getElementById('content-repo').value;
         var contentRepoBranch = document.getElementById('content-branch').value;
         var filePath = document.getElementById('filepath').value;
+        var server = document.getElementById('server').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
         var activeTab = document.querySelector(".nav-link.active").id;
 
@@ -178,14 +184,14 @@ function displayLink() {
 
         if (activeTab === "tab-auth-default") {
             document.getElementById('default-link').value = generateRegularUrl(
-                hubUrl, urlPath, repoUrl, branch
+                hubUrl, server, urlPath, repoUrl, branch
             );
         } else if (activeTab === "tab-auth-canvas"){
             document.getElementById('canvas-link').value = generateCanvasUrl(
                 hubUrl, urlPath, repoUrl, branch
             );
         } else if (activeTab === "tab-auth-binder"){
-            // FIXME: userName parsing using new URL(...) assumes a 
+            // FIXME: userName parsing using new URL(...) assumes a
             // HTTP based repoUrl. Does it make sense to create a
             // BinderHub link for SSH URLs? Then let's fix this parsing.
             var userName = new URL(repoUrl).pathname.split('/')[1];
@@ -248,7 +254,7 @@ function render() {
 /**
  * Entry point
  */
-function main() {
+function linkMain() {
     // Hook up any changes in form elements to call render()
     document.querySelectorAll('#linkgenerator input[type="radio"]').forEach(
         function (element) {
@@ -265,16 +271,22 @@ function main() {
 
     // Activate tabs based on search parameters
     var params = new URL(window.location).searchParams;
-    if (params.get("tab")) {
-      if (params.get("tab") === "binder") {
-        $("#tab-auth-binder").click()
-      } else if (params.get("tab") === "canvas") {
-        $("#tab-auth-canvas").click()
-      }
+    switch(params.get("tab")) {
+      case "binder":
+        $("#tab-auth-binder").click();
+        break;
+      case "canvas":
+        $("#tab-auth-canvas").click();
+        break;
     }
 
     // Do an initial render, to make sure our disabled / enabled properties are correctly set
     render();
 }
 
-window.onload = main;
+function copyLink(elementId) {
+  var copyText = document.getElementById(elementId);
+  copyText.select();
+  copyText.setSelectionRange(0, copyText.value.length);
+  navigator.clipboard.writeText(copyText.value);
+} 

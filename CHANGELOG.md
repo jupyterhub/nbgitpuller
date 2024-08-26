@@ -1,6 +1,77 @@
-## 1.0
+## 1.2
 
-### 1.1.1
+### 1.2.1 - 2024-03-29
+
+This release provides compatibility with JupyterHub >=4.1.
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.0...1.2.1))
+
+#### Bugs fixed
+
+- 403 on failed auth for EventStream [#347](https://github.com/jupyterhub/nbgitpuller/pull/347) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio))
+- include xsrf token in event stream request [#346](https://github.com/jupyterhub/nbgitpuller/pull/346) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Maintenance and upkeep improvements
+
+- Add test for Python 3.12, jupyter_server 1, notebook 5 and 7, and git 2.43 (ubuntu 24.04) [#345](https://github.com/jupyterhub/nbgitpuller/pull/345) ([@consideRatio](https://github.com/consideRatio), [@minrk](https://github.com/minrk), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Documentation improvements
+
+- Fix automatic merging link in README.md [#328](https://github.com/jupyterhub/nbgitpuller/pull/328) ([@mathbunnyru](https://github.com/mathbunnyru), [@manics](https://github.com/manics))
+- Add a FAQ entry for 'nbgitpuller link selecting profile options' [#322](https://github.com/jupyterhub/nbgitpuller/pull/322) ([@yuvipanda](https://github.com/yuvipanda), [@consideRatio](https://github.com/consideRatio), [@ryanlovett](https://github.com/ryanlovett), [@sgibson91](https://github.com/sgibson91))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2023-08-07&to=2024-03-29&type=c))
+
+@balajialg ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2023-08-07..2024-03-29&type=Issues)) | @consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2023-08-07..2024-03-29&type=Issues)) | @fomightez ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afomightez+updated%3A2023-08-07..2024-03-29&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajtpio+updated%3A2023-08-07..2024-03-29&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2023-08-07..2024-03-29&type=Issues)) | @mathbunnyru ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amathbunnyru+updated%3A2023-08-07..2024-03-29&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aminrk+updated%3A2023-08-07..2024-03-29&type=Issues)) | @ryanlovett ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aryanlovett+updated%3A2023-08-07..2024-03-29&type=Issues)) | @sgibson91 ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Asgibson91+updated%3A2023-08-07..2024-03-29&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2023-08-07..2024-03-29&type=Issues))
+
+### 1.2.0 - 2023-08-07
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.1.1...1.2.0))
+
+#### Enhancements made
+
+- Depend on jupyter-server only, compatibility with jupyter server >= 2, notebook < 7 [#240](https://github.com/jupyterhub/nbgitpuller/pull/240) ([@manics](https://github.com/manics), [@yuvipanda](https://github.com/yuvipanda), [@consideRatio](https://github.com/consideRatio), [@akhmerov](https://github.com/akhmerov), [@minrk](https://github.com/minrk), [@jtpio](https://github.com/jtpio))
+
+#### Bugs fixed
+
+- fix handling of deleted-but-not-staged files with git 2.40 [#302](https://github.com/jupyterhub/nbgitpuller/pull/302) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Maintenance and upkeep improvements
+
+- avoid deprecation warnings in test_api teardown [#301](https://github.com/jupyterhub/nbgitpuller/pull/301) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda))
+- redirect gh-pages to readthedocs [#298](https://github.com/jupyterhub/nbgitpuller/pull/298) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio))
+- migrate docs to RTD [#297](https://github.com/jupyterhub/nbgitpuller/pull/297) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda), [@frankier](https://github.com/frankier))
+- Bootstrap pre-commit config, add dependabot config, test py311 [#288](https://github.com/jupyterhub/nbgitpuller/pull/288) ([@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda))
+- Fix test_exception_branch_exists [#287](https://github.com/jupyterhub/nbgitpuller/pull/287) ([@a3626a](https://github.com/a3626a), [@minrk](https://github.com/minrk), [@yuvipanda](https://github.com/yuvipanda))
+- Make tests work with different default branch, or different locale [#284](https://github.com/jupyterhub/nbgitpuller/pull/284) ([@jdmansour](https://github.com/jdmansour), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Documentation improvements
+
+- Link generator - support generating links for named servers [#309](https://github.com/jupyterhub/nbgitpuller/pull/309) ([@Snozzberries](https://github.com/Snozzberries), [@consideRatio](https://github.com/consideRatio))
+- Update README.md [#306](https://github.com/jupyterhub/nbgitpuller/pull/306) ([@Snozzberries](https://github.com/Snozzberries), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Continuous integration improvements
+
+- dependabot: monthly updates of github actions [#299](https://github.com/jupyterhub/nbgitpuller/pull/299) ([@consideRatio](https://github.com/consideRatio))
+- ci: relocate dependabot.yaml to correct location [#294](https://github.com/jupyterhub/nbgitpuller/pull/294) ([@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2022-11-08&to=2023-08-07&type=c))
+
+@a3626a ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aa3626a+updated%3A2022-11-08..2023-08-07&type=Issues)) | @akhmerov ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aakhmerov+updated%3A2022-11-08..2023-08-07&type=Issues)) | @albertmichaelj ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aalbertmichaelj+updated%3A2022-11-08..2023-08-07&type=Issues)) | @balajialg ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2022-11-08..2023-08-07&type=Issues)) | @consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2022-11-08..2023-08-07&type=Issues)) | @frankier ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afrankier+updated%3A2022-11-08..2023-08-07&type=Issues)) | @jdmansour ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2022-11-08..2023-08-07&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajtpio+updated%3A2022-11-08..2023-08-07&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2022-11-08..2023-08-07&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aminrk+updated%3A2022-11-08..2023-08-07&type=Issues)) | @Snozzberries ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3ASnozzberries+updated%3A2022-11-08..2023-08-07&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2022-11-08..2023-08-07&type=Issues))
+
+## 1.1
+
+### 1.1.1 - 2022-11-08
 
 ([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.1.0...1.1.1))
 
@@ -13,7 +84,7 @@
 - Deal with modify/delete conflicts [#269](https://github.com/jupyterhub/nbgitpuller/pull/269) ([@jdmansour](https://github.com/jdmansour))
 - Fix regression: can't reset some files anymore [#264](https://github.com/jupyterhub/nbgitpuller/pull/264) ([@jdmansour](https://github.com/jdmansour))
 
-#### Other merged PRs
+#### Maintenance and upkeep improvements
 
 - Modernize JS a little [#273](https://github.com/jupyterhub/nbgitpuller/pull/273) ([@yuvipanda](https://github.com/yuvipanda))
 - Remove jquery dependency [#272](https://github.com/jupyterhub/nbgitpuller/pull/272) ([@yuvipanda](https://github.com/yuvipanda))
@@ -29,7 +100,7 @@
 
 [@balajialg](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2022-03-19..2022-11-08&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2022-03-19..2022-11-08&type=Issues) | [@farcila](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afarcila+updated%3A2022-03-19..2022-11-08&type=Issues) | [@jdmansour](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2022-03-19..2022-11-08&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2022-03-19..2022-11-08&type=Issues)
 
-### 1.1.0
+### 1.1.0 - 2022-03-19
 
 ([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.0.2...1.1.0))
 
@@ -67,6 +138,8 @@
 ([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2021-09-02&to=2022-03-18&type=c))
 
 [@akhmerov](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aakhmerov+updated%3A2021-09-02..2022-03-18&type=Issues) | [@brian-rose](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abrian-rose+updated%3A2021-09-02..2022-03-18&type=Issues) | [@choldgraf](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Acholdgraf+updated%3A2021-09-02..2022-03-18&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2021-09-02..2022-03-18&type=Issues) | [@jameshowison](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajameshowison+updated%3A2021-09-02..2022-03-18&type=Issues) | [@jdmansour](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajdmansour+updated%3A2021-09-02..2022-03-18&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2021-09-02..2022-03-18&type=Issues) | [@ryanlovett](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aryanlovett+updated%3A2021-09-02..2022-03-18&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Awelcome+updated%3A2021-09-02..2022-03-18&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2021-09-02..2022-03-18&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AZsailer+updated%3A2021-09-02..2022-03-18&type=Issues)
+
+## 1.0
 
 ### 1.0.2 - 2021-09-03
 

@@ -21,7 +21,8 @@ const gs = new GitSync(
     getBodyData('branch'),
     getBodyData('depth'),
     getBodyData('targetpath'),
-    getBodyData('path')
+    getBodyData('path'),
+    getBodyData('xsrf'),
 );
 
 const gsv = new GitSyncView(

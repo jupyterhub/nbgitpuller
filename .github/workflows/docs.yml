@@ -26,8 +26,8 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -39,31 +39,3 @@ jobs:
         run: |
           cd docs
           make linkcheck
-
-  build-and-publish:
-    runs-on: ubuntu-22.04
-
-    permissions:
-      # required to push to the gh-pages branch
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install -r docs/doc-requirements.txt
-
-      - name: make html (Builds documentation)
-        run: |
-          cd docs
-          make html
-
-      - name: Publish to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        run: |
-          pip install ghp-import
-          ghp-import --no-jekyll --push --message "Update documentation [skip ci]" docs/_build/html

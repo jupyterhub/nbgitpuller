@@ -26,17 +26,47 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-        node-version: ["16"]
+        include:
+          - python-version: "3.7"
+            pip-install: "jupyter_server==1.* notebook==5.*"
+          - python-version: "3.8"
+            pip-install: "jupyter_server==1.* notebook==6.*"
+            # 2.17 is in ubuntu 18.04
+            git-version: "2.17"
+          - python-version: "3.9"
+            # 2.25 is in ubuntu 20.04
+            git-version: "2.25"
+          - python-version: "3.10"
+            # 2.34 is in ubuntu 22.04
+            git-version: "2.34"
+          - python-version: "3.11"
+          - python-version: "3.12"
+            # 2.43 is in ubuntu 24.04
+            git-version: "2.43"
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python-version }}"
-      - uses: actions/setup-node@v3
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: "${{ matrix.node-version }}"
+          node-version: "lts/*"
+
+      - name: install git ${{ matrix.git-version }}
+        if: ${{ matrix.git-version }}
+        run: |
+          export MAMBA_ROOT_PREFIX=$/tmp/conda
+          mkdir -p $MAMBA_ROOT_PREFIX/bin
+          curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.8 | tar -xvj -C $MAMBA_ROOT_PREFIX/bin/ --strip-components=1 bin/micromamba
+          $MAMBA_ROOT_PREFIX/bin/micromamba install -c conda-forge -p $MAMBA_ROOT_PREFIX "git=${{ matrix.git-version }}"
+          echo "PATH=$MAMBA_ROOT_PREFIX/bin:$PATH" >> $GITHUB_ENV
+
+      - name: git version
+        run: |
+          which git
+          git --version
 
       - name: Run webpack to build static assets
         run: |
@@ -45,10 +75,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r dev-requirements.txt
-          pip install .
+          pip install -r dev-requirements.txt ${{ matrix.pip-install }} .
+
+      - name: List dependencies
+        run: |
           pip freeze
 
       - name: Run tests
         run: |
-          pytest --verbose --maxfail=2 --color=yes --cov nbgitpuller
+          pytest --maxfail=2

@@ -7,6 +7,7 @@ import shutil
 import subprocess as sp
 from uuid import uuid4
 
+from packaging.version import Version as V
 from nbgitpuller import GitPuller
 
 
@@ -18,7 +19,14 @@ class Repository:
 
     def __enter__(self):
         os.makedirs(self.path, exist_ok=True)
-        self.git('init', '--bare', '--initial-branch=master')
+
+        # --initial-branch added in git 2.28
+        git_version = self.git("--version").split()[-1]
+        if V(git_version) >= V("2.28"):
+            extra_args = ('--initial-branch=master',)
+        else:
+            extra_args = ()
+        self.git('init', '--bare', *extra_args)
         return self
 
     def __exit__(self, *args):

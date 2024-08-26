@@ -10,9 +10,7 @@ It is commonly used to distribute content to multiple users of a JupyterHub, tho
 
 Here's an example of `nbgitpuller` in action:
 
-1. The [nbgitpuller link
-   generator](https://jupyterhub.github.io/nbgitpuller/link) is used to create a
-   link.
+1. The [nbgitpuller link generator](link) is used to create a link.
 
    ```{image} _static/nbgitpuller-link-generator.png
 
@@ -71,5 +69,6 @@ contributing
 topic/automatic-merging
 topic/url-options
 topic/repo-best-practices
+faq
 link
 ```

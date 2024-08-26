@@ -2,7 +2,6 @@ from tornado import gen, web, locks
 import traceback
 import urllib.parse
 
-from notebook.base.handlers import IPythonHandler
 import threading
 import json
 import os
@@ -11,6 +10,9 @@ import jinja2
 
 from .pull import GitPuller
 from .version import __version__
+from ._compat import get_base_handler
+
+JupyterHandler = get_base_handler()
 
 
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
@@ -18,7 +20,7 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
     ),
 )
 
-class SyncHandler(IPythonHandler):
+class SyncHandler(JupyterHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -26,6 +28,12 @@ class SyncHandler(IPythonHandler):
         # can be happening at a time. Git doesn't like concurrent use!
         if 'git_lock' not in self.settings:
             self.settings['git_lock'] = locks.Lock()
+
+    def get_login_url(self):
+        # raise on failed auth, not redirect
+        # can't redirect EventStream to login
+        # same as Jupyter's APIHandler
+        raise web.HTTPError(403)
 
     @property
     def git_lock(self):
@@ -146,7 +154,7 @@ USED_UI_ARGUMENTS = frozenset((
 ))
 
 
-class UIHandler(IPythonHandler):
+class UIHandler(JupyterHandler):
     @web.authenticated
     async def get(self):
         app_env = os.getenv('NBGITPULLER_APP', default='notebook')
@@ -160,8 +168,11 @@ class UIHandler(IPythonHandler):
                   self.get_argument('subPath', '.')
         app = self.get_argument('app', app_env)
         parent_reldir = os.getenv('NBGITPULLER_PARENTPATH', '')
+        # Remove trailing slashes before determining default targetPath
+        # Otherwise we end up with targetpath being `.`, which always exists (given it is current
+        # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
-                     self.get_argument('targetPath', repo.split('/')[-1])
+                     self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
 
         if urlPath:
             path = urlPath
@@ -201,7 +212,7 @@ class UIHandler(IPythonHandler):
         return targetpath
 
 
-class LegacyGitSyncRedirectHandler(IPythonHandler):
+class LegacyGitSyncRedirectHandler(JupyterHandler):
     """
     The /git-pull endpoint was previously exposed /git-sync.
 
@@ -217,7 +228,7 @@ class LegacyGitSyncRedirectHandler(IPythonHandler):
         self.redirect(new_url)
 
 
-class LegacyInteractRedirectHandler(IPythonHandler):
+class LegacyInteractRedirectHandler(JupyterHandler):
     """
     The /git-pull endpoint was previously exposed /interact.
 
