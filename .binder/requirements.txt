@@ -1,0 +1,3 @@
+# .binder/requirements.txt helps us test use of nbgitpuller via mybinder.org by
+# the click of a link, that we also provide for PRs
+.
