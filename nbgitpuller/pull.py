@@ -69,18 +69,18 @@ class GitPuller(Configurable):
         where the GitPuller class hadn't been loaded already."""
         return int(os.environ.get('NBGITPULLER_DEPTH', 1))
 
-    def __init__(self, git_url, repo_dir, **kwargs):
+    def __init__(self, git_url, repo_dir, branch, **kwargs):
         assert git_url
 
         self.git_url = git_url
-        self.branch_name = kwargs.pop("branch")
+        self.repo_dir = repo_dir
+        self.branch_name = branch
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
         elif not self.branch_exists(self.branch_name):
             raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
-        self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
 
@@ -361,7 +361,7 @@ def main():
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
-        branch=args.branch_name if args.branch_name else None
+        args.branch_name if args.branch_name else None
     ).pull():
         print(line)
 
