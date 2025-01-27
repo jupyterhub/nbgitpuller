@@ -1,5 +1,23 @@
 ## 1.2
 
+### 1.2.2 - 2025-01-27
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.1...1.2.2))
+
+#### New features added
+
+- Add copy button for link generator [#349](https://github.com/jupyterhub/nbgitpuller/pull/349) ([@jrdnbradford](https://github.com/jrdnbradford))
+
+#### Bugs fixed
+
+- Update style-sheet links to reflect those from `jupyter-server` [#359](https://github.com/jupyterhub/nbgitpuller/pull/359) ([@possiblyMikeB](https://github.com/possiblyMikeB))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2024-03-29&to=2025-01-27&type=c))
+
+[@agoose77](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aagoose77+updated%3A2024-03-29..2025-01-27&type=Issues) | [@batpad](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abatpad+updated%3A2024-03-29..2025-01-27&type=Issues) | [@betatim](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abetatim+updated%3A2024-03-29..2025-01-27&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2024-03-29..2025-01-27&type=Issues) | [@frankier](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Afrankier+updated%3A2024-03-29..2025-01-27&type=Issues) | [@jrdnbradford](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajrdnbradford+updated%3A2024-03-29..2025-01-27&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2024-03-29..2025-01-27&type=Issues) | [@possiblyMikeB](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3ApossiblyMikeB+updated%3A2024-03-29..2025-01-27&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Apre-commit-ci+updated%3A2024-03-29..2025-01-27&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Awelcome+updated%3A2024-03-29..2025-01-27&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2024-03-29..2025-01-27&type=Issues)
+
 ### 1.2.1 - 2024-03-29
 
 This release provides compatibility with JupyterHub >=4.1.
