@@ -8,7 +8,7 @@ import subprocess as sp
 from uuid import uuid4
 
 from packaging.version import Version as V
-from nbgitpuller import GitPuller
+from nbgitpuller.pull import GitPuller
 
 
 class Repository:
