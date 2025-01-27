@@ -37,7 +37,7 @@ There are several ways to generate an `nbgitpuller` link.
 The two easiest ways to do so are:
 
 - Via a browser extension to generate links directly from your repository ([Chrome extension](https://chrome.google.com/webstore/detail/nbgitpuller-link-generato/hpdbdpklpmppnoibabdkkhnfhkkehgnc), [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/nbgitpuller-link-generator/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
-- Via a GUI web-app [at `nbgitpuller.link`](http://nbgitpuller.link)
+- Via a GUI web-app at [](link.rst)
 
 Fore more information about generating nbgitpuller links, see [](use.md).
 
