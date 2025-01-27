@@ -32,7 +32,7 @@ See the links below to download the extension.
 
 You can also create an `nbgitpuller` link via a GUI web app at the below link:
 
-[nbgitpuller.link](http://nbgitpuller.link)
+[](link.rst)
 
 This contains a simple web form where you paste the location of the content you'd like your users to pull, and it will generate a link for you to distribute.
 
