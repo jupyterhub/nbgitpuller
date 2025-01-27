@@ -66,7 +66,7 @@ markers = [
 github_url = "https://github.com/jupyterhub/nbgitpuller"
 
 [tool.tbump.version]
-current = "1.2.2.dev"
+current = "1.2.2"
 regex = '''
     (?P<major>\d+)
     \.
