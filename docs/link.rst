@@ -180,6 +180,17 @@ Use the following form to create your own ``nbgitpuller`` links.
              </div>
            </div>
 
+           <div class="form-group row">
+             <label for="targetPath" class="col-sm-2 col-form-label">Target Path</label>
+             <div class="col-sm-10">
+               <input class="form-control" type="text" id="targetPath" placeholder="(optional) Directory to clone into"
+                 oninput="displayLink()">
+               <small class="form-text text-muted">
+                 Directory to clone the repository into. If left blank, the repo will be cloned into a directory named after the repository.
+               </small>
+             </div>
+           </div>
+
            <div class="form-group row" id="server-container">
             <label for="server" class="col-sm-2 col-form-label">Named Server to open</label>
             <div class="col-sm-10">

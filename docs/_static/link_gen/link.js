@@ -1,5 +1,5 @@
 // Pure function that generates an nbgitpuller URL
-function generateRegularUrl(hubUrl, serverPath, urlPath, repoUrl, branch) {
+function generateRegularUrl(hubUrl, serverPath, urlPath, repoUrl, branch, targetPath) {
 
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
@@ -12,6 +12,10 @@ function generateRegularUrl(hubUrl, serverPath, urlPath, repoUrl, branch) {
 
     if (branch) {
         url.searchParams.set('branch', branch);
+    }
+
+    if (targetPath) {
+        url.searchParams.set('targetPath', targetPath);
     }
 
     if (!url.pathname.endsWith('/')) {
@@ -27,7 +31,7 @@ function generateRegularUrl(hubUrl, serverPath, urlPath, repoUrl, branch) {
     return url.toString();
 }
 
-function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
+function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch, targetPath) {
     // assume hubUrl is a valid URL
     var url = new URL(hubUrl);
 
@@ -43,6 +47,10 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
         nextUrlParams.append('branch', branch);
     }
 
+    if (targetPath) {
+        nextUrlParams.append('targetPath', targetPath);
+    }
+
     var nextUrl = '/hub/user-redirect/git-pull?' + nextUrlParams.toString();
 
     if (!url.pathname.endsWith('/')) {
@@ -55,7 +63,7 @@ function generateCanvasUrl(hubUrl, urlPath, repoUrl, branch) {
 }
 
 function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
-    contentRepoUrl, contentRepoBranch) {
+    contentRepoUrl, contentRepoBranch, targetPath) {
 
     var url = new URL(hubUrl);
 
@@ -69,6 +77,10 @@ function generateBinderUrl(hubUrl, userName, repoName, branch, urlPath,
 
     if (contentRepoBranch) {
         nextUrlParams.append('branch', contentRepoBranch);
+    }
+
+    if (targetPath) {
+        nextUrlParams.append('targetPath', targetPath);
     }
 
     var nextUrl = 'git-pull?' + nextUrlParams.toString();
@@ -168,6 +180,7 @@ function displayLink() {
         var server = document.getElementById('server').value;
         var appName = form.querySelector('input[name="app"]:checked').value;
         var activeTab = document.querySelector(".nav-link.active").id;
+        var targetPath = document.getElementById('targetPath').value;
 
         if (appName === 'custom') {
             var urlPath = document.getElementById('urlpath').value;
@@ -184,11 +197,11 @@ function displayLink() {
 
         if (activeTab === "tab-auth-default") {
             document.getElementById('default-link').value = generateRegularUrl(
-                hubUrl, server, urlPath, repoUrl, branch
+                hubUrl, server, urlPath, repoUrl, branch, targetPath
             );
         } else if (activeTab === "tab-auth-canvas"){
             document.getElementById('canvas-link').value = generateCanvasUrl(
-                hubUrl, urlPath, repoUrl, branch
+                hubUrl, urlPath, repoUrl, branch, targetPath
             );
         } else if (activeTab === "tab-auth-binder"){
             // FIXME: userName parsing using new URL(...) assumes a
@@ -196,7 +209,7 @@ function displayLink() {
             // BinderHub link for SSH URLs? Then let's fix this parsing.
             var userName = new URL(repoUrl).pathname.split('/')[1];
             document.getElementById('binder-link').value = generateBinderUrl(
-                hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch
+                hubUrl, userName, repoName, branch, urlPath, contentRepoUrl, contentRepoBranch, targetPath
             );
         }
     }
@@ -289,4 +302,4 @@ function copyLink(elementId) {
   copyText.select();
   copyText.setSelectionRange(0, copyText.value.length);
   navigator.clipboard.writeText(copyText.value);
-} 
+}
