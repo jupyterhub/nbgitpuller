@@ -22,6 +22,10 @@ information.
 pip install nbgitpuller
 ```
 
+### Configuration
+
+Copy `jupyter_git_pull_config.py` to one of your Jupyter configuration paths (as determined from `jupyter --paths`) and edit it to meet your needs.
+
 ## Example
 
 This example shows how to use the [nbgitpuller link generator]
