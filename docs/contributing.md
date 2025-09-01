@@ -42,7 +42,6 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
    ```
 
 7. Enable the nbgitpuller extension:
-
    - as a jupyter serverextension (classic Notebook Server extension)
 
      ```bash
@@ -55,7 +54,6 @@ Hence, nbgitpuller can be developed locally without needing a JupyterHub.
      ```
 
 8. Start the notebook server:
-
    - You can either start the classical Notebook server.
      This will open the classic notebook in your web
      browser, and automatically authenticate you as a side effect.
