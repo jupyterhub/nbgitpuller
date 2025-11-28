@@ -28,7 +28,8 @@ const gs = new GitSync(
 const gsv = new GitSyncView(
     '#status-details',
     '#status-panel-title',
-    '#status-panel-toggle'
+    '#status-panel-toggle',
+    '#recovery-link'
 );
 
 gs.addHandler('syncing', function(data) {
