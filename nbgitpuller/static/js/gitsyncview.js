@@ -59,10 +59,14 @@ export class GitSyncView{
     setProgressError(isError) {
         if (isError) {
             this.progress.classList.add('progress-bar-danger');
-            this.recovery.classList.remove('hidden');
         } else {
             this.progress.classList.remove('progress-bar-danger');
-            this.recovery.classList.add('hidden');
+        }
+    }
+
+    setRecoveryLink(isError) {
+        if (isError) {
+            this.recovery.classList.toggle('hidden', !visible);
         }
     }
 }

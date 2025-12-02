@@ -46,6 +46,7 @@ gs.addHandler('error', function(data) {
     gsv.setProgressValue(100);
     gsv.setProgressText('Error: ' + data.message);
     gsv.setProgressError(true);
+    gsv.setRecoveryLink(true);
     gsv.setTerminalVisibility(true);
     if (data.output) {
         gsv.term.write(data.output);
