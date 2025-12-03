@@ -28,7 +28,8 @@ const gs = new GitSync(
 const gsv = new GitSyncView(
     '#status-details',
     '#status-panel-title',
-    '#status-panel-toggle'
+    '#status-panel-toggle',
+    '#recovery-link'
 );
 
 gs.addHandler('syncing', function(data) {
@@ -45,6 +46,7 @@ gs.addHandler('error', function(data) {
     gsv.setProgressValue(100);
     gsv.setProgressText('Error: ' + data.message);
     gsv.setProgressError(true);
+    gsv.setRecoveryLink(true);
     gsv.setTerminalVisibility(true);
     if (data.output) {
         gsv.term.write(data.output);

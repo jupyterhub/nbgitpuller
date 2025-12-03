@@ -4,7 +4,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 
 export class GitSyncView{
-    constructor(termSelector, progressSelector, termToggleSelector) {
+    constructor(termSelector, progressSelector, termToggleSelector, recoverySelector) {
         // Class that encapsulates view rendering as much as possible
         this.term = new Terminal({
             convertEol: true
@@ -18,6 +18,7 @@ export class GitSyncView{
 
         this.termToggle = document.querySelector(termToggleSelector);
         this.termElement = document.querySelector(termSelector);
+        this.recovery = document.querySelector(recoverySelector);
 
         this.termToggle.onclick = () => this.setTerminalVisibility(!this.visible)
     }
@@ -60,6 +61,12 @@ export class GitSyncView{
             this.progress.classList.add('progress-bar-danger');
         } else {
             this.progress.classList.remove('progress-bar-danger');
+        }
+    }
+
+    setRecoveryLink(isError) {
+        if (isError) {
+            this.recovery.classList.toggle('hidden', !visible);
         }
     }
 }

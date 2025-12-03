@@ -29,7 +29,10 @@ data-targetpath="{{ targetpath | urlencode }}"
     <div class="panel-body hidden" id="status-details-container">
             <div id="status-details"></div>
     </div>
-    </div>
+</div>
+<div id="recovery-link" class="hidden">
+    <a class="btn btn-warning" href="{{ base_url }}" aria-label="Go to the Jupyter server without synchronizing content">Proceed to server without synchronizing</a>
+</div>
 </div>
 {% endblock %}
 
