@@ -133,6 +133,30 @@ class GitPuller(Configurable):
             logging.exception(m)
             raise ValueError(m)
 
+    def check_and_update_remote(self):
+        """
+        Checks the Git remote URL and update it if deprecated
+
+        Only allows update of creds in URL e.g. access token.
+        Git repo must be unchanged.
+        """
+        remote_url = subprocess.run(
+            ["git", "config", "remote.origin.url"],
+            cwd=self.repo_dir,
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+
+        if (
+            "@" in self.git_url and "@" in remote_url
+            and self.git_url.rsplit("@", 1)[0] != remote_url.rsplit("@", 1)[0]
+        ):
+            subprocess.run(
+                ["git", "remote", "set-url", "origin", self.git_url],
+                cwd=self.repo_dir
+            )
+
     def pull(self):
         """
         Pull selected repo from a remote git repository,
@@ -141,6 +165,7 @@ class GitPuller(Configurable):
         if not os.path.exists(self.repo_dir):
             yield from self.initialize_repo()
         else:
+            self.check_and_update_remote()
             yield from self.update()
 
     def initialize_repo(self):
