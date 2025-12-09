@@ -1,0 +1,18 @@
+name: binder-badge
+on:
+  pull_request_target:
+
+jobs:
+  badge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: manics/action-binderbadge@v1.0.0
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          persistentLink: false
+          updateDescription: true
+          urlpath: git-pull?repo=https%3A%2F%2Fgithub.com%2Fjupyterhub%2Fnbgitpuller&urlpath=lab%2Ftree%2FREADME.md&branch=main
