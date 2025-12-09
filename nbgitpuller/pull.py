@@ -89,18 +89,40 @@ class GitPuller(Configurable):
         This checks to make sure the branch we are told to access
         exists in the repo
         """
-        heads = subprocess.run(
-            ["git", "ls-remote", "--heads", "--", self.git_url],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        tags = subprocess.run(
-            ["git", "ls-remote", "--tags", "--", self.git_url],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        try: 
+            heads = subprocess.run(
+                ["git", "ls-remote", "--heads", "--", self.git_url],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            sout = e.stdout if e.stdout else ''
+            serr = e.stderr if e.stderr else ''
+            m = f"Problem checking known branches: {self.git_url}"
+            if sout:
+                m = f"{m}: {sout}"
+            if serr:
+                m = f"{m}; {serr}"
+            logging.exception(m)
+            raise ValueError(m)
+        try:
+            tags = subprocess.run(
+                ["git", "ls-remote", "--tags", "--", self.git_url],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            sout = e.stdout if e.stdout else ''
+            serr = e.stderr if e.stderr else ''
+            m = f"Problem checking known tags: {self.git_url}"
+            if sout:
+                m = f"{m}: {sout}"
+            if serr:
+                m = f"{m}; {serr}"
+            logging.exception(m)
+            raise ValueError(m)
         lines = heads.stdout.splitlines() + tags.stdout.splitlines()
         branches = []
         for line in lines:
@@ -128,8 +150,14 @@ class GitPuller(Configurable):
                     refs, heads, branch_name = ref.split("/", 2)
                     return branch_name
             raise ValueError(f"default branch not found in {self.git_url}")
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            sout = e.stdout if e.stdout else ''
+            serr = e.stderr if e.stderr else ''
             m = f"Problem accessing HEAD branch: {self.git_url}"
+            if sout:
+                m = f"{m}: {sout}"
+            if serr:
+                m = f"{m}; {serr}"
             logging.exception(m)
             raise ValueError(m)
 
