@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import logging
 import time
@@ -69,18 +70,21 @@ class GitPuller(Configurable):
         where the GitPuller class hadn't been loaded already."""
         return int(os.environ.get('NBGITPULLER_DEPTH', 1))
 
-    def __init__(self, git_url, repo_dir, **kwargs):
+    def __init__(self, git_url, repo_dir, branch, **kwargs):
         assert git_url
 
         self.git_url = git_url
-        self.branch_name = kwargs.pop("branch")
+        self.repo_dir = repo_dir
+        self.branch_name = branch
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
         elif not self.branch_exists(self.branch_name):
             raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
-        self.repo_dir = repo_dir
+        self.autorun_allow = kwargs.pop('autorun_allow', False)
+        self.autorun_script = kwargs.pop('autorun_script', [])
+
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
 
@@ -143,6 +147,30 @@ class GitPuller(Configurable):
         else:
             yield from self.update()
 
+    def autorun(self, operation="method"):
+        """
+        Search for and execute the autorun script.
+        """
+
+        if not self.autorun_allow:
+            return
+        if not any(( re.fullmatch(pattern, self.git_url) for pattern in self.autorun_allow )):
+            logging.info('autorun skipped, URL does not match any rules')
+            return
+
+        script = next(( s for s in self.autorun_script if os.access(os.path.join(self.repo_dir, s), os.X_OK)), None)
+        if not script:
+            logging.info('autorun skipped, no matching (executable) script')
+            return
+
+        try:
+            for line in execute_cmd([ os.path.join(self.repo_dir, script), operation ], cwd=self.repo_dir, close_fds=True):
+                yield line
+        except subprocess.CalledProcessError:
+            m = f"Problem autorunning {script}"
+            logging.exception(m)
+            raise ValueError(m)
+
     def initialize_repo(self):
         """
         Clones repository
@@ -154,6 +182,7 @@ class GitPuller(Configurable):
         clone_args.extend(['--branch', self.branch_name])
         clone_args.extend(["--", self.git_url, self.repo_dir])
         yield from execute_cmd(clone_args)
+        yield from self.autorun('init')
         logging.info('Repo {} initialized'.format(self.repo_dir))
 
     def reset_deleted_files(self):
@@ -343,6 +372,8 @@ class GitPuller(Configurable):
         yield from self.ensure_lock()
         yield from self.merge()
 
+        yield from self.autorun('update')
+
 
 def main():
     """
@@ -361,7 +392,7 @@ def main():
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
-        branch=args.branch_name if args.branch_name else None
+        args.branch_name if args.branch_name else None
     ).pull():
         print(line)
 

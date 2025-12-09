@@ -7,12 +7,11 @@ import json
 import os
 from queue import Queue, Empty
 import jinja2
+from jupyter_server.base.handlers import JupyterHandler
+from jupyter_server.extension.handler import ExtensionHandlerMixin
 
 from .pull import GitPuller
 from .version import __version__
-from ._compat import get_base_handler
-
-JupyterHandler = get_base_handler()
 
 
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
@@ -20,9 +19,11 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(
     ),
 )
 
-class SyncHandler(JupyterHandler):
+class SyncHandler(ExtensionHandlerMixin, JupyterHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.log.info(f'Config {self.config}')
 
         # We use this lock to make sure that only one sync operation
         # can be happening at a time. Git doesn't like concurrent use!
@@ -84,7 +85,7 @@ class SyncHandler(JupyterHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+            gp = GitPuller(repo, repo_dir, branch, depth=depth, **self.config)
 
             q = Queue()
 
