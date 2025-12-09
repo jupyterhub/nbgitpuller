@@ -12,7 +12,7 @@ data-targetpath="{{ targetpath | urlencode }}"
 {% endblock %}
 
 {% block site %}
-<div class="container"">
+<div class="container">
     <div class="page-header">
         Synchronizing <a href="{{ repo }}">git repository</a> before sending you to <strong>{{ path }}...</strong>
     </div>
@@ -30,8 +30,15 @@ data-targetpath="{{ targetpath | urlencode }}"
             <div id="status-details"></div>
     </div>
 </div>
-<div id="recovery-link" class="hidden">
-    <a class="btn btn-warning" href="{{ base_url }}" aria-label="Go to the Jupyter server without synchronizing content">Proceed to server without synchronizing</a>
+<div id="container-error" class="container hidden">
+    <div class="row">
+        <div id="recovery-link" class="col-xs-6 pull-left">
+            <a class="btn btn-warning" href="{{ base_url }}" aria-label="Go to the Jupyter server without synchronizing content">Proceed to server without synchronizing</a>
+        </div>
+        <div id="copy-error" class="col-xs-6 pull-right text-right">
+            <button class="btn btn-danger" id="copy-error-button" aria-label="Copy error details to clipboard">Copy error to clipboard</button>
+        </div>
+    </div>
 </div>
 </div>
 {% endblock %}
@@ -74,5 +81,12 @@ data-targetpath="{{ targetpath | urlencode }}"
     width: 100%;
     color: black;
 }
+
+#container-error {
+    margin-right: 0px;
+    padding-left: 0px;
+    padding-right: 30px;
+}
+
 </style>
 {% endblock %}

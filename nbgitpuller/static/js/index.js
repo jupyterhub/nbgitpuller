@@ -29,7 +29,8 @@ const gsv = new GitSyncView(
     '#status-details',
     '#status-panel-title',
     '#status-panel-toggle',
-    '#recovery-link'
+    '#container-error',
+    '#copy-error-button',
 );
 
 gs.addHandler('syncing', function(data) {
@@ -46,10 +47,14 @@ gs.addHandler('error', function(data) {
     gsv.setProgressValue(100);
     gsv.setProgressText('Error: ' + data.message);
     gsv.setProgressError(true);
-    gsv.setRecoveryLink(true);
     gsv.setTerminalVisibility(true);
     if (data.output) {
-        gsv.term.write(data.output);
+        const errorText= `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
+        gsv.term.write(errorText);
+        gsv.setContainerError(
+            true, 
+            errorText
+        );
     }
 });
 gs.start();
