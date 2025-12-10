@@ -65,6 +65,7 @@ class SyncHandler(JupyterHandler):
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
             depth = self.get_argument('depth', None)
+            backup = self.get_argument('backup', 'false')
             if depth:
                 depth = int(depth)
             # The default working directory is the directory from which Jupyter
@@ -84,7 +85,7 @@ class SyncHandler(JupyterHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, backup=backup, parent=self.settings['nbapp'])
 
             q = Queue()
 
@@ -159,6 +160,7 @@ class UIHandler(JupyterHandler):
         # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
                      self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
+        backup = self.get_argument('backup', 'false')
 
         if urlPath:
             path = urlPath
