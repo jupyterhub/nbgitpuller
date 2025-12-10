@@ -1,5 +1,6 @@
 import { GitSync  } from './gitsync';
 import { GitSyncView } from './gitsyncview';
+import { GitError } from './giterror';
 import css from '../../../node_modules/xterm/css/xterm.css';
 
 const getBodyData = (key) => {
@@ -52,8 +53,9 @@ gs.addHandler('error', function(data) {
         const errorText= `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
         gsv.term.write(errorText);
         gsv.setContainerError(
-            true, 
-            errorText
+            true,
+            errorText,
+            data.message,
         );
     }
 });
