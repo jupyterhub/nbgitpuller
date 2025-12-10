@@ -160,12 +160,12 @@ class UIHandler(JupyterHandler):
         # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
                      self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
-        backup = self.get_argument('backup', 'false')
+        backup = self.get_argument('backup', None)
 
         if urlPath:
-            path = urlPath
+            path = urlPath if backup is None else (os.path.join(parent_reldir) if backup == 'true' else None)
         else:
-            path = os.path.join(parent_reldir, targetpath, subPath)
+            path = os.path.join(parent_reldir, targetpath, subPath) if backup is None else (os.path.join(parent_reldir) if backup == 'true' else None)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
