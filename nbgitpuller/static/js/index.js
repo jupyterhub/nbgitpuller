@@ -1,6 +1,5 @@
 import { GitSync  } from './gitsync';
 import { GitSyncView } from './gitsyncview';
-import { GitError } from './giterror';
 import css from '../../../node_modules/xterm/css/xterm.css';
 
 const getBodyData = (key) => {
@@ -55,6 +54,7 @@ gs.addHandler('error', function(data) {
         gsv.term.write(errorText);
         gsv.setContainerError(
             true,
+            gs,
             errorText,
             data.message,
         );

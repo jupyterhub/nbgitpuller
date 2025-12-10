@@ -67,7 +67,7 @@ export class GitSyncView{
         }
     }
 
-    setContainerError(isError, errorOutput='', errorMessage='') {
+    setContainerError(isError, gitsync, errorOutput='', errorMessage='') {
         if (isError) {
             this.containerError.classList.toggle('hidden', !this.visible);
             const button = this.copyError;
@@ -79,7 +79,7 @@ export class GitSyncView{
                     console.error('Failed to copy error text: ', err);
                 }
             }
-            const errorHelp = GitError(errorMessage);
+            const errorHelp = GitError(gitsync, errorMessage);
             if (errorHelp) {
                 this.containerErrorHelp.innerHTML = errorHelp;
                 this.termElement.parentElement.classList.add('hidden');
