@@ -87,16 +87,11 @@ class GitPuller(Configurable):
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
 
-        if self.backup == 'true':
+        if self.backup == 'true' and os.path.exists(self.repo_dir):
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-            self.backup_dir = f"{self.repo_dir}_{timestamp}"
-            backup = subprocess.run(
-                ["mv", self.repo_dir, self.backup_dir],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-
+            self.backup_dir = f"{self.repo_dir}_backup_{timestamp}"
+            backup = os.rename(self.repo_dir, self.backup_dir)
+            yield 'Backed up folder {}'.format(self.backup_dir)
 
     def branch_exists(self, branch):
         """
