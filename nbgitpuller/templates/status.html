@@ -33,7 +33,7 @@ data-targetpath="{{ targetpath | urlencode }}"
     <div id="container-error" class="container hidden">
         <div class="row">
             <div id="recovery-link" class="col-xs-6">
-                <a class="btn btn-warning" href="{{ base_url }}" aria-label="Go to the Jupyter server without synchronizing content">Proceed without syncing</a>
+                <a class="btn btn-warning" href="{{ base_url }}" role="button" aria-label="Go to the Jupyter server without synchronizing content">Proceed without syncing</a>
             </div>
             <div id="copy-error" class="col-xs-6 text-right">
                 <button class="btn btn-danger" id="button-copy-error" aria-label="Copy error details to clipboard">Copy error to clipboard</button>
