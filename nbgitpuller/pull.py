@@ -75,23 +75,22 @@ class GitPuller(Configurable):
         self.git_url = git_url
         self.branch_name = kwargs.pop("branch")
         self.backup = kwargs.pop("backup")
-
-        print(self.backup)
+        self.repo_dir = repo_dir
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
         elif not self.branch_exists(self.branch_name):
             raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
 
-        self.repo_dir = repo_dir
-        newargs = {k: v for k, v in kwargs.items() if v is not None}
-        super(GitPuller, self).__init__(**newargs)
-
         if self.backup == 'true' and os.path.exists(self.repo_dir):
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             self.backup_dir = f"{self.repo_dir}_backup_{timestamp}"
             backup = os.rename(self.repo_dir, self.backup_dir)
-            yield 'Backed up folder {}'.format(self.backup_dir)
+            logging.info('Backed up folder {}'.format(self.backup_dir))
+
+        newargs = {k: v for k, v in kwargs.items() if v is not None}
+        super(GitPuller, self).__init__(**newargs)
+
 
     def branch_exists(self, branch):
         """
