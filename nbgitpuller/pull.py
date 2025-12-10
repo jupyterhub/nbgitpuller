@@ -74,6 +74,9 @@ class GitPuller(Configurable):
 
         self.git_url = git_url
         self.branch_name = kwargs.pop("branch")
+        self.backup = kwargs.pop("backup")
+
+        print(self.backup)
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
@@ -83,6 +86,17 @@ class GitPuller(Configurable):
         self.repo_dir = repo_dir
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
+
+        if self.backup == 'true':
+            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            self.backup_dir = f"{self.repo_dir}_{timestamp}"
+            backup = subprocess.run(
+                ["mv", self.repo_dir, self.backup_dir],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
 
     def branch_exists(self, branch):
         """
@@ -356,12 +370,14 @@ def main():
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
+    parser.add_argument('backup', default='false', help='Whether to backup existing repo_dir if it exists', nargs='?')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
-        branch=args.branch_name if args.branch_name else None
+        branch=args.branch_name if args.branch_name else None,
+        backup=args.backup if args.backup else 'false',
     ).pull():
         print(line)
 

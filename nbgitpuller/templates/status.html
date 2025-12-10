@@ -8,6 +8,7 @@ data-path="{{ path | urlencode }}"
 data-xsrf="{{ xsrf_token | urlencode }}"
 {% if branch %}data-branch="{{ branch | urlencode }}"{% endif %}
 {% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
+{% if backup %}data-backup="{{ backup | urlencode }}"{% endif %}
 data-targetpath="{{ targetpath | urlencode }}"
 {% endblock %}
 

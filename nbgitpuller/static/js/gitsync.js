@@ -1,5 +1,5 @@
 export class GitSync {
-    constructor(baseUrl, repo, branch, depth, targetpath, path, xsrf) {
+    constructor(baseUrl, repo, branch, depth, targetpath, path, backup, xsrf) {
         // Class that talks to the API backend & emits events as appropriate
         this.baseUrl = baseUrl;
         this.repo = repo;
@@ -7,6 +7,7 @@ export class GitSync {
         this.depth = depth;
         this.targetpath = targetpath;
         this.redirectUrl = baseUrl + path;
+        this.backup = backup;
         this._xsrf = xsrf;
 
         this.callbacks = {};
@@ -41,7 +42,12 @@ export class GitSync {
         if (typeof this.branch !== 'undefined' && this.branch != undefined) {
             syncUrlParams.append('branch', this.branch);
         }
+        if (typeof this.backup !== 'undefined' && this.backup != undefined) {
+            syncUrlParams.append('backup', this.backup);
+        }        
         const syncUrl = this.baseUrl + 'git-pull/api?' + syncUrlParams.toString();
+
+        console.log('Starting git sync with URL: ' + syncUrl);
 
         this.eventSource = new EventSource(syncUrl);
         this.eventSource.addEventListener('message', (ev) => {

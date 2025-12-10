@@ -175,7 +175,7 @@ class UIHandler(JupyterHandler):
 
         self.write(
             jinja_env.get_template('status.html').render(
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, backup=backup,  version=__version__,
                 **self.template_namespace
             )
         )

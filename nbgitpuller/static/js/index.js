@@ -22,6 +22,7 @@ const gs = new GitSync(
     getBodyData('depth'),
     getBodyData('targetpath'),
     getBodyData('path'),
+    getBodyData('backup'),
     getBodyData('xsrf'),
 );
 
