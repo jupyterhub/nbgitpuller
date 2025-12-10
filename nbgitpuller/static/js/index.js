@@ -32,6 +32,7 @@ const gsv = new GitSyncView(
     '#status-panel-toggle',
     '#container-error',
     '#button-copy-error',
+    "#container-error-help",
 );
 
 gs.addHandler('syncing', function(data) {
