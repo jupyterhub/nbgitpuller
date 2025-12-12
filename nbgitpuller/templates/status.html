@@ -8,6 +8,7 @@ data-path="{{ path | urlencode }}"
 data-xsrf="{{ xsrf_token | urlencode }}"
 {% if branch %}data-branch="{{ branch | urlencode }}"{% endif %}
 {% if depth %}data-depth="{{ depth | urlencode }}"{% endif %}
+{% if backup %}data-backup="{{ backup | urlencode }}"{% endif %}
 data-targetpath="{{ targetpath | urlencode }}"
 {% endblock %}
 
@@ -24,22 +25,23 @@ data-targetpath="{{ targetpath | urlencode }}"
                 <span></span>
             </div>
         </div>
-        <small>Click to see more details</small>
+        <small>Click to show/hide error log</small>
     </div>
     <div class="panel-body hidden" id="status-details-container">
             <div id="status-details"></div>
     </div>
-</div>
-<div id="container-error" class="container hidden">
-    <div class="row">
-        <div id="recovery-link" class="col-xs-6 pull-left">
-            <a class="btn btn-warning" href="{{ base_url }}" aria-label="Go to the Jupyter server without synchronizing content">Proceed to server without synchronizing</a>
-        </div>
-        <div id="copy-error" class="col-xs-6 pull-right text-right">
-            <button class="btn btn-danger" id="copy-error-button" aria-label="Copy error details to clipboard">Copy error to clipboard</button>
-        </div>
     </div>
-</div>
+    <div id="container-error" class="container hidden">
+        <div class="row">
+            <div id="recovery-link" class="col-xs-6">
+                <a class="btn btn-warning" href="{{ base_url }}" role="button" aria-label="Go to the Jupyter server without synchronizing content">Proceed without syncing</a>
+            </div>
+            <div id="copy-error" class="col-xs-6 text-right">
+                <button class="btn btn-danger" id="button-copy-error" aria-label="Copy error details to clipboard">Copy error to clipboard</button>
+            </div>
+            <div id="container-error-help" class="col-xs-12" style="margin-top: 36px;"></div>
+        </div>
+    </div>    
 </div>
 {% endblock %}
 
@@ -66,7 +68,7 @@ data-targetpath="{{ targetpath | urlencode }}"
 
 #status-panel-toggle small {
     font-size: smaller;
-    color: #ccc;
+    color: #606060;
     float: right;
     margin-top: -10px;
 }

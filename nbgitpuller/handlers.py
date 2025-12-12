@@ -65,6 +65,7 @@ class SyncHandler(JupyterHandler):
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
             depth = self.get_argument('depth', None)
+            backup = self.get_argument('backup', 'false')
             if depth:
                 depth = int(depth)
             # The default working directory is the directory from which Jupyter
@@ -84,7 +85,7 @@ class SyncHandler(JupyterHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, backup=backup, parent=self.settings['nbapp'])
 
             q = Queue()
 
@@ -159,11 +160,12 @@ class UIHandler(JupyterHandler):
         # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
                      self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
+        backup = self.get_argument('backup', None)
 
         if urlPath:
-            path = urlPath
+            path = urlPath if backup is None else (os.path.join(parent_reldir) if backup == 'true' else None)
         else:
-            path = os.path.join(parent_reldir, targetpath, subPath)
+            path = os.path.join(parent_reldir, targetpath, subPath) if backup is None else (os.path.join(parent_reldir) if backup == 'true' else None)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
@@ -173,7 +175,7 @@ class UIHandler(JupyterHandler):
 
         self.write(
             jinja_env.get_template('status.html').render(
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, backup=backup, version=__version__,
                 **self.template_namespace
             )
         )

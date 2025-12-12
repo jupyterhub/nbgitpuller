@@ -2,9 +2,10 @@
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebLinksAddon } from 'xterm-addon-web-links';
+import { GitError } from './giterror';
 
 export class GitSyncView{
-    constructor(termSelector, progressSelector, termToggleSelector, containerErrorSelector, copyErrorSelector) {
+    constructor(termSelector, progressSelector, termToggleSelector, containerErrorSelector, copyErrorSelector, containerErrorHelpSelector) {
         // Class that encapsulates view rendering as much as possible
         this.term = new Terminal({
             convertEol: true
@@ -20,6 +21,7 @@ export class GitSyncView{
         this.termElement = document.querySelector(termSelector);
         this.containerError = document.querySelector(containerErrorSelector);
         this.copyError = document.querySelector(copyErrorSelector);
+        this.containerErrorHelp = document.querySelector(containerErrorHelpSelector);
 
         this.termToggle.onclick = () => this.setTerminalVisibility(!this.visible)
     }
@@ -65,17 +67,22 @@ export class GitSyncView{
         }
     }
 
-    setContainerError(isError, errorText='') {
+    setContainerError(isError, gitsync, errorOutput='', errorMessage='') {
         if (isError) {
             this.containerError.classList.toggle('hidden', !this.visible);
-        }
-        const button = this.copyError;
-        button.onclick = async () => {
-            try {
-                await navigator.clipboard.writeText(errorText);
-                button.innerHTML = 'Error message copied!';
-            } catch (err) {
-                console.error('Failed to copy error text: ', err);
+            const button = this.copyError;
+            button.onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(errorOutput);
+                    button.innerHTML = 'Error message copied!';
+                } catch (err) {
+                    console.error('Failed to copy error text: ', err);
+                }
+            }
+            const errorHelp = GitError(gitsync, errorMessage);
+            if (errorHelp) {
+                this.containerErrorHelp.innerHTML = errorHelp;
+                this.termElement.parentElement.classList.add('hidden');
             }
         }
     }

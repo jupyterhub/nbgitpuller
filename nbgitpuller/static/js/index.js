@@ -22,6 +22,7 @@ const gs = new GitSync(
     getBodyData('depth'),
     getBodyData('targetpath'),
     getBodyData('path'),
+    getBodyData('backup'),
     getBodyData('xsrf'),
 );
 
@@ -30,7 +31,8 @@ const gsv = new GitSyncView(
     '#status-panel-title',
     '#status-panel-toggle',
     '#container-error',
-    '#copy-error-button',
+    '#button-copy-error',
+    "#container-error-help",
 );
 
 gs.addHandler('syncing', function(data) {
@@ -52,8 +54,10 @@ gs.addHandler('error', function(data) {
         const errorText= `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
         gsv.term.write(errorText);
         gsv.setContainerError(
-            true, 
-            errorText
+            true,
+            gs,
+            errorText,
+            data.message,
         );
     }
 });
