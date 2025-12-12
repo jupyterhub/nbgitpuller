@@ -74,7 +74,7 @@ class GitPuller(Configurable):
 
         self.git_url = git_url
         self.branch_name = kwargs.pop("branch")
-        self.backup = kwargs.pop("backup")
+        self.backup = kwargs.pop("backup", 'false')
         self.repo_dir = repo_dir
 
         if self.branch_name is None:
