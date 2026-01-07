@@ -57,4 +57,4 @@ Suppose the instructor did not read [Content git repository best practices](repo
 
 `nbgitpuller` provides a backup strategy where the student's work is copied and renamed to `<repo_name>_backup_<YYYYMMDDHHMMSS>`, and then a fresh copy of the instructor's version of the repository is pulled into the student's working directory.
 
-This option appears as button with the label `Backup and resync` after encountering the unresolvable merge conflict.
+This option appears as button with the label `Backup and resync` after encountering the unresolvable merge conflict. The student may want to manually copy their work from backed up changes into the new folder.

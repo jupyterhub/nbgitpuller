@@ -103,6 +103,11 @@ You can specify a different parent directory for the clone by setting the enviro
 If you require full control over the destination directory, or want to set the directory at runtime in the nbgitpuller link use this parameter.
 
 
+``backup``
+==========
+
+Case 6 in the :doc:`automatic merging behaviour <automatic-merging>` is implemented by setting the URL parameter ``backup=true``. This will rename the current repo with the current working state of the repo to a timestamped backup folder, and then pull in a fresh copy of the git repository from the remote into a new folder.
+
 Deprecated parameters
 =====================
 
