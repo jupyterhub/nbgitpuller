@@ -76,8 +76,6 @@ class Puller(Repository):
         remotepath = "file://%s" % os.path.abspath(remote.path)
         self.gp = GitPuller(remotepath, self.path, branch=branch, backup=backup, *args, **kwargs)
 
-        print(f"Puller {self.path=}")
-
     def pull_all(self):
         for line in self.gp.pull():
             print('{}: {}'.format(self.path, line.rstrip()))
