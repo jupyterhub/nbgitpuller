@@ -86,7 +86,7 @@ class GitPuller(Configurable):
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             self.backup_dir = f"{self.repo_dir}_backup_{timestamp}"
             backup = os.rename(self.repo_dir, self.backup_dir)
-            logging.info('Backed up folder {}'.format(self.backup_dir))
+            logging.info('Backed up folder {}'.format(self.backup_dir)) 
 
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)

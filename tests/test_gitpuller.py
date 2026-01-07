@@ -1,6 +1,7 @@
 import os
 import subprocess as sp
 import glob
+import shutil
 import time
 from uuid import uuid4
 import pytest
@@ -13,7 +14,7 @@ from repohelpers import Remote, Pusher, Puller
 
 # Tests to write:
 # 1. Initialize puller with gitpuller, test for user config & commit presence
-# 2. Push commit with pusher, pull with puller, valiate that nothing has changeed
+# 2. Push commit with pusher, pull with puller, validate that nothing has changed
 # 3. Delete file in puller, run puller, make sure file is back
 # 4. Make change in puller to file, make change in pusher to different part of file, run puller
 # 5. Make change in puller to file, make change in pusher to same part of file, run puller
@@ -581,3 +582,40 @@ def test_pull_on_shallow_clone(long_remote, clean_environment):
             assert new_head == upstream_head
 
             pusher.git('push', '--force', 'origin', '%s:master' % orig_head)
+
+
+def test_backup_on_merge_conflict():
+    """
+    Test backup strategy after an unresolvable merge conflict
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+        puller = Puller(remote)
+        puller.pull_all()
+
+        # Force push and rewrite history to create merge conflict
+        pusher.git('checkout', '--orphan', 'orphan')
+        pusher.git('commit', '-am', 'Rewritten history')
+        pusher.git('branch', '-D', 'master')
+        pusher.git('branch', '-m', 'master')
+        pusher.git('push', '-f', 'origin', 'master')
+
+        # Trigger backup
+        puller_backup = Puller(remote, path=puller.path, backup="true")
+        puller_backup.pull_all()
+
+        # Assert backup folder exists
+        backup_folder = glob.glob(os.path.join(os.path.dirname(puller.path), '*_backup_*'))
+        print(backup_folder)
+        assert backup_folder[0].startswith(puller.path + "_backup_")
+
+        # Assert fresh copy of repo exists
+        print(f"{os.listdir(puller_backup.path)=}")
+        assert os.path.exists(puller_backup.path) is True
+
+        # Cleanup backup folder
+        for folder in backup_folder:
+            shutil.rmtree(folder)
+
+        puller_backup.__exit__
+        puller.__exit__
