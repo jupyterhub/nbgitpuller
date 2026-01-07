@@ -16,7 +16,7 @@ This link will contain at least the following information:
 The first time a particular student clicks the link, a local copy of the
 repository is made for the student. On successive clicks, the latest version
 of the remote repository is fetched, and merged automatically with the
-student's local copy using a {ref}`series of rules <topic/automatic-merging>`
+student's local copy using a [series of rules](topic/automatic-merging.md)
 that ensure students never get merge conflicts nor lose any of their changes.
 
 ## Create an `nbgitpuller` link via a web extension

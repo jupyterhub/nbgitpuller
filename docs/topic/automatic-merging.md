@@ -1,8 +1,4 @@
-.. _topic/automatic-merging:
-
-==========================
-Automatic Merging Behavior
-==========================
+# Automatic Merging Behavior
 
 ``nbgitpuller`` tries to make sure the end user who clicked the link
 **never** has to manually interact with the git repo. This requires us to
@@ -13,28 +9,24 @@ repository.
 Here, we describe how we handle the various possible cases each time the
 student clicks the nbgitpuller link.
 
-Case 1: The instructor changed a file that the student has not changed
-======================================================================
+## Case 1: The instructor changed a file that the student has not changed
 
 The student's changes are left alone, and the instructor's changes are pulled
 in to the local copy. Most common case. This is also what happens when the
 instructor adds a new file / directory.
 
-Case 2: Student & instructor changed different lines in same file
-=================================================================
+## Case 2: Student & instructor changed different lines in same file
 
 Very similar to case 1 - the student's changes are left alone, and the
 instructor's changes are merged in to the existing local file.
 
-Case 3: Student & instructor change same lines in same file
-===========================================================
+## Case 3: Student & instructor change same lines in same file
 
 In this case, we **always keep the student's changes**. We want to never
 accidentally lose a student's changes - ``nbgitpuller`` will not eat your
 homework.
 
-Case 4: Student deletes file locally, but instructor doesn't
-============================================================
+## Case 4: Student deletes file locally, but instructor doesn't
 
 If the student has deleted a file locally, but the file is still present in
 the remote repo, the file from the remote repo is pulled into the student's
@@ -42,8 +34,7 @@ directory. This enables the use case where a student wants to 'start over'
 a file after having made many changes to it. They can simply delete the file,
 click the nbgitpuller link again, and get a fresh copy.
 
-Case 5: Student creates file manually, but instructor adds file with same name
-==============================================================================
+## Case 5: Student creates file manually, but instructor adds file with same name
 
 As an example, let's say the student manually creates a file named
 ``Untitled141.ipynb`` in the directory where nbgitpuller has pulled a
@@ -59,3 +50,11 @@ student's file, and pull the instructor's file. So the student's
 ``Untitled141.ipynb``.
 
 This is a fairly rare case in our experience.
+
+## Case 6: Instructor creates unresolvable merge conflict or student performs a git commit
+
+Suppose the instructor did not read [Content git repository best practices](repo-best-practices.md) and force pushed changes to a repository, or a student accidentally created a git commit. This results in a [divergent git history](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell#divergent_history) between the instructor and the student's copy of the content, and so the student cannot sync updates from the instructor any longer.
+
+`nbgitpuller` provides a backup strategy where the student's work is copied and renamed to `<repo_name>_backup_<YYYYMMDDHHMMSS>`, and then a fresh copy of the instructor's version of the repository is pulled into the student's working directory.
+
+This option appears as button with the label `Backup and resync` after encountering the unresolvable merge conflict.

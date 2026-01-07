@@ -4,8 +4,7 @@
 This allows your users to focus on the content without needing to understand `git`
 or other version control machinery.
 
-`nbgitpuller` provides {ref}`automatic, opinioned conflict resolution <topic/automatic-merging>`
-by using `git` under the hood.
+`nbgitpuller` provides [automatic, opinionated conflict resolution](topic/automatic-merging.md) by using `git` under the hood.
 It is commonly used to distribute content to multiple users of a JupyterHub, though it works just fine on an individual person's computer, if they have Jupyter installed.
 
 Here's an example of `nbgitpuller` in action:
