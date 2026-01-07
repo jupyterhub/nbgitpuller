@@ -595,6 +595,7 @@ def test_backup_on_merge_conflict():
 
         # Force push and rewrite history to create merge conflict
         pusher.git('checkout', '--orphan', 'orphan')
+        pusher.git('add', '-A')
         pusher.git('commit', '-am', 'Rewritten history')
         pusher.git('branch', '-D', 'master')
         pusher.git('branch', '-m', 'master')
