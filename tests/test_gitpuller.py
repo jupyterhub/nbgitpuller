@@ -607,11 +607,9 @@ def test_backup_on_merge_conflict():
 
         # Assert backup folder exists
         backup_folder = glob.glob(os.path.join(os.path.dirname(puller.path), '*_backup_*'))
-        print(backup_folder)
         assert backup_folder[0].startswith(puller.path + "_backup_")
 
         # Assert fresh copy of repo exists
-        print(f"{os.listdir(puller_backup.path)=}")
         assert os.path.exists(puller_backup.path) is True
 
         # Cleanup backup folder
