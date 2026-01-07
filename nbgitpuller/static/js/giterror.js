@@ -11,5 +11,5 @@ export function GitError(gitsync, message) {
     <li><code>${path}_backup_YYYYMMDDHHMMSS</code> Timestamped backup folder containing the current state of your repository</li>
     <li><code>${path}</code> New folder containing updated content. This will not merge content from your backup due to the unresolvable conflicts. You may want to manually copy backed up changes into the new folder.</li>
     </ul></p>
-    <a href=${url} class="btn btn-default role="button" style="margin-top: 6px;"aria-label="Backup and resync, then go to Jupyter server.">Backup and resync</a>`;
+    <a href=${url} class="btn btn-warning role="button" style="margin-top: 6px;"aria-label="Backup and resync, then go to Jupyter server.">Backup and resync</a>`;
 }
