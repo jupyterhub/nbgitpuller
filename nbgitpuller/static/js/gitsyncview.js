@@ -5,7 +5,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links';
 import { GitError } from './giterror';
 
 export class GitSyncView{
-    constructor(termSelector, progressSelector, termToggleSelector, containerErrorSelector, copyErrorSelector, containerErrorHelpSelector) {
+    constructor(termSelector, progressSelector, termToggleSelector, containerErrorSelector, copyErrorSelector, containerErrorHelpSelector, recoveryLink) {
         // Class that encapsulates view rendering as much as possible
         this.term = new Terminal({
             convertEol: true
@@ -22,6 +22,7 @@ export class GitSyncView{
         this.containerError = document.querySelector(containerErrorSelector);
         this.copyError = document.querySelector(copyErrorSelector);
         this.containerErrorHelp = document.querySelector(containerErrorHelpSelector);
+        this.recoveryLink = document.querySelector(recoveryLink),
 
         this.termToggle.onclick = () => this.setTerminalVisibility(!this.visible)
     }
@@ -83,6 +84,7 @@ export class GitSyncView{
             if (errorHelp) {
                 this.containerErrorHelp.innerHTML = errorHelp;
                 this.termElement.parentElement.classList.add('hidden');
+                this.containerErrorHelp.appendChild(this.recoveryLink.firstElementChild);
             }
         }
     }
