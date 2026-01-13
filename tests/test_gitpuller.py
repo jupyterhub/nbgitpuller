@@ -612,9 +612,7 @@ def test_backup_on_merge_conflict():
         # Assert fresh copy of repo exists
         assert os.path.exists(puller_backup.path) is True
 
-        # Cleanup backup folder
+        # Cleanup fresh copy and any backup folders
+        shutil.rmtree(puller_backup.path)
         for folder in backup_folder:
             shutil.rmtree(folder)
-
-        puller_backup.__exit__
-        puller.__exit__
