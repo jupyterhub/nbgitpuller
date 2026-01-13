@@ -33,6 +33,7 @@ const gsv = new GitSyncView(
     '#container-error',
     '#button-copy-error',
     "#container-error-help",
+    "#recovery-link",
 );
 
 gs.addHandler('syncing', function(data) {
