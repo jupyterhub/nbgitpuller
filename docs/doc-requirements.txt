@@ -1,3 +1,4 @@
 myst_parser
 sphinx-book-theme
 sphinx_copybutton
+sphinx-autobuild
