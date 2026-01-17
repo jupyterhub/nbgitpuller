@@ -82,8 +82,8 @@ export class GitSyncView{
             }
             const errorHelp = GitError(gitsync, errorMessage);
             if (errorHelp) {
-                this.containerErrorHelp.innerHTML = errorHelp;
                 this.termElement.parentElement.classList.add('hidden');
+                this.containerErrorHelp.innerHTML = errorHelp;
                 this.containerErrorHelp.appendChild(this.recoveryLink.firstElementChild);
             }
         }
