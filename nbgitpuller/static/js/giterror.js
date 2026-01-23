@@ -7,7 +7,11 @@ export function GitError(gitsync, data) {
   if (data.error.code == "merge_conflict") {
     url.searchParams.append("backup", "true");
     return MergeConflictHelp(data, path, url);
-  };
+  }
+  else {
+    return GeneralHelp()
+  }
+  ;
 };
 
 function MergeConflictHelp (data, path, url) {
@@ -16,4 +20,9 @@ function MergeConflictHelp (data, path, url) {
   <li><code>${path}</code> New folder containing updated content. <em>This new folder will not merge content from your backup due to the unresolvable conflicts.</em> You may want to manually copy backed up changes into the new folder.</li>
   </ul></p><p><strong>Proceed without syncing</strong> to continue with the current state of your repository without any new updates.</p><p><a href="https://nbgitpuller.readthedocs.io/en/latest/topic/automatic-merging.html">See more about automatic merging behavior.</a></p>
   <a href=${url} class="btn btn-primary role="button" style="margin-right: 5px" aria-label="Backup and resync, then go to Jupyter server.">Backup and resync</a>`;
+};
+
+
+function GeneralHelp () {
+  return `<p class="lead">Error</p>`
 };
