@@ -50,15 +50,13 @@ gs.addHandler('error', function(data) {
     gsv.setProgressValue(100);
     gsv.setProgressText('Error: ' + data.message);
     gsv.setProgressError(true);
-    gsv.setTerminalVisibility(true);
-    if (data.output) {
-        const errorText= `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
-        gsv.term.write(errorText);
+    gsv.setTerminalVisibility(false);
+    if (data.phase == 'error') {
+        const errorOutput= `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
+        gsv.term.write(errorOutput);
         gsv.setContainerError(
-            true,
             gs,
-            errorText,
-            data.message,
+            data,
         );
     }
 });
