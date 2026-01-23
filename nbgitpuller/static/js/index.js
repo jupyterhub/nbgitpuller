@@ -52,12 +52,9 @@ gs.addHandler('error', function(data) {
     gsv.setProgressError(true);
     gsv.setTerminalVisibility(false);
     if (data.phase == 'error') {
-        const errorOutput= `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
-        gsv.term.write(errorOutput);
-        gsv.setContainerError(
-            gs,
-            data,
-        );
+        data.errorOutput = `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
+        gsv.term.write(data.errorOutput);
+        gsv.setContainerError(gs, data);
     }
 });
 gs.start();

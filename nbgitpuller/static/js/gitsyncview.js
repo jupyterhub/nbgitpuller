@@ -74,7 +74,7 @@ export class GitSyncView{
         const button = this.copyError;
         button.onclick = async () => {
             try {
-                await navigator.clipboard.writeText(errorOutput);
+                await navigator.clipboard.writeText(data.errorOutput);
                 button.innerHTML = 'Error message copied!';
             } catch (err) {
                 console.error('Failed to copy error text: ', err);
