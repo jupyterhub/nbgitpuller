@@ -9,6 +9,7 @@ from queue import Queue, Empty
 import jinja2
 
 from .pull import GitPuller
+from .errors import GitPullerError
 from .version import __version__
 from ._compat import get_base_handler
 
@@ -57,7 +58,7 @@ class SyncHandler(JupyterHandler):
         except gen.TimeoutError:
             await self.emit({
                 'phase': 'error',
-                'message': 'Another git operations is currently running, try again in a few minutes'
+                'message': 'Another git operation is currently running, try again in a few minutes'
             })
             return
 
@@ -111,15 +112,12 @@ class SyncHandler(JupyterHandler):
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
+                    err = GitPullerError.from_exception(progress).to_dict()
                     await self.emit({
                         'phase': 'error',
                         'message': str(progress),
-                        'output': '\n'.join([
-                            line.strip()
-                            for line in traceback.format_exception(
-                                type(progress), progress, progress.__traceback__
-                            )
-                        ])
+                        'error': err,
+                        'output': err["traceback"]
                     })
                     return
 
