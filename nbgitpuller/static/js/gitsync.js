@@ -47,8 +47,6 @@ export class GitSync {
         }        
         const syncUrl = this.baseUrl + 'git-pull/api?' + syncUrlParams.toString();
 
-        console.log('Starting git sync with URL: ' + syncUrl);
-
         this.eventSource = new EventSource(syncUrl);
         this.eventSource.addEventListener('message', (ev) => {
             const data = JSON.parse(ev.data);
