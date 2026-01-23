@@ -76,6 +76,7 @@ class GitPuller(Configurable):
         self.branch_name = kwargs.pop("branch")
         self.repo_dir = repo_dir
         backup = kwargs.pop("backup", False)
+        print(backup)
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
@@ -366,6 +367,8 @@ def main():
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
     parser.add_argument('--backup', action='store_true', default=False, help='Whether to backup existing repo_dir if it exists')
     args = parser.parse_args()
+
+    print(f"{args.backup=}")
 
     for line in GitPuller(
         args.git_url,

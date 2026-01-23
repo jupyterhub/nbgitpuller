@@ -65,7 +65,7 @@ class SyncHandler(JupyterHandler):
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
             depth = self.get_argument('depth', None)
-            backup = self.get_argument('backup', 'false')
+            backup = self.get_argument('backup', False)
             if depth:
                 depth = int(depth)
             # The default working directory is the directory from which Jupyter
@@ -160,12 +160,12 @@ class UIHandler(JupyterHandler):
         # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
                      self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
-        backup = self.get_argument('backup', None)
+        backup = self.get_argument('backup', False)
 
         if urlPath:
-            path = urlPath if backup is None else (os.path.join(parent_reldir) if backup == 'true' else None)
+            path = urlPath if not backup else os.path.join(parent_reldir)
         else:
-            path = os.path.join(parent_reldir, targetpath, subPath) if backup is None else (os.path.join(parent_reldir) if backup == 'true' else None)
+            path = os.path.join(parent_reldir, targetpath, subPath) if not backup else os.path.join(parent_reldir)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):

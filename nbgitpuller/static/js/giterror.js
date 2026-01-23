@@ -4,9 +4,9 @@ export function GitError(gitsync, message) {
   const branch = gitsync.branch;
   const path = gitsync.targetpath;
   const url = new URL(window.location.href );
-  url.searchParams.append("backup", "true");
-
+  
   if (s.includes("merge"))
+    url.searchParams.append("backup", "true");
     return `<p class="lead">Unresolvable conflicts detected while syncing</p><p><strong>Backup and resync</strong> to backup the current state of your repository and sync updates into a new separate folder:<ul>
     <li><code>${path}_backup_YYYYMMDDHHMMSS</code> Timestamped backup folder containing the current state of your repository</li>
     <li><code>${path}</code> New folder containing updated content. <em>This new folder will not merge content from your backup due to the unresolvable conflicts.</em> You may want to manually copy backed up changes into the new folder.</li>
