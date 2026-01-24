@@ -89,8 +89,9 @@ class SyncHandler(JupyterHandler):
             try:
                 gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, backup=backup, parent=self.settings['nbapp'])
             except Exception as e:
-                e.traceback = e.format_traceback(e)
-                err = e.to_dict()
+                err = GitPullerError.from_exception(e)
+                err.traceback = GitPullerError.format_traceback(e)
+                err = err.to_dict()
                 await self.emit({
                     'phase': 'error',
                     'message': err["message"],

@@ -42,8 +42,7 @@ class GitPullerError(Exception):
                 return CloneError(traceback_message)
             elif "merge" in exc.cmd:
                 return MergeError(traceback_message)
-        else:
-            return cls(code="unknown", message=str(exc), traceback_message=traceback_message)
+        return cls(code="unknown", message=str(exc), traceback_message=traceback_message)
 
 
 
