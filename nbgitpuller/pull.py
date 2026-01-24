@@ -7,6 +7,7 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
+from .errors import GitPullerError
 
 
 def execute_cmd(cmd, **kwargs):
@@ -73,20 +74,20 @@ class GitPuller(Configurable):
         assert git_url
 
         self.git_url = git_url
-        self.branch_name = kwargs.pop("branch")
+        self.branch_name = kwargs.pop("branch", None)
         self.repo_dir = repo_dir
         backup = kwargs.pop("backup", False)
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
-        elif not self.branch_exists(self.branch_name):
-            raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
+        else:
+            self.branch_exists(self.branch_name)
 
         if backup and os.path.exists(self.repo_dir):
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             backup_dir = f"{self.repo_dir}_backup_{timestamp}"
             os.rename(self.repo_dir, backup_dir)
-            logging.info('Backed up folder {}'.format(backup_dir)) 
+            logging.info('Backed up folder {}'.format(backup_dir))
 
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
@@ -115,7 +116,11 @@ class GitPuller(Configurable):
             _, ref = line.split()
             refs, heads, branch_name = ref.split("/", 2)
             branches.append(branch_name)
-        return branch in branches
+        if branch in branches:
+            return
+        else:
+            raise GitPullerError(code="branch", message="Branch error detected")
+
 
     def resolve_default_branch(self):
         """

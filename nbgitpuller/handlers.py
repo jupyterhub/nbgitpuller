@@ -86,7 +86,19 @@ class SyncHandler(JupyterHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, backup=backup, parent=self.settings['nbapp'])
+            try:
+                gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, backup=backup, parent=self.settings['nbapp'])
+            except Exception as e:
+                e.traceback = e.format_traceback(e)
+                err = e.to_dict()
+                await self.emit({
+                    'phase': 'error',
+                    'message': err["message"],
+                    'error': err,
+                    'output': err["traceback"],
+                })
+                raise
+
 
             q = Queue()
 
