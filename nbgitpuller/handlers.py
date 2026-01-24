@@ -8,8 +8,8 @@ import os
 from queue import Queue, Empty
 import jinja2
 
-from .pull import GitPuller
-from .errors import GitPullerError
+from nbgitpuller.pull import GitPuller
+from nbgitpuller.errors import GitPullerError
 from .version import __version__
 from ._compat import get_base_handler
 

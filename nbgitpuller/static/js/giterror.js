@@ -3,13 +3,19 @@ export function GitError(gitsync, data) {
   const branch = gitsync.branch;
   const path = gitsync.targetpath;
   const url = new URL(window.location.href );
+
   
-  if (data.error.code == "merge_conflict") {
-    url.searchParams.append("backup", "true");
-    return MergeConflictHelp(data, path, url);
-  }
-  else {
-    return GeneralHelp()
+  if ("error" in data) {
+    if (data.error.code == "merge") {
+      url.searchParams.append("backup", "true");
+      return MergeConflictHelp(data, path, url);
+    } else {
+      return GeneralHelp(data)
+    }
+  } else {
+    data.error ??= {};
+    data.error.message ??= "Error detected";
+    return GeneralHelp(data)
   }
   ;
 };
@@ -23,6 +29,6 @@ function MergeConflictHelp (data, path, url) {
 };
 
 
-function GeneralHelp () {
-  return `<p class="lead">Error</p>`
+function GeneralHelp (data) {
+  return `<p class="lead">${data.error.message}</p>`
 };

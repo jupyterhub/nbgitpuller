@@ -7,7 +7,7 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-from .errors import GitPullerError
+from nbgitpuller.errors import GitPullerError
 
 
 def execute_cmd(cmd, **kwargs):
