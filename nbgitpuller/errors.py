@@ -42,6 +42,8 @@ class GitPullerError(Exception):
                 return CloneError(traceback_message)
             elif "merge" in exc.cmd:
                 return MergeError(traceback_message)
+            elif "ls-remote" in exc.cmd:
+                return RemoteError(traceback_message)                
         return cls(code="unknown", message=str(exc), traceback_message=traceback_message)
 
 
@@ -83,6 +85,17 @@ class BranchExistError(GitPullerError):
 class BranchResolveError(GitPullerError):
     code="branch_resolve"
     message="Branch name unresolved"
+
+    def __init__(self, traceback_message=None):
+        super().__init__(
+            code = self.code,
+            message= self.message,
+            traceback_message=traceback_message
+        )
+
+class RemoteError(GitPullerError):
+    code="ls_remote",
+    message="Remote content unavailable"
 
     def __init__(self, traceback_message=None):
         super().__init__(
