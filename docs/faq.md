@@ -21,3 +21,9 @@ reasons:
 
 So while this workflow _is_ possible, it would most likely be done at the
 JupyterHub level to make it possible, rather than in nbgitpuller
+
+## Can I use a GitHub personal access token to share content from a private repository?
+
+`nbgitpuller` is not designed for sharing content in private repositories. Please do not include [personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#about-personal-access-tokens) in the nbgitpuller link, since this is logged on the Jupyter server. Anyone with access to server can therefore see your private token.
+
+Please use public repositories for sharing content with nbgitpuller.
