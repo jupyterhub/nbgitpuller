@@ -80,8 +80,7 @@ export class GitSyncView{
                 console.error('Failed to copy error text: ', err);
             }
         }
-        const error = GitError(gitsync, data);
-        this.containerErrorHelp.innerHTML = DOMPurify.sanitize(error);
-        this.containerErrorHelp.appendChild(this.recoveryLink.firstElementChild);
+        const error = GitError(gitsync, data, this.recoveryLink);
+        this.containerErrorHelp.insertAdjacentHTML("afterbegin", DOMPurify.sanitize(error));
     }
 }
