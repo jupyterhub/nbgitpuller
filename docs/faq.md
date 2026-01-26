@@ -21,3 +21,22 @@ reasons:
 
 So while this workflow _is_ possible, it would most likely be done at the
 JupyterHub level to make it possible, rather than in nbgitpuller
+
+## Common errors
+
+### Malformed links
+
+Errors from clicking an nbgitpuller link usually stem from a malformed link, such as a mistake in the:
+
+1. Source content repository link, such as pasting the wrong link into the **Git Repository URL** form field of the [](link.rst)
+   - Wrong ❌ `https://github.com/owner/repo/tree/main/subpath`
+   - Correct ✅ `https://github.com/owner/repo`
+1. Providing the wrong or no branch name
+   - Check that you have provided the correct branch name
+   - Check that the git repository URL is correct
+
+### Merge conflicts
+
+Merge errors are usually mitigated by [](topic/automatic-merging.md), however unresolvable conflicts can occur if a link author force pushes changes to a repository, or a link consumer performs a merge commit. See Case 6 in [](topic/automatic-merging.md) for the `Backup and resync` solution for this particular merge error.
+
+Consult the [](topic/repo-best-practices.md) for general advice on avoiding issues.
