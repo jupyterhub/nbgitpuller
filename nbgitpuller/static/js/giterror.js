@@ -3,8 +3,6 @@ export function GitError(gitsync, data, buttonDiv) {
   const branch = gitsync.branch;
   const path = gitsync.targetpath;
   const url = new URL(window.location.href );
-
-  console.log(data)
   
   if ("error" in data) {
     if (data.error.code == "merge") {
@@ -12,6 +10,8 @@ export function GitError(gitsync, data, buttonDiv) {
       return MergeConflictHelp(data, path, url, buttonDiv);
     } else if (data.error.code == "branch_exist") {
       return BranchExistHelp(data, repo, branch)
+    } else if (data.error.code == "branch_resolve") {
+      return BranchResolveHelp(data, repo)
     } else {
       return GeneralHelp(data)
     }
@@ -47,6 +47,10 @@ function MergeConflictHelp (data, path, url, buttonDiv) {
 
 function BranchExistHelp (data, repo, branch) {
   return `<p class="lead">${data.error.message}</p><p>The link author provided an incorrect branch name, <code>${branch}</code>, for the source content hosted at URL <a href=${repo}>${repo}</a>. Check with the link author that the URL is valid and that the nbgitpuller link has the correct branch name.</p>`
+};
+
+function BranchResolveHelp (data, repo) {
+  return `<p class="lead">${data.error.message}</p><p>The link author did not provide a branch name for the source content hosted at URL <a href=${repo}>${repo}</a>, and no other branches could be found. Check with the link author that the URL is valid and ask them to provide an nbgitpuller link with the correct branch name.</p></p>`
 };
 
 function GeneralHelp (data) {

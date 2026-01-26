@@ -79,3 +79,14 @@ class BranchExistError(GitPullerError):
             message= self.message,
             traceback_message=traceback_message
         )
+
+class BranchResolveError(GitPullerError):
+    code="branch_resolve"
+    message="Branch name unresolved"
+
+    def __init__(self, traceback_message=None):
+        super().__init__(
+            code = self.code,
+            message= self.message,
+            traceback_message=traceback_message
+        )

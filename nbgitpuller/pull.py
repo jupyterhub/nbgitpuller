@@ -7,7 +7,7 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-from nbgitpuller.errors import BranchExistError
+from nbgitpuller.errors import BranchExistError, BranchResolveError
 
 
 def execute_cmd(cmd, **kwargs):
@@ -119,6 +119,8 @@ class GitPuller(Configurable):
         if branch in branches:
             return
         else:
+            error = BranchExistError()
+            logging.exception(error)
             raise BranchExistError()
 
 
@@ -140,11 +142,11 @@ class GitPuller(Configurable):
                     _, ref, head = line.split()
                     refs, heads, branch_name = ref.split("/", 2)
                     return branch_name
-            raise ValueError(f"default branch not found in {self.git_url}")
+            raise BranchResolveError()
         except subprocess.CalledProcessError:
-            m = f"Problem accessing HEAD branch: {self.git_url}"
-            logging.exception(m)
-            raise ValueError(m)
+            error = BranchResolveError()
+            logging.exception(error)
+            raise error
 
     def pull(self):
         """
