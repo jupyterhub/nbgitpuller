@@ -7,7 +7,7 @@ import datetime
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-from nbgitpuller.errors import GitPullerError
+from nbgitpuller.errors import BranchExistError
 
 
 def execute_cmd(cmd, **kwargs):
@@ -119,7 +119,7 @@ class GitPuller(Configurable):
         if branch in branches:
             return
         else:
-            raise GitPullerError(code="branch", message="Branch error detected")
+            raise BranchExistError()
 
 
     def resolve_default_branch(self):

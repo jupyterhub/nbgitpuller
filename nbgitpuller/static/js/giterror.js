@@ -4,11 +4,16 @@ export function GitError(gitsync, data) {
   const path = gitsync.targetpath;
   const url = new URL(window.location.href );
 
+  console.log(data)
   
   if ("error" in data) {
     if (data.error.code == "merge") {
       url.searchParams.append("backup", "true");
       return MergeConflictHelp(data, path, url);
+    } else if (data.error.code == "branch_exist") {
+      return BranchExistHelp(data, repo, branch)
+    } else if (data.error.code == "clone") {
+      return GeneralHelp(data)
     } else {
       return GeneralHelp(data)
     }
@@ -32,6 +37,9 @@ function MergeConflictHelp (data, path, url) {
   ${ButtonBackupAndResync(url)}`;
 };
 
+function BranchExistHelp (data, repo, branch) {
+  return `<p class="lead">${data.error.message}</p><p>The link author provided an incorrect branch name, <code>${branch}</code>, for the source content hosted at URL <a href=${repo}>${repo}</a>. Check with the link author that the source content repository URL is valid and that the nbgitpuller link has the correct branch name.</p>`
+};
 
 function GeneralHelp (data) {
   return `<p class="lead">${data.error.message}</p>`

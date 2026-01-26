@@ -30,10 +30,12 @@ class GitPullerError(Exception):
 
 
     @classmethod
-    def from_exception(cls, exc: Exception):
+    def from_exception(cls, exc: Exception) -> "GitPullerError":
         """
         Convert exceptions into a structured GitPullerError class.
         """
+        if isinstance(exc, GitPullerError):
+            return exc
         traceback_message = cls.format_traceback(exc)
         if isinstance(exc, subprocess.CalledProcessError):
             if "clone" in exc.cmd:
@@ -67,3 +69,13 @@ class MergeError(GitPullerError):
             traceback_message=traceback_message
         )
 
+class BranchExistError(GitPullerError):
+    code="branch_exist"
+    message="Branch does not exist"
+
+    def __init__(self, traceback_message=None):
+        super().__init__(
+            code = self.code,
+            message= self.message,
+            traceback_message=traceback_message
+        )
