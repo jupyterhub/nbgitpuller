@@ -62,5 +62,5 @@ function RemoteHelp (data, repo) {
 }
 
 function GeneralHelp (data) {
-  return `<p class="lead">${data.error.message}</p><p>An unexpected error occurred. Contact the link author and share the error log with them to help diagnose the problem.</p>`
+  return `<p class="lead">An unexpected error occurred</p><p>Contact the link author and share the error log above with them to help diagnose the problem.</p>`
 };

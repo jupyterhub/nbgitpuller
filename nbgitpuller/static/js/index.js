@@ -50,12 +50,16 @@ gs.addHandler('error', function(data) {
     gsv.setProgressValue(100);
     gsv.setProgressText('Error: ' + data.message);
     gsv.setProgressError(true);
-    gsv.setTerminalVisibility(false);
     if (data.phase == 'error') {
+        if (data.error.code == 'unknown') {
+            gsv.setTerminalVisibility(true);
+        } else {
+            gsv.setTerminalVisibility(false);
+        }
         data.errorOutput = `Repository: ${gs.repo}\nBranch: ${gs.branch}\nRedirect URL: ${gs.redirectUrl}\n\n${data.output}\n`;
         gsv.term.write(data.errorOutput);
         gsv.setContainerError(gs, data);
-    }
+    };
 });
 gs.start();
 
