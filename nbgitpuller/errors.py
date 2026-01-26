@@ -71,4 +71,3 @@ class MergeError(GitPullerError):
 
 
 # class CustomError(GitPullerError):
-
