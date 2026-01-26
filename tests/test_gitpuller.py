@@ -10,7 +10,7 @@ import tempfile
 from traitlets.config.configurable import Configurable
 
 from repohelpers import Remote, Pusher, Puller
-from nbgitpuller.errors import GitPullerError
+from nbgitpuller.errors import GitPullerError, BranchResolveError
 
 
 # Tests to write:
@@ -92,7 +92,7 @@ def test_branch_invalid():
             puller.pull_all()
             with pytest.raises(GitPullerError) as e:
                 puller.gp.branch_exists("wrong")
-            assert e.value.code == "branch"
+            assert e.value.code == "branch_exist"
 
 
 def test_exception_branch_exists():
@@ -121,7 +121,7 @@ def test_exception_resolve_default_branch():
             try:
                 puller.gp.resolve_default_branch()
             except Exception as e:
-                assert type(e) == ValueError
+                assert type(e) == BranchResolveError
             puller.gp.git_url = orig_url
 
 
