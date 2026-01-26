@@ -24,7 +24,6 @@ class GitPullerError(Exception):
 
     @staticmethod
     def format_traceback(exc):
-        print(f"{exc=}")
         tb = getattr(exc, "__traceback__", None)
         traceback_message = ''.join(traceback.format_exception(type(exc), exc, tb)) if tb else None
         return traceback_message
@@ -36,7 +35,6 @@ class GitPullerError(Exception):
         Convert exceptions into a structured GitPullerError class.
         """
         traceback_message = cls.format_traceback(exc)
-        print(f"{traceback_message=}")
         if isinstance(exc, subprocess.CalledProcessError):
             if "clone" in exc.cmd:
                 return CloneError(traceback_message)
@@ -69,5 +67,3 @@ class MergeError(GitPullerError):
             traceback_message=traceback_message
         )
 
-
-# class CustomError(GitPullerError):

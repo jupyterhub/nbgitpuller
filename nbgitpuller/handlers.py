@@ -10,8 +10,8 @@ import jinja2
 
 from nbgitpuller.pull import GitPuller
 from nbgitpuller.errors import GitPullerError
-from .version import __version__
-from ._compat import get_base_handler
+from nbgitpuller.version import __version__
+from nbgitpuller._compat import get_base_handler
 
 JupyterHandler = get_base_handler()
 
