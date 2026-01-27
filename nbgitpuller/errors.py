@@ -3,7 +3,18 @@ import traceback
 
 
 class GitPullerError(Exception):
+    """
+    Structured error class used to branch frontend UI content based on its attributes.
 
+    Attributes:
+        code (str): Stable internal error code identifying the failure
+            type (e.g. ``"merge"``, ``"clone"``). This value is used by the
+            frontend to branch context specific UI behaviour.
+        message (str): External error message. This value is
+            safe to display in the frontend.
+        traceback (Optional[str]): Formatted traceback information captured from
+            the original exception for logging.    
+    """
     def __init__(self, code: str = "unknown", message: str = "Unexpected error occurred", traceback_message=None):
         super().__init__(message)
         self.code = code
@@ -38,11 +49,12 @@ class GitPullerError(Exception):
             return exc
         traceback_message = cls.format_traceback(exc)
         if isinstance(exc, subprocess.CalledProcessError):
-            if "clone" in exc.cmd:
+            # Categorise errors based on specific git commands
+            if exc.cmd[1] == "clone":
                 return CloneError(traceback_message)
-            elif "merge" in exc.cmd:
+            elif exc.cmd[1] == "merge":
                 return MergeError(traceback_message)
-            elif "ls-remote" in exc.cmd:
+            elif exc.cmd[1] == "ls-remote":
                 return RemoteError(traceback_message)                
         return cls(code="unknown", message=str(exc), traceback_message=traceback_message)
 
