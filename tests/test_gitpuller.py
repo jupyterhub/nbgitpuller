@@ -626,3 +626,29 @@ def test_backup_on_merge_conflict():
         shutil.rmtree(puller_backup.path)
         for folder in backup_folder:
             shutil.rmtree(folder)
+
+
+def test_from_exception_general():
+    """
+    Test GitPullerError can handle general exceptions not yet categorised.
+    """
+    message_str = "general error"
+    try:
+        raise ValueError(message_str)
+    except Exception as exc:
+        err = GitPullerError.from_exception(exc)
+    assert isinstance(err, GitPullerError)
+    assert err.code == "unknown"
+    assert err.message == message_str
+    assert err.traceback is not None
+    assert "ValueError" in err.traceback
+
+
+def test_error_is_serialized():
+    """
+    Test that GitPullerError.to_dict() method is serializable for event streams with specific data keys.
+    """
+    exc = Exception("error")
+    err = GitPullerError.from_exception(exc)
+    data = err.to_dict()
+    assert set(data.keys()) == {"code", "message", "traceback"}
