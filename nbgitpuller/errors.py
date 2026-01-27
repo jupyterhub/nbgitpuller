@@ -52,7 +52,7 @@ class GitPullerError(Exception):
             # Categorise errors based on specific git commands
             if exc.cmd[1] == "clone":
                 return CloneError(traceback_message)
-            elif exc.cmd[1] == "merge":
+            elif exc.cmd[5] == "merge":
                 return MergeError(traceback_message)
             elif exc.cmd[1] == "ls-remote":
                 return RemoteError(traceback_message)                
