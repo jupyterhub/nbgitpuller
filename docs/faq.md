@@ -49,6 +49,7 @@ If you would like to share content from a private repository, you can use [git-c
    - Note for later the numeric 'App ID' from the app info page you should be redirected to.
 
    - Create a new private key for authentication with the `Generate a private key` button. This should download a private key file, that you should keep secure and configure in the next step.
+
 1. Update `gitconfig` file with the following
 
    ```bash
@@ -57,13 +58,13 @@ If you would like to share content from a private repository, you can use [git-c
    useHttpPath = true
    ```
 
-      ```{note}
-      You must use the **private key**, not a **client secret**.
-      ```
+   ```{note}
+   You must use the **private key**, not a **client secret**.
+   ```
 
    - To configure helm chart values for [Zero to JupyterHub](https://z2jh.jupyter.org/en/stable/) clusters, see [this example](https://infrastructure.2i2c.org/howto/features/private-nbgitpuller/#helm-values-configuration).
-1. Install the GitHub app to the private repo
 
+1. Install the GitHub app to the private repo
    - Go to the ‘Public page’ of the GitHub app created. This usually is of the form `https://github.com/apps/<name-of-app>`. You can find this in the information page of the app after you create it, under ‘Public link’
 
    - Install the app into the account or the organization the private repo lives in, and grant it access only to the repo that needs to be pulled.
