@@ -596,36 +596,30 @@ def test_pull_on_shallow_clone(long_remote, clean_environment):
 
 def test_backup_on_merge_conflict():
     """
-    Test backup strategy after an unresolvable merge conflict
+    Test backup strategy after an unresolvable merge conflict.
     """
     with Remote() as remote, Pusher(remote) as pusher:
         pusher.push_file('README.md', '1')
-        puller = Puller(remote)
-        puller.pull_all()
+        with Puller(remote) as puller:
+            # Force push and rewrite history to create merge conflict
+            pusher.git('checkout', '--orphan', 'orphan')
+            pusher.git('add', '-A')
+            pusher.git('commit', '-am', 'Rewritten history')
+            pusher.git('branch', '-D', 'master')
+            pusher.git('branch', '-m', 'master')
+            pusher.git('push', '-f', 'origin', 'master')
 
-        # Force push and rewrite history to create merge conflict
-        pusher.git('checkout', '--orphan', 'orphan')
-        pusher.git('add', '-A')
-        pusher.git('commit', '-am', 'Rewritten history')
-        pusher.git('branch', '-D', 'master')
-        pusher.git('branch', '-m', 'master')
-        pusher.git('push', '-f', 'origin', 'master')
-
-        # Trigger backup
-        puller_backup = Puller(remote, path=puller.path, backup="true")
-        puller_backup.pull_all()
-
-        # Assert backup folder exists
-        backup_folder = glob.glob(os.path.join(os.path.dirname(puller.path), '*_backup_*'))
-        assert backup_folder[0].startswith(puller.path + "_backup_")
-
-        # Assert fresh copy of repo exists
-        assert os.path.exists(puller_backup.path) is True
-
-        # Cleanup fresh copy and any backup folders
-        shutil.rmtree(puller_backup.path)
-        for folder in backup_folder:
-            shutil.rmtree(folder)
+            # Trigger backup
+            with Puller(remote, path=puller.path, backup=True) as puller_backup:
+                # Assert backup folder exists
+                backup_folder = glob.glob(os.path.join(os.path.dirname(puller.path), '*_backup_*'))
+                assert any(folder.startswith(puller.path + "_backup_") for folder in backup_folder)
+                # Assert fresh copy of repo exists
+                assert os.path.exists(puller_backup.path) is True
+                # Cleanup backup folder
+                shutil.rmtree(puller_backup.path)
+                for folder in backup_folder:
+                    shutil.rmtree(folder)
 
 
 def test_from_exception_general():

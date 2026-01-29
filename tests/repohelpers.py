@@ -30,7 +30,8 @@ class Repository:
         return self
 
     def __exit__(self, *args):
-        shutil.rmtree(self.path)
+        if os.path.exists(self.path):
+            shutil.rmtree(self.path)
 
     def write_file(self, path, content):
         with open(os.path.join(self.path, path), 'w') as f:
@@ -71,7 +72,7 @@ class Pusher(Repository):
 
 
 class Puller(Repository):
-    def __init__(self, remote, path=None, branch="master", backup="false", *args, **kwargs):
+    def __init__(self, remote, path=None, branch="master", backup=False, *args, **kwargs):
         super().__init__(path)
         remotepath = "file://%s" % os.path.abspath(remote.path)
         self.gp = GitPuller(remotepath, self.path, branch=branch, backup=backup, *args, **kwargs)
