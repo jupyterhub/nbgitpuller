@@ -4,19 +4,19 @@ export function GitError(gitsync, data, buttonDiv) {
   const path = gitsync.targetpath;
   const url = new URL(window.location.href );
 
-
   if ("error" in data) {
-    if (data.error.code == "merge") {
-      url.searchParams.append("backup", "true");
-      return MergeConflictHelp(data, path, url, buttonDiv);
-    } else if (data.error.code == "branch_exist") {
-      return BranchExistHelp(data, repo, branch)
-    } else if (data.error.code == "branch_resolve") {
-      return BranchResolveHelp(data, repo)
-    } else if (data.error.code == "ls_remote") {
-      return RemoteHelp(data, repo)
-    } else {
-      return GeneralHelp()
+    switch (data.error.code) {
+      case "merge":
+        url.searchParams.append("backup", "true");
+        return MergeConflictHelp(data, path, url, buttonDiv);
+      case "branch_exist":
+        return BranchExistHelp(data, repo, branch)
+      case "branch_resolve":
+        return BranchResolveHelp(data, repo)
+      case "ls_remote":
+        return RemoteHelp(data, repo)
+      default:
+        return GeneralHelp()
     }
   } else {
     data.error ??= {};

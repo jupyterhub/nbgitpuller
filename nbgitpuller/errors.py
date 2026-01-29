@@ -52,7 +52,7 @@ class GitPullerError(Exception):
             # Categorise errors based on specific git commands
             if exc.cmd[1] == "clone":
                 return CloneError(traceback_message)
-            elif exc.cmd[5] == "merge":
+            elif len(exc.cmd) >5 and exc.cmd[5] == "merge":
                 return MergeError(traceback_message)
             elif exc.cmd[1] == "ls-remote":
                 return RemoteError(traceback_message)                
@@ -106,7 +106,7 @@ class BranchResolveError(GitPullerError):
         )
 
 class RemoteError(GitPullerError):
-    code="ls_remote",
+    code="ls_remote"
     message="Remote content unavailable"
 
     def __init__(self, traceback_message=None):
