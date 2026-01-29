@@ -63,9 +63,9 @@ If you would like to share content from a private GitHub repository, you can use
    ```
 
    - To configure helm chart values for [Zero to JupyterHub](https://z2jh.jupyter.org/en/stable/) clusters with the `gitconfig` file, see the documentation on [singleuser extra files](https://z2jh.jupyter.org/en/latest/resources/reference.html#singleuser-extrafiles)
-      - We recommend setting `mountPath: /etc/gitconfig` and `stringData` with the contents of the `gitconfig` file above
-      - However if the software image is using git from conda-forge, the file should be mounted in `${CONDA_PREFIX}/etc/gitconfig`
-      - You can also try using `git config --system --list --show-origin` in the software image to show where the system-wide git config file is located.
+     - We recommend setting `mountPath: /etc/gitconfig` and `stringData` with the contents of the `gitconfig` file above
+     - However if the software image is using git from conda-forge, the file should be mounted in `${CONDA_PREFIX}/etc/gitconfig`
+     - You can also try using `git config --system --list --show-origin` in the software image to show where the system-wide git config file is located.
 
 1. Install the GitHub app to the private repo
    - Go to the ‘Public page’ of the GitHub app created. This usually is of the form `https://github.com/apps/<name-of-app>`. You can find this in the information page of the app after you create it, under ‘Public link’
