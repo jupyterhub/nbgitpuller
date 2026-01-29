@@ -28,9 +28,11 @@ JupyterHub level to make it possible, rather than in nbgitpuller
 Please do not include [personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#about-personal-access-tokens) in the nbgitpuller link, e.g. using a GitHub repo URL of the form `https://login:<TOKEN>@hostname/path.git`, since this is logged on the Jupyter server. Anyone with access to server can therefore see your private token.
 ```
 
-If you would like to share content from a private repository, you can use [git-credential-helpers](https://github.com/yuvipanda/git-credential-helpers) to do so.
+If you would like to share content from a private GitHub repository, you can use [git-credential-helpers](https://github.com/yuvipanda/git-credential-helpers) to do so.
 
 ### Steps
+
+Note that these steps work for private GitHub repositories only.
 
 1. Install [git-credential-helpers](https://github.com/yuvipanda/git-credential-helpers) together with `nbgitpuller`
 1. Setup a GitHub app to allow read access to the private repository
