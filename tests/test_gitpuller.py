@@ -121,7 +121,7 @@ def test_exception_resolve_default_branch():
             try:
                 puller.gp.resolve_default_branch()
             except Exception as e:
-                assert type(e) == BranchResolveError
+                assert isinstance(e, BranchResolveError)
             puller.gp.git_url = orig_url
 
 
