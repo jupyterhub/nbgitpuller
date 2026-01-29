@@ -83,7 +83,7 @@ export class GitSyncView{
         const error = GitError(gitsync, data);
         this.containerErrorHelp.insertAdjacentHTML("afterbegin", DOMPurify.sanitize(error.body));
         if (error.button) {
-            this.recoveryLink.prepend(error.button)
+            this.recoveryLink.prepend(DOMPurify.sanitize(error.button, {RETURN_DOM_FRAGMENT: true}))
         };
     }
 }

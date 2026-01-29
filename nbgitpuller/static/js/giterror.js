@@ -27,17 +27,7 @@ export function GitError(gitsync, data) {
 };
 
 function ButtonBackupAndResync(url) {
-  const a = document.createElement("backup-button")
-  a.ref = url;
-  a.className = "btn btn-primary";
-  a.role = "button";
-  a.style.marginRight = "5px";
-  a.textContent = "Backup and resync";
-  a.setAttribute(
-    "aria-label",
-    "Backup and resync, then go to Jupyter server."
-  );
-  return a;
+  return `<a class="btn btn-primary mx-5" href="${url}" role="button" aria-label="Backup and resync, then go to Jupyter server">Backup and resync</a>`;
 };
 
 function MergeConflictHelp (data, path, url) {
