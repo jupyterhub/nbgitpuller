@@ -84,10 +84,7 @@ class GitPuller(Configurable):
             self.branch_exists(self.branch_name)
 
         if backup and os.path.exists(self.repo_dir):
-            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-            backup_dir = f"{self.repo_dir}_backup_{timestamp}"
-            os.rename(self.repo_dir, backup_dir)
-            logging.info('Backed up folder {}'.format(backup_dir))
+            self.backup_repo_dir()
 
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
@@ -147,6 +144,20 @@ class GitPuller(Configurable):
             error = BranchResolveError()
             logging.exception(error)
             raise error
+
+    def backup_repo_dir(self):
+        """
+        Backup the existing repo_dir if URL parameter backup=true.
+        """
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        backup_dir = f"{self.repo_dir}_backup_{timestamp}"
+        if not os.path.exists(backup_dir):
+            os.rename(self.repo_dir, backup_dir)
+        else:
+            # Avoid overwriting backup_dir if it somehow exists
+            backup_dir = backup_dir + ".latest"
+            os.rename(self.repo_dir, backup_dir)
+        logging.info('Backed up folder {}'.format(backup_dir))
 
     def pull(self):
         """
