@@ -4,6 +4,7 @@ import logging
 import time
 import argparse
 import datetime
+from itertools import count
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
@@ -152,8 +153,11 @@ class GitPuller(Configurable):
         if not os.path.exists(backup_dir):
             os.rename(self.repo_dir, backup_dir)
         else:
-            # Avoid overwriting backup_dir if it somehow exists
-            backup_dir = backup_dir + ".latest"
+            # Never clobber backup_dir if it somehow exists
+            base_dir = backup_dir
+            candidate = (f"{base_dir}.latest_{i}" for i in count())
+            while os.path.exists(backup_dir):
+                backup_dir = next(candidate)
             os.rename(self.repo_dir, backup_dir)
         logging.info('Backed up folder {}'.format(backup_dir))
 
