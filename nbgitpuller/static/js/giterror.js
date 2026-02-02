@@ -2,11 +2,11 @@ export function GitError(gitsync, data) {
   const repo = gitsync.repo;
   const branch = gitsync.branch;
   const path = gitsync.targetpath;
-  const url = new URL(window.location.href );
 
   if ("error" in data) {
     switch (data.error.code) {
       case "merge":
+        const url = new URL(window.location.href );
         url.searchParams.append("backup", "true");
         return MergeConflictHelp(data, path, url);
       case "branch_exist":
