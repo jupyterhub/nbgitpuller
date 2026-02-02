@@ -116,8 +116,6 @@ class GitPuller(Configurable):
         if branch in branches:
             return
         else:
-            error = BranchExistError()
-            logging.exception(error)
             raise BranchExistError()
 
 

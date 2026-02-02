@@ -91,14 +91,14 @@ class SyncHandler(JupyterHandler):
             except Exception as e:
                 err = GitPullerError.from_exception(e)
                 err.traceback = GitPullerError.format_traceback(e)
-                err = err.to_dict()
+                err_out = err.to_dict()
                 await self.emit({
                     'phase': 'error',
-                    'message': err["message"],
-                    'error': err,
-                    'output': err["traceback"],
+                    'message': err_out["message"],
+                    'error': err_out,
+                    'output': err_out["traceback"],
                 })
-                raise
+                raise err
 
 
             q = Queue()
@@ -125,14 +125,15 @@ class SyncHandler(JupyterHandler):
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
-                    err = GitPullerError.from_exception(progress).to_dict()
+                    e = GitPullerError.from_exception(progress)
+                    err = e.to_dict()
                     await self.emit({
                         'phase': 'error',
                         'message': str(progress),
                         'error': err,
                         'output': err["traceback"]
                     })
-                    return
+                    raise e
 
                 await self.emit({'output': progress, 'phase': 'syncing'})
 
