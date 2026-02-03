@@ -1,5 +1,5 @@
-from .version import __version__ # noqa
-from .pull import GitPuller # noqa
+from nbgitpuller.version import __version__ # noqa
+from nbgitpuller.pull import GitPuller # noqa
 from jupyter_server.utils import url_path_join
 from tornado.web import StaticFileHandler
 import os

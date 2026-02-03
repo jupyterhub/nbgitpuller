@@ -4,9 +4,11 @@ import logging
 import time
 import argparse
 import datetime
+from itertools import count
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
+from nbgitpuller.errors import BranchExistError, BranchResolveError
 
 
 def execute_cmd(cmd, **kwargs):
@@ -73,16 +75,21 @@ class GitPuller(Configurable):
         assert git_url
 
         self.git_url = git_url
-        self.branch_name = kwargs.pop("branch")
+        self.branch_name = kwargs.pop("branch", None)
+        self.repo_dir = repo_dir
+        backup = kwargs.pop("backup", False)
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
-        elif not self.branch_exists(self.branch_name):
-            raise ValueError(f"Branch: {self.branch_name} -- not found in repo: {self.git_url}")
+        else:
+            self.branch_exists(self.branch_name)
 
-        self.repo_dir = repo_dir
+        if backup and os.path.exists(self.repo_dir):
+            self.backup_repo_dir()
+
         newargs = {k: v for k, v in kwargs.items() if v is not None}
         super(GitPuller, self).__init__(**newargs)
+
 
     def branch_exists(self, branch):
         """
@@ -107,7 +114,11 @@ class GitPuller(Configurable):
             _, ref = line.split()
             refs, heads, branch_name = ref.split("/", 2)
             branches.append(branch_name)
-        return branch in branches
+        if branch in branches:
+            return
+        else:
+            raise BranchExistError()
+
 
     def resolve_default_branch(self):
         """
@@ -127,11 +138,28 @@ class GitPuller(Configurable):
                     _, ref, head = line.split()
                     refs, heads, branch_name = ref.split("/", 2)
                     return branch_name
-            raise ValueError(f"default branch not found in {self.git_url}")
+            raise BranchResolveError()
         except subprocess.CalledProcessError:
-            m = f"Problem accessing HEAD branch: {self.git_url}"
-            logging.exception(m)
-            raise ValueError(m)
+            error = BranchResolveError()
+            logging.exception(error)
+            raise error
+
+    def backup_repo_dir(self):
+        """
+        Backup the existing repo_dir if URL parameter backup=true.
+        """
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        backup_dir = f"{self.repo_dir}_backup_{timestamp}"
+        if not os.path.exists(backup_dir):
+            os.rename(self.repo_dir, backup_dir)
+        else:
+            # Never clobber backup_dir if it somehow exists
+            base_dir = backup_dir
+            candidate = (f"{base_dir}.latest_{i}" for i in count())
+            while os.path.exists(backup_dir):
+                backup_dir = next(candidate)
+            os.rename(self.repo_dir, backup_dir)
+        logging.info('Backed up folder {}'.format(backup_dir))
 
     def pull(self):
         """
@@ -356,12 +384,14 @@ def main():
     parser.add_argument('git_url', help='Url of the repo to sync')
     parser.add_argument('branch_name', default=None, help='Branch of repo to sync', nargs='?')
     parser.add_argument('repo_dir', default='.', help='Path to clone repo under', nargs='?')
+    parser.add_argument('--backup', action='store_true', default=False, help='Whether to backup existing repo_dir if it exists')
     args = parser.parse_args()
 
     for line in GitPuller(
         args.git_url,
         args.repo_dir,
-        branch=args.branch_name if args.branch_name else None
+        branch=args.branch_name if args.branch_name else None,
+        backup=args.backup if args.backup else False,
     ).pull():
         print(line)
 

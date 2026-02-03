@@ -2,9 +2,11 @@
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebLinksAddon } from 'xterm-addon-web-links';
+import { GitError } from './giterror';
+import DOMPurify from 'dompurify';
 
 export class GitSyncView{
-    constructor(termSelector, progressSelector, termToggleSelector, containerErrorSelector, copyErrorSelector) {
+    constructor(termSelector, progressSelector, termToggleSelector, containerErrorSelector, copyErrorSelector, containerErrorHelpSelector, recoveryLink) {
         // Class that encapsulates view rendering as much as possible
         this.term = new Terminal({
             convertEol: true
@@ -20,6 +22,8 @@ export class GitSyncView{
         this.termElement = document.querySelector(termSelector);
         this.containerError = document.querySelector(containerErrorSelector);
         this.copyError = document.querySelector(copyErrorSelector);
+        this.containerErrorHelp = document.querySelector(containerErrorHelpSelector);
+        this.recoveryLink = document.querySelector(recoveryLink),
 
         this.termToggle.onclick = () => this.setTerminalVisibility(!this.visible)
     }
@@ -65,18 +69,21 @@ export class GitSyncView{
         }
     }
 
-    setContainerError(isError, errorText='') {
-        if (isError) {
-            this.containerError.classList.toggle('hidden', !this.visible);
-        }
+    setContainerError(gitsync, data) {
+        this.containerError.classList.remove('hidden');
         const button = this.copyError;
         button.onclick = async () => {
             try {
-                await navigator.clipboard.writeText(errorText);
+                await navigator.clipboard.writeText(data.errorOutput);
                 button.innerHTML = 'Error message copied!';
             } catch (err) {
                 console.error('Failed to copy error text: ', err);
             }
         }
+        const error = GitError(gitsync, data);
+        this.containerErrorHelp.insertAdjacentHTML("afterbegin", DOMPurify.sanitize(error.body));
+        if (error.button) {
+            this.recoveryLink.prepend(DOMPurify.sanitize(error.button, {RETURN_DOM_FRAGMENT: true}))
+        };
     }
 }

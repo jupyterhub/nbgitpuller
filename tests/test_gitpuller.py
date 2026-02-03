@@ -1,6 +1,7 @@
 import os
 import subprocess as sp
 import glob
+import shutil
 import time
 from uuid import uuid4
 import pytest
@@ -9,11 +10,12 @@ import tempfile
 from traitlets.config.configurable import Configurable
 
 from repohelpers import Remote, Pusher, Puller
+from nbgitpuller.errors import GitPullerError, BranchResolveError
 
 
 # Tests to write:
 # 1. Initialize puller with gitpuller, test for user config & commit presence
-# 2. Push commit with pusher, pull with puller, valiate that nothing has changeed
+# 2. Push commit with pusher, pull with puller, validate that nothing has changed
 # 3. Delete file in puller, run puller, make sure file is back
 # 4. Make change in puller to file, make change in pusher to different part of file, run puller
 # 5. Make change in puller to file, make change in pusher to same part of file, run puller
@@ -80,8 +82,17 @@ def test_branch_exists():
         pusher.push_file('README.md', '1')
         with Puller(remote) as puller:
             puller.pull_all()
-            assert not puller.gp.branch_exists("wrong")
-            assert puller.gp.branch_exists("master")
+            puller.gp.branch_exists("master")
+
+
+def test_branch_invalid():
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+        with Puller(remote) as puller:
+            puller.pull_all()
+            with pytest.raises(GitPullerError) as e:
+                puller.gp.branch_exists("wrong")
+            assert e.value.code == "branch_exist"
 
 
 def test_exception_branch_exists():
@@ -110,7 +121,7 @@ def test_exception_resolve_default_branch():
             try:
                 puller.gp.resolve_default_branch()
             except Exception as e:
-                assert type(e) == ValueError
+                assert isinstance(e, BranchResolveError)
             puller.gp.git_url = orig_url
 
 
@@ -581,3 +592,57 @@ def test_pull_on_shallow_clone(long_remote, clean_environment):
             assert new_head == upstream_head
 
             pusher.git('push', '--force', 'origin', '%s:master' % orig_head)
+
+
+def test_backup_on_merge_conflict():
+    """
+    Test backup strategy after an unresolvable merge conflict.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+        with Puller(remote) as puller:
+            # Force push and rewrite history to create merge conflict
+            pusher.git('checkout', '--orphan', 'orphan')
+            pusher.git('add', '-A')
+            pusher.git('commit', '-am', 'Rewritten history')
+            pusher.git('branch', '-D', 'master')
+            pusher.git('branch', '-m', 'master')
+            pusher.git('push', '-f', 'origin', 'master')
+
+            # Trigger backup
+            with Puller(remote, path=puller.path, backup=True) as puller_backup:
+                # Assert backup folder exists
+                backup_folder = glob.glob(os.path.join(os.path.dirname(puller.path), '*_backup_*'))
+                assert any(folder.startswith(puller.path + "_backup_") for folder in backup_folder)
+                # Assert fresh copy of repo exists
+                assert os.path.exists(puller_backup.path) is True
+                # Cleanup backup folder
+                shutil.rmtree(puller_backup.path)
+                for folder in backup_folder:
+                    shutil.rmtree(folder)
+
+
+def test_from_exception_general():
+    """
+    Test GitPullerError can handle general exceptions not yet categorised.
+    """
+    message_str = "general error"
+    try:
+        raise ValueError(message_str)
+    except Exception as exc:
+        err = GitPullerError.from_exception(exc)
+    assert isinstance(err, GitPullerError)
+    assert err.code == "unknown"
+    assert err.message == message_str
+    assert err.traceback is not None
+    assert "ValueError" in err.traceback
+
+
+def test_error_is_serialized():
+    """
+    Test that GitPullerError.to_dict() method is serializable for event streams with specific data keys.
+    """
+    exc = Exception("error")
+    err = GitPullerError.from_exception(exc)
+    data = err.to_dict()
+    assert set(data.keys()) == {"code", "message", "traceback"}

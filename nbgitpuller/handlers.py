@@ -8,9 +8,10 @@ import os
 from queue import Queue, Empty
 import jinja2
 
-from .pull import GitPuller
-from .version import __version__
-from ._compat import get_base_handler
+from nbgitpuller.pull import GitPuller
+from nbgitpuller.errors import GitPullerError
+from nbgitpuller.version import __version__
+from nbgitpuller._compat import get_base_handler
 
 JupyterHandler = get_base_handler()
 
@@ -57,7 +58,7 @@ class SyncHandler(JupyterHandler):
         except gen.TimeoutError:
             await self.emit({
                 'phase': 'error',
-                'message': 'Another git operations is currently running, try again in a few minutes'
+                'message': 'Another git operation is currently running, try again in a few minutes'
             })
             return
 
@@ -65,6 +66,7 @@ class SyncHandler(JupyterHandler):
             repo = self.get_argument('repo')
             branch = self.get_argument('branch', None)
             depth = self.get_argument('depth', None)
+            backup = self.get_argument('backup', False)
             if depth:
                 depth = int(depth)
             # The default working directory is the directory from which Jupyter
@@ -84,7 +86,20 @@ class SyncHandler(JupyterHandler):
             self.set_header('content-type', 'text/event-stream')
             self.set_header('cache-control', 'no-cache')
 
-            gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, parent=self.settings['nbapp'])
+            try:
+                gp = GitPuller(repo, repo_dir, branch=branch, depth=depth, backup=backup, parent=self.settings['nbapp'])
+            except Exception as e:
+                err = GitPullerError.from_exception(e)
+                err.traceback = GitPullerError.format_traceback(e)
+                err_out = err.to_dict()
+                await self.emit({
+                    'phase': 'error',
+                    'message': err_out["message"],
+                    'error': err_out,
+                    'output': err_out["traceback"],
+                })
+                raise err
+
 
             q = Queue()
 
@@ -110,17 +125,15 @@ class SyncHandler(JupyterHandler):
                 if progress is None:
                     break
                 if isinstance(progress, Exception):
+                    e = GitPullerError.from_exception(progress)
+                    err = e.to_dict()
                     await self.emit({
                         'phase': 'error',
                         'message': str(progress),
-                        'output': '\n'.join([
-                            line.strip()
-                            for line in traceback.format_exception(
-                                type(progress), progress, progress.__traceback__
-                            )
-                        ])
+                        'error': err,
+                        'output': err["traceback"]
                     })
-                    return
+                    raise e
 
                 await self.emit({'output': progress, 'phase': 'syncing'})
 
@@ -159,11 +172,12 @@ class UIHandler(JupyterHandler):
         # working directory) and we end up with weird failures
         targetpath = self.get_argument('targetpath', None) or \
                      self.get_argument('targetPath', repo.rstrip('/').split('/')[-1])
+        backup = self.get_argument('backup', False)
 
         if urlPath:
-            path = urlPath
+            path = urlPath if not backup else os.path.join(parent_reldir)
         else:
-            path = os.path.join(parent_reldir, targetpath, subPath)
+            path = os.path.join(parent_reldir, targetpath, subPath) if not backup else os.path.join(parent_reldir)
             if app.lower() == 'lab':
                 path = 'lab/tree/' + path
             elif path.lower().endswith('.ipynb'):
@@ -173,7 +187,7 @@ class UIHandler(JupyterHandler):
 
         self.write(
             jinja_env.get_template('status.html').render(
-                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, version=__version__,
+                repo=repo, branch=branch, path=path, depth=depth, targetpath=targetpath, backup=backup, version=__version__,
                 **self.template_namespace
             )
         )

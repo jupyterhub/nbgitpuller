@@ -182,3 +182,18 @@ def test_clone_parenttargetpath(jupyterdir, jupyter_server):
         target_path = os.path.join(jupyterdir, parent, target)
         assert f"Cloning into '{target_path}" in s
         assert os.path.isdir(os.path.join(target_path, '.git'))
+
+
+def test_clone_backup(jupyterdir, jupyter_server):
+    """
+    Tests use of 'backup' parameter.
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', 'Testing some content')
+        params = {
+            'repo': remote.path,
+            'branch': 'master',
+            'backup': 'true',
+        }
+        r = request_api(params)
+        assert r.code == 200
