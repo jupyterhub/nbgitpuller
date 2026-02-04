@@ -1,3 +1,40 @@
+## 1.3
+
+### 1.3.0-beta - 2026-02-04
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.2...7af8b80))
+
+#### New features added
+
+- Add `copy error to clipboard` button [#382](https://github.com/jupyterhub/nbgitpuller/pull/382) ([@jnywong](https://github.com/jnywong), [@balajialg](https://github.com/balajialg), [@yuvipanda](https://github.com/yuvipanda))
+- Add link to go back to root when an error is thrown [#380](https://github.com/jupyterhub/nbgitpuller/pull/380) ([@cmarmo](https://github.com/cmarmo), [@jnywong](https://github.com/jnywong), [@nthiery](https://github.com/nthiery), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Documentation improvements
+
+- Add targetPath to link generator. [#368](https://github.com/jupyterhub/nbgitpuller/pull/368) ([@ryanlovett](https://github.com/ryanlovett), [@consideRatio](https://github.com/consideRatio))
+- docs: Add warning about private tokens [#387](https://github.com/jupyterhub/nbgitpuller/pull/387) ([@jnywong](https://github.com/jnywong), [@ryanlovett](https://github.com/ryanlovett), [@yuvipanda](https://github.com/yuvipanda))
+- Update reference to link.rst [#363](https://github.com/jupyterhub/nbgitpuller/pull/363) ([@jnywong](https://github.com/jnywong), [@GeorgianaElena](https://github.com/GeorgianaElena))
+
+#### Continuous integration improvements
+
+- Bump actions/checkout from 5 to 6 [#381](https://github.com/jupyterhub/nbgitpuller/pull/381) ([@consideRatio](https://github.com/consideRatio))
+- Bump actions/setup-node from 5 to 6 [#377](https://github.com/jupyterhub/nbgitpuller/pull/377) ([@manics](https://github.com/manics))
+- Bump actions/setup-python from 5 to 6 [#376](https://github.com/jupyterhub/nbgitpuller/pull/376) ([@consideRatio](https://github.com/consideRatio))
+- Bump actions/checkout from 4 to 5 [#375](https://github.com/jupyterhub/nbgitpuller/pull/375) ([@consideRatio](https://github.com/consideRatio))
+- Bump actions/setup-node from 4 to 5 [#374](https://github.com/jupyterhub/nbgitpuller/pull/374) ([@consideRatio](https://github.com/consideRatio))
+- Support building on mybinder.org to ease testing [#258](https://github.com/jupyterhub/nbgitpuller/pull/258) ([@manics](https://github.com/manics), [@consideRatio](https://github.com/consideRatio), [@minrk](https://github.com/minrk))
+- [pre-commit.ci] pre-commit autoupdate [#371](https://github.com/jupyterhub/nbgitpuller/pull/371) ([@consideRatio](https://github.com/consideRatio))
+- [pre-commit.ci] pre-commit autoupdate [#366](https://github.com/jupyterhub/nbgitpuller/pull/366) ([@yuvipanda](https://github.com/yuvipanda))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2025-01-27&to=2026-02-03&type=c))
+
+@balajialg ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2025-01-27..2026-02-03&type=Issues)) | @cmarmo ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Acmarmo+updated%3A2025-01-27..2026-02-03&type=Issues)) | @consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2025-01-27..2026-02-03&type=Issues)) | @GeorgianaElena ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AGeorgianaElena+updated%3A2025-01-27..2026-02-03&type=Issues)) | @jacobtomlinson ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajacobtomlinson+updated%3A2025-01-27..2026-02-03&type=Issues)) | @jnywong ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajnywong+updated%3A2025-01-27..2026-02-03&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2025-01-27..2026-02-03&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aminrk+updated%3A2025-01-27..2026-02-03&type=Issues)) | @nthiery ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Anthiery+updated%3A2025-01-27..2026-02-03&type=Issues)) | @ryanlovett ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aryanlovett+updated%3A2025-01-27..2026-02-03&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2025-01-27..2026-02-03&type=Issues))
+
 ## 1.2
 
 ### 1.2.2 - 2025-01-27
