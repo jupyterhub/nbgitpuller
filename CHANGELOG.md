@@ -1,6 +1,6 @@
 ## 1.3
 
-### 1.3.0-beta - 2026-02-04
+### 1.3.0b1 (beta release) - 2026-02-04
 
 ([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.2...7af8b80))
 
