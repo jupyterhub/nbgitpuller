@@ -118,7 +118,12 @@ Use the following form to create your own ``nbgitpuller`` links.
                  <div class="input-group-prepend">
                    <span class="input-group-text" id="content-branch-prepend-label">branch</span>
                  </div>
-                 <input name="content-branch" id="content-branch" type="text" class="form-control" value="master" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
+                 <input name="content-branch" id="content-branch" type="text" class="form-control" value="main" aria-label="Branch Name" aria-describedby="content-branch-prepend-label">
+                 <small class="form-text text-muted">
+                    Use <code>master</code> instead of <code>main</code> for
+                    <a href="https://github.blog/changelog/2020-10-01-the-default-branch-for-newly-created-repositories-is-now-main/">
+                    old GitHub repositories</a>
+                 </small>
                </div>
              </div>
             </div>
