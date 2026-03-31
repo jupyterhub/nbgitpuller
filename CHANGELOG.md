@@ -1,5 +1,44 @@
 ## 1.3
 
+### 1.3.0 - 2026-03-31
+
+([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.2...b1179b2a0e174ace54deb59cadfbf0a314a7e10b))
+
+#### Enhancements made
+
+- Structured error handling [#383](https://github.com/jupyterhub/nbgitpuller/pull/383) ([@jnywong](https://github.com/jnywong), [@agoose77](https://github.com/agoose77), [@minrk](https://github.com/minrk), [@nthiery](https://github.com/nthiery), [@yuvipanda](https://github.com/yuvipanda))
+- Add `copy error to clipboard` button [#382](https://github.com/jupyterhub/nbgitpuller/pull/382) ([@jnywong](https://github.com/jnywong), [@balajialg](https://github.com/balajialg), [@yuvipanda](https://github.com/yuvipanda))
+- Add link to go back to root when an error is thrown [#380](https://github.com/jupyterhub/nbgitpuller/pull/380) ([@cmarmo](https://github.com/cmarmo), [@jnywong](https://github.com/jnywong), [@nthiery](https://github.com/nthiery), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Documentation improvements
+
+- Default to 'main' in nbgitpuller link generator [#393](https://github.com/jupyterhub/nbgitpuller/pull/393) ([@yuvipanda](https://github.com/yuvipanda), [@jnywong](https://github.com/jnywong), [@manics](https://github.com/manics))
+- docs: Change beta release name to match tbump version templates [#391](https://github.com/jupyterhub/nbgitpuller/pull/391) ([@jnywong](https://github.com/jnywong), [@consideRatio](https://github.com/consideRatio))
+- Add changelog for 1.3.0-beta [#390](https://github.com/jupyterhub/nbgitpuller/pull/390) ([@jnywong](https://github.com/jnywong), [@yuvipanda](https://github.com/yuvipanda))
+- docs: Add warning about private tokens [#387](https://github.com/jupyterhub/nbgitpuller/pull/387) ([@jnywong](https://github.com/jnywong), [@ryanlovett](https://github.com/ryanlovett), [@yuvipanda](https://github.com/yuvipanda))
+- Add targetPath to link generator. [#368](https://github.com/jupyterhub/nbgitpuller/pull/368) ([@ryanlovett](https://github.com/ryanlovett), [@consideRatio](https://github.com/consideRatio))
+- Update reference to link.rst [#363](https://github.com/jupyterhub/nbgitpuller/pull/363) ([@jnywong](https://github.com/jnywong), [@GeorgianaElena](https://github.com/GeorgianaElena))
+
+#### Continuous integration improvements
+
+- Bump actions/checkout from 5 to 6 [#381](https://github.com/jupyterhub/nbgitpuller/pull/381) ([@consideRatio](https://github.com/consideRatio))
+- Bump actions/setup-node from 5 to 6 [#377](https://github.com/jupyterhub/nbgitpuller/pull/377) ([@manics](https://github.com/manics))
+- Bump actions/setup-python from 5 to 6 [#376](https://github.com/jupyterhub/nbgitpuller/pull/376) ([@consideRatio](https://github.com/consideRatio))
+- Bump actions/checkout from 4 to 5 [#375](https://github.com/jupyterhub/nbgitpuller/pull/375) ([@consideRatio](https://github.com/consideRatio))
+- Bump actions/setup-node from 4 to 5 [#374](https://github.com/jupyterhub/nbgitpuller/pull/374) ([@consideRatio](https://github.com/consideRatio))
+- [pre-commit.ci] pre-commit autoupdate [#371](https://github.com/jupyterhub/nbgitpuller/pull/371) ([@consideRatio](https://github.com/consideRatio))
+- [pre-commit.ci] pre-commit autoupdate [#366](https://github.com/jupyterhub/nbgitpuller/pull/366) ([@yuvipanda](https://github.com/yuvipanda))
+- Support building on mybinder.org to ease testing [#258](https://github.com/jupyterhub/nbgitpuller/pull/258) ([@manics](https://github.com/manics), [@consideRatio](https://github.com/consideRatio), [@minrk](https://github.com/minrk))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/nbgitpuller/graphs/contributors?from=2025-01-27&to=2026-03-31&type=c))
+
+@agoose77 ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aagoose77+updated%3A2025-01-27..2026-03-31&type=Issues)) | @balajialg ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Abalajialg+updated%3A2025-01-27..2026-03-31&type=Issues)) | @cmarmo ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Acmarmo+updated%3A2025-01-27..2026-03-31&type=Issues)) | @consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AconsideRatio+updated%3A2025-01-27..2026-03-31&type=Issues)) | @ericvd-ucb ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aericvd-ucb+updated%3A2025-01-27..2026-03-31&type=Issues)) | @GeorgianaElena ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3AGeorgianaElena+updated%3A2025-01-27..2026-03-31&type=Issues)) | @jacobtomlinson ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajacobtomlinson+updated%3A2025-01-27..2026-03-31&type=Issues)) | @jnywong ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ajnywong+updated%3A2025-01-27..2026-03-31&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Amanics+updated%3A2025-01-27..2026-03-31&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aminrk+updated%3A2025-01-27..2026-03-31&type=Issues)) | @nthiery ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Anthiery+updated%3A2025-01-27..2026-03-31&type=Issues)) | @ryanlovett ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Aryanlovett+updated%3A2025-01-27..2026-03-31&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fnbgitpuller+involves%3Ayuvipanda+updated%3A2025-01-27..2026-03-31&type=Issues))
+
 ### 1.3.0b1 (beta release) - 2026-02-04
 
 ([full changelog](https://github.com/jupyterhub/nbgitpuller/compare/1.2.2...7af8b80))
