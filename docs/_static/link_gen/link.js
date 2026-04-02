@@ -166,6 +166,18 @@ function generateCloneDirectoryName(gitCloneUrl) {
     return lastPart.split(':').slice(-1)[0].replace(/(\.git|\.bundle)?/, '');
 }
 
+/**
+ * Return the effective clone directory to use in urlpath construction.
+ *
+ * If targetPath is provided (non-empty after trimming), use it as the directory
+ * where the repo will be cloned. Otherwise, fall back to the default name
+ * (typically derived from the repo URL).
+ */
+function getEffectiveCloneDirectory(targetPath, defaultName) {
+    var trimmedPath = targetPath ? targetPath.trim() : '';
+    return trimmedPath ? trimmedPath : defaultName;
+}
+
 function displayLink() {
     var form = document.getElementById('linkgenerator');
 
@@ -186,12 +198,14 @@ function displayLink() {
             var urlPath = document.getElementById('urlpath').value;
         } else {
             var repoName = generateCloneDirectoryName(repoUrl);
+            var cloneDirectory = getEffectiveCloneDirectory(targetPath, repoName);
             var urlPath;
             if (activeTab === "tab-auth-binder") {
                 var contentRepoName = new URL(contentRepoUrl).pathname.split('/').pop().replace(/\.git$/, '');
-                urlPath = apps[appName].generateUrlPath(contentRepoName + '/' + filePath);
+                var binderCloneDir = getEffectiveCloneDirectory(targetPath, contentRepoName);
+                urlPath = apps[appName].generateUrlPath(binderCloneDir + '/' + filePath);
             } else {
-                urlPath = apps[appName].generateUrlPath(repoName + '/' + filePath);
+                urlPath = apps[appName].generateUrlPath(cloneDirectory + '/' + filePath);
             }
         }
 
