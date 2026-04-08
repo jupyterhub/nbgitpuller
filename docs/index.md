@@ -68,6 +68,7 @@ contributing
 topic/automatic-merging
 topic/url-options
 topic/repo-best-practices
+topic/vscode
 faq
 link
 ```
