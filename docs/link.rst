@@ -177,11 +177,47 @@ Use the following form to create your own ``nbgitpuller`` links.
                  </label>
                </div>
                <div class="form-check">
+                 <input class="form-check-input" type="radio" name="app" id="app-vscode" value="vscode">
+                 <label class="form-check-label text-dark" for="app-vscode">
+                   VSCode
+                 </label>
+               </div>
+               <div class="form-check">
                  <input class="form-check-input" type="radio" name="app" id="app-custom" value="custom">
                  <label class="form-check-label text-dark" for="app-custom">Custom URL</label>
                  <input class="form-control form-control-sm" type="text" id="urlpath" placeholder="Relative URL to redirect user to"
                    oninput="displayLink()">
                </div>
+             </div>
+           </div>
+
+           <div class="form-group row" id="vscode-home-container" hidden="true">
+             <label for="vscode-home" class="col-sm-2 col-form-label">Home directory</label>
+             <div class="col-sm-10">
+               <input class="form-control" type="text" id="vscode-home" value="/home/jovyan"
+                 list="vscode-home-suggestions" placeholder="/home/jovyan" pattern="/.*"
+                 oninput="displayLink()">
+               <datalist id="vscode-home-suggestions">
+                 <option value="/home/jovyan"></option>
+                 <option value="/home/jupyter-USERNAME"></option>
+               </datalist>
+               <div class="invalid-feedback">
+                 Enter an absolute home directory path, starting with <code>/</code> (e.g.
+                 <code>/home/jovyan</code>).
+               </div>
+               <small class="form-text text-muted">
+                 Absolute path to the user's home directory on the hub, where the repo is cloned.
+                 <em>Must</em> start with <code>/</code> (relative paths and <code>~</code> are not
+                 supported). The values below are <strong>defaults</strong> for common hub types;
+                 your hub admin may have configured a different path, so check with them if you are
+                 unsure (or run <code>echo $HOME</code> in a terminal on the hub):
+                 <ul class="mb-0">
+                   <li><code>/home/jovyan</code>: default for Zero to JupyterHub (Z2JH).</li>
+                   <li><code>/home/jupyter-USERNAME</code>: default for The Littlest
+                   JupyterHub (TLJH); replace <code>USERNAME</code> accordingly. <em>Because the path
+                   differs per user, a single shared link can only open the file for that one user.</em></li>
+                 </ul>
+               </small>
              </div>
            </div>
 

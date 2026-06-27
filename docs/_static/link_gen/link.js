@@ -118,6 +118,19 @@ var apps = {
     rstudio: {
         title: 'RStudio',
         generateUrlPath: function (path) { return 'rstudio/'; }
+    },
+    vscode: {
+        title: 'VSCode',
+        generateUrlPath: function (path) {
+            var homeDir = document.getElementById('vscode-home').value.trim();
+            var fullPath = homeDir + '/' + path;
+            if (path.endsWith('/')) {
+                // No file specified, open the repo folder
+                return 'vscode/?folder=' + fullPath.replace(/\/+$/, '');
+            }
+            // File specified
+            return 'vscode/?payload=[["openFile","vscode-remote://' + fullPath + '"]]\n';
+        }
     }
 }
 
@@ -218,7 +231,7 @@ function populateFromQueryString() {
     // preseed values if specified in the url
     var params = new URLSearchParams(window.location.search);
     // Parameters are read from query string, and <input> fields are set to them
-    var allowedParams = ['hub', 'repo', 'content-repo', 'branch', 'app', 'urlpath'];
+    var allowedParams = ['hub', 'repo', 'content-repo', 'branch', 'app', 'urlpath', 'vscode-home'];
     if (params.has("urlpath")) {
         // setting urlpath implies a custom app
         document.getElementById('app-custom').checked = true;
@@ -261,6 +274,11 @@ function render() {
             document.getElementById('filepath').disabled = false;
         }
     }
+
+    // Toggle the home directory field that only applies to VSCode
+    var isVscode = (appName === 'vscode');
+    document.getElementById('vscode-home-container').hidden = !isVscode;
+    document.getElementById('vscode-home').required = isVscode;
     displayLink();
 }
 
