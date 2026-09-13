@@ -115,3 +115,14 @@ class RemoteError(GitPullerError):
             message= self.message,
             traceback_message=traceback_message
         )
+
+class RemoteMismatchError(GitPullerError):
+    code="remote_mismatch"
+    message="Existing repository was cloned from a different remote"
+
+    def __init__(self, traceback_message=None):
+        super().__init__(
+            code = self.code,
+            message= self.message,
+            traceback_message=traceback_message
+        )

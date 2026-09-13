@@ -10,6 +10,8 @@ import tempfile
 from traitlets.config.configurable import Configurable
 
 from repohelpers import Remote, Pusher, Puller
+from nbgitpuller import GitPuller
+from nbgitpuller.pull import _repo_identity
 from nbgitpuller.errors import GitPullerError, BranchResolveError
 
 
@@ -592,6 +594,76 @@ def test_pull_on_shallow_clone(long_remote, clean_environment):
             assert new_head == upstream_head
 
             pusher.git('push', '--force', 'origin', '%s:master' % orig_head)
+
+
+def test_remote_mismatch():
+    """
+    Test that pulling into a repo cloned from a different remote fails loudly
+
+    Previously the pull silently fetched & merged the original remote,
+    ignoring the repository the user actually asked for.
+    """
+    with Remote() as remote, Remote() as other_remote:
+        with Pusher(remote) as pusher:
+            pusher.push_file('README.md', '1')
+        with Pusher(other_remote) as other_pusher:
+            other_pusher.push_file('OTHER.md', '2')
+
+        with Puller(remote) as puller:
+            other_url = "file://%s" % os.path.abspath(other_remote.path)
+            gp = GitPuller(other_url, puller.path, branch="master")
+
+            with pytest.raises(GitPullerError) as e:
+                for line in gp.pull():
+                    pass
+            assert e.value.code == "remote_mismatch"
+
+            # The local repo is untouched, and can still pull its own remote
+            assert puller.git('config', 'remote.origin.url') == puller.gp.git_url
+            assert puller.read_file('README.md') == '1'
+            assert not os.path.exists(os.path.join(puller.path, 'OTHER.md'))
+            puller.pull_all()
+
+
+def test_same_remote_equivalent_url():
+    """
+    Test that pulls succeed when the requested URL is spelled differently
+    but points to the same repository
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        with Puller(remote) as puller:
+            # Trailing slashes, a .git suffix or embedded credentials do not
+            # make a URL point to a different repository
+            equivalent_url = "file://%s/" % os.path.abspath(remote.path)
+            gp = GitPuller(equivalent_url, puller.path, branch="master")
+            for line in gp.pull():
+                pass
+            assert puller.read_file('README.md') == '1'
+
+
+@pytest.mark.parametrize('url_a,url_b', [
+    ('https://github.com/org/repo', 'https://github.com/org/repo.git'),
+    ('https://github.com/org/repo', 'https://github.com/org/repo/'),
+    ('https://github.com/org/repo', 'git@github.com:org/repo'),
+    ('https://github.com/org/repo', 'ssh://git@github.com/org/repo.git'),
+    ('https://github.com/org/repo', 'https://user:token@github.com/org/repo'),
+    ('https://github.com/org/repo', 'http://github.com/org/repo'),
+    ('file:///srv/repo', '/srv/repo'),
+])
+def test_repo_identity_equivalent(url_a, url_b):
+    assert _repo_identity(url_a) == _repo_identity(url_b)
+
+
+@pytest.mark.parametrize('url_a,url_b', [
+    ('https://github.com/org/repo', 'https://github.com/org/other'),
+    ('https://github.com/org/repo', 'https://gitlab.com/org/repo'),
+    ('https://github.com/org/repo', 'file:///srv/repo'),
+    ('file:///srv/repo', 'file:///srv/other'),
+])
+def test_repo_identity_different(url_a, url_b):
+    assert _repo_identity(url_a) != _repo_identity(url_b)
 
 
 def test_backup_on_merge_conflict():

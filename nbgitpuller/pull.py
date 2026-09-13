@@ -1,14 +1,16 @@
 import os
+import re
 import subprocess
 import logging
 import time
 import argparse
 import datetime
 from itertools import count
+from urllib.parse import urlsplit
 from traitlets import Integer, default
 from traitlets.config import Configurable
 from functools import partial
-from nbgitpuller.errors import BranchExistError, BranchResolveError
+from nbgitpuller.errors import BranchExistError, BranchResolveError, RemoteMismatchError
 
 
 def execute_cmd(cmd, **kwargs):
@@ -48,6 +50,36 @@ def execute_cmd(cmd, **kwargs):
         ret = proc.wait()
         if ret != 0:
             raise subprocess.CalledProcessError(ret, cmd)
+
+
+def _repo_identity(url):
+    """
+    Return a (host, path) tuple identifying the repository a git URL points to.
+
+    URLs that differ only in the scheme, credentials, a trailing slash or a
+    .git suffix are considered to point to the same repository.
+    """
+    if '://' in url:
+        parts = urlsplit(url)
+        # Drop any credentials embedded in the URL
+        host = parts.netloc.rsplit('@', 1)[-1]
+        if parts.scheme == 'file':
+            # Local path on this machine
+            path = parts.path
+        else:
+            path = parts.path.lstrip('/')
+    else:
+        # scp-like SSH syntax, e.g. git@github.com:org/repo
+        scp_form = re.match(r'^(?:[^/@]+@)?([^/:]+):(.+)$', url)
+        if scp_form:
+            host, path = scp_form.group(1), scp_form.group(2)
+        else:
+            # A local path, e.g. /srv/repo
+            host, path = '', url
+    path = path.rstrip('/')
+    if path.endswith('.git'):
+        path = path[:-len('.git')]
+    return host.lower(), path
 
 
 class GitPuller(Configurable):
@@ -223,6 +255,24 @@ class GitPuller(Configurable):
         except subprocess.CalledProcessError:
             return True
 
+    def ensure_remote(self):
+        """
+        Make sure the repo was cloned from the remote we are asked to pull from
+
+        If repo_dir was originally cloned from a different remote (for example,
+        a different repository whose contents should live under the same name),
+        fetching and merging would silently sync content from the wrong remote.
+        """
+        remote_url = subprocess.run(
+            ['git', 'config', 'remote.origin.url'],
+            cwd=self.repo_dir,
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+        if _repo_identity(remote_url) != _repo_identity(self.git_url):
+            raise RemoteMismatchError()
+
     def update_remotes(self):
         """
         Do a git fetch so our remotes are up to date
@@ -345,6 +395,9 @@ class GitPuller(Configurable):
         """
         Do the pulling if necessary
         """
+        # Refuse to sync if the existing clone tracks a different remote
+        self.ensure_remote()
+
         # Fetch remotes, so we know we're dealing with latest remote
         yield from self.update_remotes()
 

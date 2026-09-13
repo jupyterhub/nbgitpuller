@@ -15,6 +15,8 @@ export function GitError(gitsync, data) {
         return BranchResolveHelp(data, repo)
       case "ls_remote":
         return RemoteHelp(data, repo)
+      case "remote_mismatch":
+        return RemoteMismatchHelp(data, path, repo)
       default:
         return GeneralHelp()
     }
@@ -48,6 +50,18 @@ function BranchExistHelp (data, repo, branch) {
 function BranchResolveHelp (data, repo) {
   return {
     body: `<p class="lead">${data.error.message}</p><p>The link author did not provide a branch name for the source content hosted at URL <a href=${repo}>${repo}</a>, and no other branches could be found. Check with the link author that the URL is valid and ask them to provide an nbgitpuller link with the correct branch name.</p></p>`}
+};
+
+function RemoteMismatchHelp (data, path, repo) {
+  const url = new URL(window.location.href);
+  url.searchParams.append("backup", "true");
+  return {
+    body: `<p class="lead">${data.error.message}</p><p>The repository at <code>${path}</code> was previously cloned from a different remote than the source content <a href=${repo}>${repo}</a> provided by this link.</p><p><strong>Backup and resync</strong> to backup the current state of your repository and sync updates into a new separate folder:<ul>
+    <li><code>${path}_backup_YYYYMMDDHHMMSS</code> Timestamped backup folder containing the current state of your repository</li>
+    <li><code>${path}</code> New folder containing updated content.</li>
+    </ul></p>`,
+    button: ButtonBackupAndResync(url)
+  }
 };
 
 function RemoteHelp (data, repo) {
