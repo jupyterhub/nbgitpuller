@@ -489,6 +489,34 @@ def test_sync_with_staged_changes():
             puller.pull_all()
 
 
+def test_no_git_dir_in_parent():
+    """
+    Test that deleting the puller's .git directory makes pulls fail rather
+    than silently operate on a .git directory found in a parent directory.
+
+    Regression test for https://github.com/jupyterhub/nbgitpuller/issues/388
+    """
+    with Remote() as remote, Pusher(remote) as pusher:
+        pusher.push_file('README.md', '1')
+
+        # The puller lives inside another clone of the remote, like the
+        # nbgitpuller checkout in the issue report, so a git invocation that
+        # searched parent directories would find a valid .git with an origin
+        parent_path = os.path.join(tempfile.gettempdir(), str(uuid4()))
+        sp.check_output(['git', 'clone', remote.path, parent_path])
+        try:
+            with Puller(remote, os.path.join(parent_path, 'puller')) as puller:
+                shutil.rmtree(os.path.join(puller.path, '.git'))
+                os.remove(os.path.join(puller.path, 'README.md'))
+
+                with pytest.raises(sp.CalledProcessError):
+                    puller.pull_all()
+
+                assert not os.path.exists(os.path.join(puller.path, 'README.md'))
+        finally:
+            shutil.rmtree(parent_path)
+
+
 @pytest.fixture(scope='module')
 def long_remote():
     with Remote() as remote, Pusher(remote) as pusher:

@@ -11,7 +11,7 @@ from functools import partial
 from nbgitpuller.errors import BranchExistError, BranchResolveError
 
 
-def execute_cmd(cmd, **kwargs):
+def execute_cmd(cmd, env=None, **kwargs):
     """
     Call given command, yielding output line by line
     """
@@ -20,7 +20,7 @@ def execute_cmd(cmd, **kwargs):
     kwargs['stderr'] = subprocess.STDOUT
     # Explicitly set LANG=C, as `git` commandline output will be different if
     # the user environment has a different locale set!
-    kwargs['env'] = dict(os.environ, LANG='C')
+    kwargs['env'] = dict(env or os.environ, LANG='C')
 
     proc = subprocess.Popen(cmd, **kwargs)
 
@@ -78,6 +78,14 @@ class GitPuller(Configurable):
         self.branch_name = kwargs.pop("branch", None)
         self.repo_dir = repo_dir
         backup = kwargs.pop("backup", False)
+
+        # Pin git commands to this repository. Without GIT_DIR, git searches
+        # parent directories for a .git directory if ours is missing
+        self.git_env = dict(
+            os.environ,
+            GIT_DIR=os.path.join(os.path.abspath(repo_dir), '.git'),
+            GIT_WORK_TREE=os.path.abspath(repo_dir),
+        )
 
         if self.branch_name is None:
             self.branch_name = self.resolve_default_branch()
@@ -194,7 +202,7 @@ class GitPuller(Configurable):
         yield from self.ensure_lock()
         deleted_files = subprocess.check_output([
             'git', 'ls-files', '--deleted', '-z'
-        ], cwd=self.repo_dir).decode().strip().split('\0')
+        ], cwd=self.repo_dir, env=self.git_env).decode().strip().split('\0')
 
         upstream_deleted = self.find_upstream_changed('D')
         for filename in deleted_files:
@@ -206,18 +214,18 @@ class GitPuller(Configurable):
                 # deleted in _both_, avoid conflict with git 2.40 by checking it out
                 # even though it's just about to be deleted
                 yield from execute_cmd(
-                    ['git', 'checkout', 'HEAD', '--', filename], cwd=self.repo_dir
+                    ['git', 'checkout', 'HEAD', '--', filename], cwd=self.repo_dir, env=self.git_env
                 )
             else:
                 # not deleted in upstream, restore with checkout
-                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir)
+                yield from execute_cmd(['git', 'checkout', 'origin/{}'.format(self.branch_name), '--', filename], cwd=self.repo_dir, env=self.git_env)
 
     def repo_is_dirty(self):
         """
         Return true if repo is dirty
         """
         try:
-            subprocess.check_call(['git', 'diff-files', '--quiet'], cwd=self.repo_dir)
+            subprocess.check_call(['git', 'diff-files', '--quiet'], cwd=self.repo_dir, env=self.git_env)
             # Return code is 0
             return False
         except subprocess.CalledProcessError:
@@ -227,7 +235,7 @@ class GitPuller(Configurable):
         """
         Do a git fetch so our remotes are up to date
         """
-        yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'fetch'], cwd=self.repo_dir, env=self.git_env)
 
     def find_upstream_changed(self, kind):
         """
@@ -236,7 +244,7 @@ class GitPuller(Configurable):
         output = subprocess.check_output([
             'git', 'diff', '..origin/{}'.format(self.branch_name),
             '--name-status'
-        ], cwd=self.repo_dir).decode()
+        ], cwd=self.repo_dir, env=self.git_env).decode()
         files = []
         for line in output.split('\n'):
             if line.startswith(kind):
@@ -305,7 +313,7 @@ class GitPuller(Configurable):
                 'merge',
                 '-Xours', 'origin/{}'.format(self.branch_name)
             ],
-            cwd=self.repo_dir):
+            cwd=self.repo_dir, env=self.git_env):
                 yield line
                 # Detect conflict caused by one branch
                 if line.startswith("CONFLICT (modify/delete)"):
@@ -339,7 +347,7 @@ class GitPuller(Configurable):
             # bogus output?). While ideally that would not happen, allowing empty commits keeps us
             # resilient to that issue.
             '--allow-empty'
-        ], cwd=self.repo_dir)
+        ], cwd=self.repo_dir, env=self.git_env)
 
     def update(self):
         """
@@ -360,7 +368,7 @@ class GitPuller(Configurable):
         # Unstage any changes, otherwise the merge might fail.
         # The following command resets the index, but keeps the working tree.  All changes
         # to files will be preserved, but they are no longer staged for commit.
-        yield from execute_cmd(['git', 'reset', '--mixed'], cwd=self.repo_dir)
+        yield from execute_cmd(['git', 'reset', '--mixed'], cwd=self.repo_dir, env=self.git_env)
 
         # If there are local changes, make a commit so we can do merges when pulling
         if self.repo_is_dirty():
